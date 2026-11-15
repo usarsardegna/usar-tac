@@ -219,6 +219,14 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .gkeys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .gkeys button{height:56px;border-radius:12px;background:var(--panel3);border:1px solid var(--line2);font-size:22px;font-weight:700;font-family:var(--mono)}
 .gkeys button:active{background:var(--amber);color:#1a1205}
+/* PAD 3D + BASE */
+.pad3d{bottom:56px;right:10px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.pad3d .prow{display:flex;gap:5px}
+.pad3d button{width:40px;height:40px;border-radius:10px;background:#0b1220e6;border:1px solid var(--line2);display:grid;place-items:center;color:var(--text);font-weight:800;font-size:17px}
+.pad3d button:hover{border-color:var(--amber)}
+.pad3d button.on{background:var(--amber);color:#1a1205;border-color:var(--amber)}
+.pad3d button.wide{width:auto;padding:0 10px;font-size:11px;gap:6px;display:flex;align-items:center}
+.baseSeg button{padding:0 9px}
 /* MODAL */
 .modal{position:fixed;inset:0;z-index:100;background:#03060cd9;display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:var(--panel);border:1px solid var(--line2);border-radius:14px;width:min(1100px,100%);max-height:94vh;display:flex;flex-direction:column;overflow:hidden}
@@ -414,7 +422,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
             <select class="inp" id="asrSel" onchange="setASR(this.value)">
               <option value="">—</option><option>ASR 2</option><option>ASR 3</option><option>ASR 4</option><option>ASR 5</option>
             </select></div>
-          <div><label class="lb" style="margin-top:0">Lato 1 (fronte)</label><button class="btn full" onclick="cycleSide()"><i data-lucide="rotate-cw"></i><span id="side1Btn">—</span></button></div>
+          <div><label class="lb" style="margin-top:0">Lato 1 (ingresso) · <span id="side1Btn">—</span></label><div class="row" style="gap:4px"><button class="btn sm" style="flex:1" onclick="cycleSide(-1)" title="Antiorario"><i data-lucide="rotate-ccw"></i></button><button class="btn sm amb" style="flex:1" onclick="setTool('side1')" title="Scegli sul disegno"><i data-lucide="flag"></i></button><button class="btn sm" style="flex:1" onclick="cycleSide(1)" title="Orario"><i data-lucide="rotate-cw"></i></button></div></div>
         </div>
         <div class="matrix" id="matrix"></div>
         <div class="legend-row" id="stLegend"></div>
@@ -479,6 +487,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       </div>
       <div class="floors" id="floors"></div>
       <div class="sp"></div>
+      <div class="seg baseSeg" id="baseSeg" title="Sfondo">
+        <button data-base="plastico"><i data-lucide="box"></i><span class="hide-m">Plastico</span></button>
+        <button data-base="sat"><i data-lucide="satellite"></i><span class="hide-m">Satellite</span></button>
+        <button data-base="osm"><i data-lucide="map"></i><span class="hide-m">Stradale</span></button>
+      </div>
       <button class="ibtn" id="bCut" title="Sezione: nasconde i piani sopra quello attivo" onclick="toggleUi('cut')"><i data-lucide="scissors"></i><span class="hide-m">Sezione</span></button>
       <button class="ibtn" id="bExp" title="Esploso piani" onclick="toggleUi('exploded')"><i data-lucide="layers-3"></i><span class="hide-m">Esploso</span></button>
       <button class="ibtn" id="bXray" title="Trasparenza (raggi X)" onclick="toggleUi('xray')"><i data-lucide="scan-eye"></i></button>
@@ -507,6 +520,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="ov mapnote hidden" id="meteoNote">Il widget Windy non si apre in questa anteprima. Funziona nella versione installata · <a id="meteoNoteLnk" target="_blank" rel="noopener" style="color:#ffc35c">apri Windy</a></div>
       <div class="ov mapnote hidden" id="mapNote">Le mappe non si caricano in questa anteprima (rete bloccata). Funzionano nella versione installata.</div>
       <div class="ov mappick hidden" id="mapPick"><span id="mapPickTxt"></span><button class="btn sm pri" onclick="analyzePick()"><i data-lucide="crosshair"></i>Analizza qui</button></div>
+      <div class="ov pad3d" id="pad3d">
+        <div class="prow"><button id="bPan" class="wide" onclick="togglePan()" title="Trascinare per spostare invece che ruotare"><i data-lucide="hand"></i><span>Sposta</span></button></div>
+        <div class="prow"><button onclick="rot3(-1)" title="Ruota a sinistra"><i data-lucide="rotate-ccw"></i></button><button onclick="zoom3(0.75)" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="rot3(1)" title="Ruota a destra"><i data-lucide="rotate-cw"></i></button></div>
+        <div class="prow"><button id="bTop" onclick="topView()" title="Vista dall'alto"><i data-lucide="arrow-down-to-dot"></i></button><button onclick="zoom3(1.33)" title="Allontana"><i data-lucide="minus"></i></button><button onclick="flyToTarget()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
+      </div>
       <div class="ov toolhint" id="toolHint"></div>
       <div id="toast"></div>
       <div id="loading" class="hidden"><div class="spin"></div><p id="loadTxt">Caricamento…</p><button class="btn sm hidden" id="loadCancel" onclick="cancelLoad()"><i data-lucide="x"></i>Annulla</button></div>
@@ -564,16 +582,17 @@ const STYPE = {nd:'Non determinata', ca:'Telaio in C.A.', mur:'Muratura portante
 const DMG = {nd:'Non valutato', none:'Nessun danno visibile', lieve:'Danno lieve', grave:'Danno grave', parz:'Crollo parziale', tot:'Crollo totale'};
 const QUADS = ['A','B','C','D','E'];
 const TOOLS = [
-  ['select','mouse-pointer-2','Seleziona'],
+  ['select','mouse-pointer-2','Seleziona'],['side1','flag','Lato 1'],
   '|','access','hazard','victimL','victimV','victimD','void','shore','cleared','|',
   ['wall','pen-line','Muro'],['footprint','pentagon','Sagoma'],['measure','ruler','Misura'],['erase','eraser','Gomma'],
   '|',['undo','undo-2','Annulla']
 ];
 const HINTS = {
-  select:'Clic su un edificio per renderlo OBIETTIVO · trascina per muovere · rotella/pizzico per zoom',
+  select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
   footprint:'Clic per aggiungere i vertici · clic sul primo punto (o INVIO) per chiudere · ESC annulla',
   measure:'Clic su due punti per misurare la distanza',
+  side1:'Clic sul lato dell\'INGRESSO PRINCIPALE: diventa il Lato 1 e i settori A–D si ricalcolano in senso orario',
   erase:'Clic su una marcatura o un muro per eliminarlo',
   ovmove:'Trascina l\'immagine di ricalco per allinearla alla sagoma',
 };
@@ -589,7 +608,7 @@ function defaultState(){
     overlay:null, recent:[] };
 }
 let S = defaultState();
-const ui = { step:1, view:'3d', theme:'plastico', tool:'select', cut:false, exploded:false, xray:false, isolate:false, ortho:true, selQ:'A' };
+const ui = { base:'plastico', panMode:false, step:1, view:'3d', theme:'plastico', tool:'select', cut:false, exploded:false, xray:false, isolate:false, ortho:true, selQ:'A' };
 let undoStack = [];
 let ovImg = null;
 
@@ -783,7 +802,7 @@ function setTarget(id,silent){
   S.targetId=id; const t=target(); if(!t) return;
   if(t.side1==null) t.side1=autoSide1(t);
   S.floor=0; ui.selQ='A';
-  if(!silent) { toast('Obiettivo: '+t.name); }
+  if(!silent) { toast('Obiettivo: '+t.name); renderAll(); build3D(); flyToTarget(); planFit(); drawPlanLive(); if(map) updateMap(true); save(); if(windyKey&&ui.view==='meteo') showWindy(); return; }
   if(windyKey&&ui.view==='meteo') showWindy();
   refreshAll(true);
 }
@@ -926,8 +945,12 @@ function renderTarget(){
       <div><label class="lb">Struttura</label><select class="inp" onchange="setB('stype',this.value)">${Object.entries(STYPE).map(([k,v])=>`<option value="${k}" ${t.stype===k?'selected':''}>${v}</option>`).join('')}</select></div>
       <div><label class="lb">Stato / danno</label><select class="inp" onchange="setB('damage',this.value)">${Object.entries(DMG).map(([k,v])=>`<option value="${k}" ${t.damage===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
-    <div class="side1"><span class="n">1</span><div><b>Lato 1 · fronte</b> esposto a <b>${bearingName(s1.nx,s1.nz)}</b><br><small>Numerazione lati e settori A–D in senso orario</small></div>
-      <button class="btn sm" onclick="cycleSide()"><i data-lucide="rotate-cw"></i>Ruota</button></div>
+    <div class="side1"><span class="n">1</span><div><b>Lato 1 · ingresso</b> esposto a <b>${bearingName(s1.nx,s1.nz)}</b><br><small>${t.side1Manual?'Impostato dall\'operatore':'Automatico (lato verso strada): verifica!'}</small></div></div>
+    <div class="grid3" style="margin-top:6px">
+      <button class="btn sm" onclick="cycleSide(-1)" title="Ruota antiorario"><i data-lucide="rotate-ccw"></i>Antiorario</button>
+      <button class="btn sm amb" onclick="setTool('side1')" title="Clicca il lato d'ingresso sul disegno"><i data-lucide="flag"></i>Scegli</button>
+      <button class="btn sm" onclick="cycleSide(1)" title="Ruota orario"><i data-lucide="rotate-cw"></i>Orario</button>
+    </div>
     ${t.src==='manual'?`<button class="btn sm full" style="margin-top:8px;color:#ff8a80" onclick="deleteManual()"><i data-lucide="trash-2"></i>Elimina sagoma manuale</button>`:''}`;
   icons();
 }
@@ -940,7 +963,11 @@ function adj(k,d){
   refreshAll(false);
 }
 function setB(k,v){ const t=target(); if(!t) return; t[k]=v; save(); }
-function cycleSide(){ const t=target(); if(!t) return; pushUndo(); t.side1=((t.side1||0)+1)%4; refreshAll(false); toast('Lato 1 esposto a '+bearingName(quadGeom(t).sides[0].nx,quadGeom(t).sides[0].nz)); }
+function cycleSide(d=1){ const t=target(); if(!t) return; setSide1((((t.side1||0)+d)%4+4)%4); }
+function setSide1(k){ const t=target(); if(!t) return; pushUndo(); t.side1=k; t.side1Manual=true; refreshAll(false);
+  const g=quadGeom(t).sides[0]; toast(`Lato 1 (ingresso) esposto a ${bearingName(g.nx,g.nz)} · settori A–D ricalcolati`); }
+function nearestSide(p){ const t=target(); if(!t||!t.obb) return null; const P=t.obb.P; let best=0,bd=1e9;
+  for(let k=0;k<4;k++){ const d=distSeg(p,P[k],P[(k+1)%4]); if(d<bd){bd=d;best=k;} } return best; }
 function deleteManual(){ const t=target(); if(!t||t.src!=='manual') return; pushUndo(); S.buildings=S.buildings.filter(b=>b!==t); S.targetId=null; chooseTarget(); refreshAll(true); }
 
 function renderFloors(){
@@ -960,7 +987,7 @@ function renderSectors(){
   // riepilogo
   let tot=0,cl=0; floorsOf(t).forEach(f=>QUADS.forEach(q=>{tot++; if(sec(f,q).st==='clear') cl++;}));
   $('#secSum').textContent=`${cl}/${tot} bonificati`;
-  if(t){ const g=quadGeom(t); $('#side1Btn').textContent='esposto a '+bearingName(g.sides[0].nx,g.sides[0].nz); }
+  if(t){ const g=quadGeom(t); $('#side1Btn').textContent=bearingName(g.sides[0].nx,g.sides[0].nz); }
   const s=sec(S.floor,ui.selQ);
   $('#secEditor').innerHTML=`<h3><i data-lucide="square-pen"></i>${floorLong(S.floor)} · Settore ${ui.selQ}</h3>
     <div class="stbtns">${Object.entries(ST).map(([k,v])=>`<button class="${s.st===k?'on':''}" style="background:${v.color}" onclick="setSt('${k}')">${v.label}</button>`).join('')}</div>
@@ -1023,6 +1050,7 @@ function setView(v){
   $('#three').classList.toggle('hidden',v!=='3d'); $('#plan').classList.toggle('hidden',v!=='plan'); $('#mapview').classList.toggle('hidden',v!=='map'); $('#meteoview').classList.toggle('hidden',v!=='meteo');
   $('#mapCtl').classList.toggle('hidden',v!=='map'); $('#compass').classList.toggle('hidden',v==='map'||v==='meteo'); $('#windChip').classList.toggle('hidden',v==='map'||v==='meteo'||!S.wx);
   $('#meteoNote').classList.add('hidden'); if(v==='meteo') showWindy();
+  $('#pad3d').classList.toggle('hidden',v!=='3d');
   if(v!=='map'){ $('#mapPick').classList.add('hidden'); $('#mapNote').classList.add('hidden'); }
   if(v==='3d'){ resize3D(); needs3D=true; }
   if(v==='plan'){ planResize(); }
@@ -1078,17 +1106,20 @@ function drawPlan(g,W,H,V,opt={}){
   g.lineWidth=1;
   for(let x=x0;x<V.cx+W/2/V.s;x+=step){ const [sx]=T(x,0); g.strokeStyle=Math.round(x/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(Math.round(sx)+.5,0); g.lineTo(Math.round(sx)+.5,H); g.stroke(); }
   for(let z=z0;z<V.cz+H/2/V.s;z+=step){ const [,sy]=T(0,z); g.strokeStyle=Math.round(z/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(0,Math.round(sy)+.5); g.lineTo(W,Math.round(sy)+.5); g.stroke(); }
+  // sfondo satellite / stradale
+  const onImg=ui.base!=='plastico'&&!opt.noBase;
+  if(onImg) drawTiles2D(g,T,V);
   // strade
   g.lineCap='round'; g.lineJoin='round'; g.strokeStyle=C.road;
-  S.roads.forEach(r=>{ const w={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2}[r.kind]||6;
+  if(!onImg) S.roads.forEach(r=>{ const w={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2}[r.kind]||6;
     g.lineWidth=Math.max(1.5,w*V.s); g.beginPath(); r.pts.forEach((p,i)=>{const [x,y]=T(p.x,p.z); i?g.lineTo(x,y):g.moveTo(x,y);}); g.stroke(); });
   // edifici di contesto
   if(!ui.isolate||opt.print){
     g.save(); g.shadowColor=C.shadow; g.shadowBlur=0;
     S.buildings.forEach(b=>{ if(t&&b.id===t.id) return; const k=Math.min(10,bHeight(b)*V.s*0.08); g.shadowOffsetX=k; g.shadowOffsetY=k;
-      pathPoly(g,b.pts,T); g.fillStyle=C.bFill; g.fill(); });
+      pathPoly(g,b.pts,T); g.fillStyle=onImg?'rgba(255,255,255,.22)':C.bFill; if(onImg){ g.shadowOffsetX=0; g.shadowOffsetY=0; } g.fill(); });
     g.restore();
-    g.lineWidth=1.1; g.strokeStyle=C.bStroke;
+    g.lineWidth=onImg?1.4:1.1; g.strokeStyle=onImg?'rgba(255,255,255,.9)':C.bStroke;
     S.buildings.forEach(b=>{ if(t&&b.id===t.id) return; pathPoly(g,b.pts,T); g.stroke(); });
   }
   // immagine di ricalco
@@ -1099,7 +1130,7 @@ function drawPlan(g,W,H,V,opt={}){
   if(t){
     const Q=quadGeom(t);
     // sagoma obiettivo + stato settori
-    pathPoly(g,t.pts,T); g.fillStyle=C.tFill; g.fill();
+    pathPoly(g,t.pts,T); g.fillStyle=onImg?'rgba(225,37,27,.18)':C.tFill; g.fill();
     g.save(); pathPoly(g,t.pts,T); g.clip();
     Q.quads.forEach(q=>{ const s=sec(f,q.q); if(s.st!=='todo'||(opt.live&&q.q===ui.selQ&&ui.step===3)){ pathPoly(g,q.poly,T); g.fillStyle=hexA(ST[s.st].color,s.st==='todo'?0.10:0.30); g.fill(); } });
     g.restore();
@@ -1109,11 +1140,12 @@ function drawPlan(g,W,H,V,opt={}){
       g.lineCap='butt'; g.lineWidth=Math.max(2.5,0.25*V.s); g.strokeStyle=w.floor===f?'#7c3aed':hexA('#7c3aed',0.18); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); });
     pathPoly(g,t.pts,T); g.lineWidth=3; g.strokeStyle=C.tStroke; g.lineJoin='miter'; g.stroke();
     // quote lati
-    const ori=signedArea(t.pts)>0?1:-1; g.font=`700 ${Math.max(9,Math.min(12,V.s*0.9))}px "JetBrains Mono",monospace`; g.fillStyle=C.ink; g.textAlign='center'; g.textBaseline='middle';
+    const ori=signedArea(t.pts)>0?1:-1; g.font=`700 ${Math.max(9,Math.min(12,V.s*0.9))}px "JetBrains Mono",monospace`; g.fillStyle=onImg?'#fff':C.ink; g.textAlign='center'; g.textBaseline='middle'; if(onImg){ g.shadowColor='#000'; g.shadowBlur=4; }
     for(let i=0;i<t.pts.length;i++){ const p=t.pts[i], q=t.pts[(i+1)%t.pts.length]; const L=Math.hypot(q.x-p.x,q.z-p.z); if(L*V.s<38) continue;
       const dx=(q.x-p.x)/L, dz=(q.z-p.z)/L; const nx=ori*dz, nz=-ori*dx; const m=mid(p,q); const [sx,sy]=T(m.x,m.z);
       let ang=Math.atan2(dz,dx); if(ang>Math.PI/2) ang-=Math.PI; if(ang<-Math.PI/2) ang+=Math.PI;
       g.save(); g.translate(sx+nx*13,sy+nz*13); g.rotate(ang); g.fillText(L.toFixed(2)+' m',0,0); g.restore(); }
+    g.shadowBlur=0; g.shadowColor='transparent';
     // assi settori
     const o=Q.o; g.save(); g.setLineDash([7,5]); g.lineWidth=1.4; g.strokeStyle='#e1251b';
     [[o.u,o.hu],[o.v,o.hv]].forEach(([d,h])=>{ const a=T(o.c.x-d.x*(h+1.5),o.c.z-d.z*(h+1.5)), b=T(o.c.x+d.x*(h+1.5),o.c.z+d.z*(h+1.5)); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); });
@@ -1148,6 +1180,9 @@ function drawPlan(g,W,H,V,opt={}){
     if(plan.measure.length){ const a=plan.measure[0], b=plan.measure[1]||plan.hover; if(b){ const [p,q]=[T(a.x,a.z),T(b.x,b.z)]; g.lineWidth=2; g.strokeStyle='#f59e0b'; g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke();
       label(g,(p[0]+q[0])/2,(p[1]+q[1])/2-14,Math.hypot(b.x-a.x,b.z-a.z).toFixed(2)+' m','#b45309'); }
       const [x,y]=T(a.x,a.z); g.beginPath(); g.arc(x,y,5,0,7); g.fillStyle='#f59e0b'; g.fill(); }
+    if(ui.tool==='side1'&&plan.hoverSide!=null&&t&&t.obb){ const P=t.obb.P, k=plan.hoverSide; const [a,b]=[T(P[k].x,P[k].z),T(P[(k+1)%4].x,P[(k+1)%4].z)];
+      g.save(); g.lineWidth=8; g.strokeStyle='rgba(245,165,36,.85)'; g.lineCap='round'; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); g.restore();
+      label(g,(a[0]+b[0])/2,(a[1]+b[1])/2-18,'LATO 1 = INGRESSO?','#b45309'); }
     if(plan.snap){ const [x,y]=T(plan.snap.x,plan.snap.z); g.beginPath(); g.arc(x,y,7,0,7); g.lineWidth=2; g.strokeStyle='#22c55e'; g.stroke(); }
   }
   // scala grafica
@@ -1190,6 +1225,7 @@ plan.cv.addEventListener('pointermove',e=>{
     else if(D.mode==='ov'){ S.overlay.dx=D.ox+(px-D.px)/plan.s; S.overlay.dz=D.oz+(py-D.py)/plan.s; }
     else if(D.moved){ plan.cx=D.cx-(px-D.px)/plan.s; plan.cz=D.cz-(py-D.py)/plan.s; }
     drawPlanLive(); return; }
+  if(ui.tool==='side1'){ plan.hoverSide=nearestSide(w); drawPlanLive(); return; }
   if(ui.tool==='footprint'||ui.tool==='measure'||ui.tool==='wall'){ plan.hover=ui.tool==='footprint'?snapPoint(w,plan.fp.at(-1)):(ui.tool==='wall'?(snapPoint(w),w):w); drawPlanLive(); }
 });
 function endPtr(e){
@@ -1213,6 +1249,7 @@ function planClick(w,px,py){
   if(tool==='footprint'){
     if(plan.fp.length>=3){ const [fx,fy]=w2s(plan,plan.w,plan.h)(plan.fp[0].x,plan.fp[0].z); if(Math.hypot(fx-px,fy-py)<14){ closeFootprint(); return; } }
     plan.fp.push(snapPoint(w,plan.fp.at(-1))); drawPlanLive(); return; }
+  if(tool==='side1'){ if(!t){ toast('Nessun obiettivo'); return; } const k=nearestSide(w); setSide1(k); setTool('select'); return; }
   if(tool==='measure'){ if(plan.measure.length>=2) plan.measure=[]; plan.measure.push(w); if(plan.measure.length===2) toast('Distanza: '+Math.hypot(plan.measure[1].x-plan.measure[0].x,plan.measure[1].z-plan.measure[0].z).toFixed(2)+' m'); drawPlanLive(); return; }
   if(tool==='erase'){
     let bm=null,bd=16/plan.s; S.markers.filter(m=>m.floor===S.floor).forEach(m=>{const d=Math.hypot(m.x-w.x,m.z-w.z); if(d<bd){bd=d;bm=m;}});
@@ -1274,9 +1311,22 @@ function resize3D(){ if(!renderer) return; const r=$('#stage').getBoundingClient
 function updCam(){ if(!camera) return; const {r,th,ph,t}=cam; camera.position.set(t.x+r*Math.sin(ph)*Math.cos(th), t.y+r*Math.cos(ph), t.z+r*Math.sin(ph)*Math.sin(th)); camera.lookAt(t); needs3D=true; updateCompass(); }
 function updateCompass(){ const g=$('#compRot'); if(!g) return; const a=ui.view==='3d'?-(Math.atan2(-Math.cos(cam.th),Math.sin(cam.th))*180/Math.PI):0; g.setAttribute('transform',`rotate(${a} 20 20)`);
   const w=$('#windRot'); if(S.wx&&S.wx.cur){ w.style.display=''; w.setAttribute('transform',`rotate(${a+S.wx.cur.dir+180} 20 20)`); } else w.style.display='none'; }
-function loop(){ requestAnimationFrame(loop); if(needs3D&&ui.view==='3d'&&renderer){ renderer.render(scene,camera); needs3D=false; } }
-function fit3D(){ if(!camera) return; const t=target(); const size=t?Math.max(t.obb.hu,t.obb.hv)*2:60; const H=t?bHeight(t)+(ui.exploded?t.levels*3:0):10;
-  if(t) cam.t.set(t.c.x,H*0.3,t.c.z); else cam.t.set(0,0,0); cam.r=Math.max(45,size*2.6+H*1.4); cam.ph=0.95; cam.th=Math.PI/4; updCam(); }
+function loop(){ requestAnimationFrame(loop);
+  if(cam.anim){ const a=cam.anim; let k=Math.min(1,(performance.now()-a.t0)/550); const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    cam.r=a.r0+(a.r1-a.r0)*e; cam.th=a.th0+(a.th1-a.th0)*e; cam.ph=a.ph0+(a.ph1-a.ph0)*e; cam.t.lerpVectors(a.t0v,a.t1v,e); updCam(); if(k>=1) cam.anim=null; }
+  if(needs3D&&ui.view==='3d'&&renderer){ renderer.render(scene,camera); needs3D=false; } }
+function animCam(to){ if(!camera) return; const th1=to.th??cam.th; let dth=th1-cam.th; dth=Math.atan2(Math.sin(dth),Math.cos(dth));
+  cam.anim={t0:performance.now(),r0:cam.r,r1:to.r??cam.r,th0:cam.th,th1:cam.th+dth,ph0:cam.ph,ph1:to.ph??cam.ph,t0v:cam.t.clone(),t1v:to.t?to.t.clone():cam.t.clone()}; }
+function targetView(){ const t=target(); const size=t?Math.max(t.obb.hu,t.obb.hv)*2:60; const H=t?bHeight(t)+(ui.exploded?t.levels*3:0):10;
+  return {t:new THREE.Vector3(t?t.c.x:0,t?H*0.35:0,t?t.c.z:0), r:Math.max(40,size*2.4+H*1.3)}; }
+function flyToTarget(){ if(!camera) return; const v=targetView(); animCam({t:v.t,r:v.r,ph:cam.ph<0.3?cam.ph:0.95}); }
+function rot3(d){ animCam({th:cam.th+d*Math.PI/4}); }
+function zoom3(k){ animCam({r:Math.max(12,Math.min(900,cam.r*k))}); }
+function topView(){ const top=cam.ph>0.3; $('#bTop').classList.toggle('on',top); animCam({ph:top?0.06:0.95}); }
+function togglePan(){ ui.panMode=!ui.panMode; $('#bPan').classList.toggle('on',ui.panMode); toast(ui.panMode?'Trascina per SPOSTARE la vista':'Trascina per RUOTARE la vista'); }
+function fit3D(animate){ if(!camera) return; const v=targetView();
+  if(animate&&cam.t.lengthSq()>0){ animCam({t:v.t,r:v.r,ph:0.95}); return; }
+  cam.anim=null; cam.t.copy(v.t); cam.r=v.r; cam.ph=0.95; cam.th=Math.PI/4; updCam(); }
 function disposeGroup(g){ g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(m.map&&!m.map.userData.cached) m.map.dispose(); m.dispose(); }); } }); while(g.children.length) g.remove(g.children[0]); }
 function shapeOf(pts){ const s=new THREE.Shape(); pts.forEach((p,i)=>i?s.lineTo(p.x,-p.z):s.moveTo(p.x,-p.z)); s.closePath(); return s; }
 function extrude(pts,h){ const g=new THREE.ExtrudeGeometry(shapeOf(pts),{depth:h,bevelEnabled:false}); g.rotateX(-Math.PI/2); return g; }
@@ -1293,13 +1343,16 @@ function build3D(){
   scene.background=new THREE.Color(C.bg3);
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshStandardMaterial({color:C.ground,roughness:1,transparent:!!(t&&t.basement),opacity:t&&t.basement?0.82:1}));
   ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; ground.userData.ground=true; world.add(ground); clickables.push(ground);
+  // sfondo satellite / stradale
+  if(ui.base!=='plastico') addTiles3D(); else {
   // strade come nastri
   const roadMat=new THREE.MeshStandardMaterial({color:C.road3,roughness:1});
   S.roads.forEach(r=>{ const w={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2}[r.kind]||6;
     for(let i=0;i<r.pts.length-1;i++){ const a=r.pts[i],b=r.pts[i+1]; const L=Math.hypot(b.x-a.x,b.z-a.z); if(L<0.1) continue;
-      const m=new THREE.Mesh(new THREE.PlaneGeometry(L+w*0.5,w),roadMat); m.rotation.x=-Math.PI/2; m.rotation.z=-Math.atan2(b.z-a.z,b.x-a.x); m.position.set((a.x+b.x)/2,0.02,(a.z+b.z)/2); m.receiveShadow=true; world.add(m); } });
+      const m=new THREE.Mesh(new THREE.PlaneGeometry(L+w*0.5,w),roadMat); m.rotation.x=-Math.PI/2; m.rotation.z=-Math.atan2(b.z-a.z,b.x-a.x); m.position.set((a.x+b.x)/2,0.02,(a.z+b.z)/2); m.receiveShadow=true; world.add(m); } }); }
   // contesto
-  const bMat=new THREE.MeshStandardMaterial({color:C.b3,roughness:0.85,metalness:0}); const eMat=new THREE.LineBasicMaterial({color:C.edge3,transparent:true,opacity:0.75});
+  const onImg=ui.base!=='plastico';
+  const bMat=new THREE.MeshStandardMaterial({color:onImg?0xffffff:C.b3,roughness:0.85,metalness:0,transparent:onImg,opacity:onImg?0.38:1,depthWrite:!onImg}); const eMat=new THREE.LineBasicMaterial({color:onImg?0xffffff:C.edge3,transparent:true,opacity:onImg?0.9:0.75});
   if(!ui.isolate) S.buildings.forEach(b=>{ if(t&&b.id===t.id) return; const geo=extrude(b.pts,bHeight(b)); const m=new THREE.Mesh(geo,bMat); m.castShadow=true; m.receiveShadow=true; m.userData.bid=b.id; world.add(m); clickables.push(m);
     world.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),eMat)); });
   if(t){
@@ -1340,7 +1393,7 @@ function bind3D(dom){
   dom.addEventListener('contextmenu',e=>e.preventDefault());
   dom.addEventListener('pointerdown',e=>{ dom.setPointerCapture(e.pointerId); P3.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(P3.size===2){ const [a,b]=[...P3.values()]; pin3={d:Math.hypot(a.x-b.x,a.y-b.y),r:cam.r,mx:(a.x+b.x)/2,my:(a.y+b.y)/2}; d3=null; }
-    else d3={x:e.clientX,y:e.clientY,moved:false,pan:e.button===2||e.shiftKey||e.button===1}; });
+    else { cam.anim=null; d3={x:e.clientX,y:e.clientY,moved:false,pan:ui.panMode||e.button===2||e.shiftKey||e.button===1}; } });
   dom.addEventListener('pointermove',e=>{ if(!P3.has(e.pointerId)) return; const prev=P3.get(e.pointerId); P3.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(pin3&&P3.size===2){ const [a,b]=[...P3.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); cam.r=Math.max(12,Math.min(900,pin3.r*pin3.d/d));
       const mx=(a.x+b.x)/2,my=(a.y+b.y)/2; pan3(mx-pin3.mx,my-pin3.my); pin3.mx=mx; pin3.my=my; updCam(); return; }
@@ -1348,14 +1401,19 @@ function bind3D(dom){
     if(d3.pan) pan3(dx,dy); else { cam.th+=dx*0.008; cam.ph=Math.max(0.12,Math.min(1.52,cam.ph-dy*0.008)); } updCam(); });
   const up=e=>{ const was=d3; P3.delete(e.pointerId); if(P3.size<2) pin3=null; if(was&&!was.moved&&e.type==='pointerup') click3D(e); if(!P3.size) d3=null; };
   dom.addEventListener('pointerup',up); dom.addEventListener('pointercancel',up);
-  dom.addEventListener('wheel',e=>{ e.preventDefault(); cam.r=Math.max(12,Math.min(900,cam.r*Math.exp(e.deltaY*0.0012))); updCam(); },{passive:false});
+  dom.addEventListener('dblclick',e=>{ const h=hit3D(e); if(!h) return; const ud=h.object.userData;
+    if(ud.bid&&ud.bid!==S.targetId&&!ud.target){ setTarget(ud.bid); return; }
+    animCam({t:new THREE.Vector3(h.point.x,Math.max(0,h.point.y*0.5),h.point.z),r:Math.max(25,cam.r*0.7)}); });
+  dom.addEventListener('wheel',e=>{ e.preventDefault(); cam.anim=null; cam.r=Math.max(12,Math.min(900,cam.r*Math.exp(e.deltaY*0.0012))); updCam(); },{passive:false});
 }
 function pan3(dx,dy){ const k=cam.r*0.0016; const fx=-Math.cos(cam.th), fz=-Math.sin(cam.th); const rx=-fz, rz=fx; cam.t.x+=(-dx*rx+dy*fx)*k; cam.t.z+=(-dx*rz+dy*fz)*k; }
+function hit3D(e){ const r=renderer.domElement.getBoundingClientRect(); const v=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  const rc=new THREE.Raycaster(); rc.setFromCamera(v,camera); return rc.intersectObjects(clickables)[0]; }
 function click3D(e){
-  const r=renderer.domElement.getBoundingClientRect(); const v=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
-  const rc=new THREE.Raycaster(); rc.setFromCamera(v,camera); const hit=rc.intersectObjects(clickables)[0]; if(!hit) return;
+  const hit=hit3D(e); if(!hit) return;
   const ud=hit.object.userData;
   if(MT[ui.tool]){ addMarker(ui.tool,hit.point.x,hit.point.z); return; }
+  if(ui.tool==='side1'){ const k=nearestSide({x:hit.point.x,z:hit.point.z}); if(k!=null){ setSide1(k); setTool('select'); } return; }
   if(ui.tool==='select'){
     if(ud.target&&ud.floor!=null){ if(ud.floor!==S.floor){ setFloor(ud.floor); toast(floorLong(ud.floor)); } return; }
     if(ud.bid&&ud.bid!==S.targetId) setTarget(ud.bid);
@@ -1367,6 +1425,42 @@ function snapshot3D(w,h,cb){
   let url=null; if(cb) cb(renderer.domElement); else url=renderer.domElement.toDataURL('image/png');
   renderer.setSize(old.x,old.y,true); camera.aspect=oa; camera.updateProjectionMatrix(); needs3D=true; return url;
 }
+
+/* =====================================================================
+   SFONDI A MATTONELLE (satellite Esri / stradale OSM) per 3D e pianta
+   ===================================================================== */
+const TILE_SRC={sat:{url:(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`,max:19},
+                osm:{url:(z,x,y)=>`https://tile.openstreetmap.org/${z}/${x}/${y}.png`,max:19}};
+const tileCache=new Map(); let tileFail=0;
+const lng2t=(lng,z)=>(lng+180)/360*2**z, lat2t=(lat,z)=>(1-Math.log(Math.tan(lat*Math.PI/180)+1/Math.cos(lat*Math.PI/180))/Math.PI)/2*2**z;
+const t2lng=(x,z)=>x/2**z*360-180, t2lat=(y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*y/2**z)))*180/Math.PI;
+function tileList(){
+  const R=S.radius+90, z=R>170?18:19; const c=S.center; const dLat=R/111320, dLng=R/(111320*Math.cos(c.lat*Math.PI/180));
+  const x0=Math.floor(lng2t(c.lng-dLng,z)), x1=Math.floor(lng2t(c.lng+dLng,z)), y0=Math.floor(lat2t(c.lat+dLat,z)), y1=Math.floor(lat2t(c.lat-dLat,z));
+  const out=[]; for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++){ const a=toLocal(t2lat(y,z),t2lng(x,z)), b=toLocal(t2lat(y+1,z),t2lng(x+1,z)); out.push({z,x,y,x0:a.x,z0:a.z,x1:b.x,z1:b.z}); }
+  return out;
+}
+function getTile(base,t,onload){
+  const key=`${base}/${t.z}/${t.x}/${t.y}`; let e=tileCache.get(key);
+  if(!e){ e={img:new Image(),ok:false,cbs:[]}; tileCache.set(key,e); e.img.crossOrigin='anonymous';
+    e.img.onload=()=>{ e.ok=true; e.cbs.forEach(f=>f(e)); e.cbs=[]; drawPlanLive(); };
+    e.img.onerror=()=>{ tileFail++; if(tileFail===4) toast('Sfondo '+(base==='sat'?'satellite':'stradale')+' non disponibile qui: uso il plastico'); };
+    e.img.src=TILE_SRC[base].url(t.z,t.x,t.y); }
+  if(onload){ if(e.ok) onload(e); else e.cbs.push(onload); }
+  return e;
+}
+function addTiles3D(){
+  tileList().forEach(t=>{
+    const mat=new THREE.MeshBasicMaterial({color:0x9aa3b2});
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(t.x1-t.x0,t.z1-t.z0),mat); m.rotation.x=-Math.PI/2; m.position.set((t.x0+t.x1)/2,0.01,(t.z0+t.z1)/2); m.userData.ground=true; world.add(m); clickables.push(m);
+    getTile(ui.base,t,e=>{ if(!e.tex){ e.tex=new THREE.Texture(e.img); e.tex.userData.cached=true; e.tex.needsUpdate=true; if(renderer) e.tex.anisotropy=renderer.capabilities.getMaxAnisotropy(); } mat.map=e.tex; mat.color.set(0xffffff); mat.needsUpdate=true; needs3D=true; });
+  });
+}
+function drawTiles2D(g,T,V){
+  g.save(); tileList().forEach(t=>{ const e=getTile(ui.base,t); if(!e.ok) return; const [a,b]=[T(t.x0,t.z0),T(t.x1,t.z1)]; g.drawImage(e.img,a[0],a[1],b[0]-a[0]+0.5,b[1]-a[1]+0.5); });
+  g.fillStyle='rgba(0,0,0,.12)'; g.fillRect(-5,-5,1e5,1e5); g.restore();
+}
+function setBase(b){ ui.base=b; tileFail=0; try{localStorage.setItem(LS_KEY+'_base',b);}catch(e){} $$('#baseSeg button').forEach(x=>x.classList.toggle('on',x.dataset.base===b)); build3D(); drawPlanLive(); if(map){ $$('#mapCtl [data-b]').forEach(x=>{ if(x.dataset.b===(b==='sat'?'sat':'osm')) x.click(); }); } }
 
 /* =====================================================================
    MAPPA (Leaflet) + CATASTO AdE (WMS)
@@ -1416,7 +1510,7 @@ function buildTavola(){
   let rx=Wc-mx;
   g.font='600 20px Inter'; g.textAlign='right'; g.fillText((S.meta.team||'')+' · '+nowStr(),rx,42); g.textAlign='left';
   // pianta
-  const K=1.7, V=fitView(pw/K,ph/K,1.5); g.save(); g.translate(mx,top); g.beginPath(); g.rect(0,0,pw,ph); g.clip(); g.scale(K,K); drawPlan(g,pw/K,ph/K,V,{print:true,theme:'plastico'}); g.restore();
+  const K=1.7, V=fitView(pw/K,ph/K,1.5); g.save(); g.translate(mx,top); g.beginPath(); g.rect(0,0,pw,ph); g.clip(); g.scale(K,K); drawPlan(g,pw/K,ph/K,V,{print:true,theme:'plastico',noBase:ui.base==='plastico'}); g.restore();
   g.lineWidth=3; g.strokeStyle='#0f172a'; g.strokeRect(mx,top,pw,ph);
   g.fillStyle='#0f172a'; g.fillRect(mx,top,330,40); g.fillStyle='#fff'; g.font='800 18px "JetBrains Mono"'; g.fillText('PIANTA · '+floorLong(S.floor).toUpperCase(),mx+14,top+21);
   // nord
@@ -1449,14 +1543,16 @@ function buildTavola(){
 function wrap(g,txt,x,y,w,lh,max){ const words=txt.split(' '); let line='',n=0; for(const wd of words){ const tl=line?line+' '+wd:wd; if(g.measureText(tl).width>w&&line){ g.fillText(line,x,y); y+=lh; line=wd; if(++n>=max-1){ break; } } else line=tl; } g.fillText(line,x,y); }
 function exportTavola(){
   if(!target()){ toast('Nessun edificio obiettivo'); return; }
-  const {canvas}=buildTavola(); const url=canvas.toDataURL('image/png'); const name=`USAR_TAVOLA_${(S.cad.foglio?'F'+S.cad.foglio+'_P'+S.cad.particella:'obiettivo')}_${new Date().toISOString().slice(0,16).replace(/[:T]/g,'')}.png`;
+  let url; try{ url=buildTavola().canvas.toDataURL('image/png'); }catch(e){ const b=ui.base; ui.base='plastico'; url=buildTavola().canvas.toDataURL('image/png'); ui.base=b; build3D(); }
+  const name=`USAR_TAVOLA_${(S.cad.foglio?'F'+S.cad.foglio+'_P'+S.cad.particella:'obiettivo')}_${new Date().toISOString().slice(0,16).replace(/[:T]/g,'')}.png`;
   window._tav={url,name};
   openModal('Tavola operativa',`<img src="${url}" alt="Tavola">`,`<button class="btn pri sm" onclick="dl(window._tav.url,window._tav.name)"><i data-lucide="download"></i>Scarica PNG</button>`);
 }
 function dl(url,name){ try{ const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); toast('Download avviato · se non parte, tieni premuto sull\'immagine e salva'); }catch(e){ toast('Download non disponibile: tieni premuto sull\'immagine'); } }
 function openReport(){
   const t=target(); if(!t){ toast('Nessun edificio obiettivo'); return; }
-  const {canvas}=buildTavola(); const tav=canvas.toDataURL('image/png'); const img3=snapshot3D(1400,900);
+  let tav; try{ tav=buildTavola().canvas.toDataURL('image/png'); }catch(e){ const b=ui.base; ui.base='plastico'; tav=buildTavola().canvas.toDataURL('image/png'); ui.base=b; build3D(); }
+  let img3=null; try{ img3=snapshot3D(1400,900); }catch(e){}
   const ll=toLatLng(t.c.x,t.c.z); const fls=floorsOf(t).slice().reverse();
   const secRows=fls.map(f=>`<tr><td><b>${floorLong(f)}</b></td>${QUADS.map(q=>{const s=sec(f,q); return `<td style="background:${hexA(ST[s.st].color,0.18)}">${ST[s.st].full}${s.sq?'<br><b>'+esc(s.sq)+'</b>':''}${s.note?'<br><i>'+esc(s.note)+'</i>':''}</td>`;}).join('')}</tr>`).join('');
   const mRows=S.markers.slice().sort((a,b)=>b.floor-a.floor).map(m=>{const p=toLatLng(m.x,m.z); return `<tr><td><b>${MT[m.type].code}${m.n}</b></td><td>${MT[m.type].label}</td><td>${floorLong(m.floor)}</td><td>${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</td><td>${esc(m.note||'')}</td><td>${new Date(m.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;}).join('')||'<tr><td colspan="6">Nessuna marcatura</td></tr>';
@@ -1618,7 +1714,8 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='1') setView('3d'); else if(e.key==='2') setView('plan'); else if(e.key==='3') setView('map');
 });
 setInterval(()=>{$('#clock').textContent=hhmm();},10000); $('#clock').textContent=hhmm();
-try{ ui.theme=localStorage.getItem(LS_KEY+'_theme')||'plastico'; }catch(e){}
+try{ ui.theme=localStorage.getItem(LS_KEY+'_theme')||'plastico'; ui.base=localStorage.getItem(LS_KEY+'_base')||'plastico'; }catch(e){}
+$$('#baseSeg button').forEach(b=>{ b.onclick=()=>setBase(b.dataset.base); b.classList.toggle('on',b.dataset.base===ui.base); });
 renderTools(); icons(); init3D(); planResize();
 const restored=restore();
 fillInputs(); loadOvFromState(); loadLogos(); gateCheck();
