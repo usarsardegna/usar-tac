@@ -712,15 +712,25 @@ async function goTo(lat,lng,label){
   $('#q').value=label.startsWith('Coord')?`${lat.toFixed(6)}, ${lng.toFixed(6)}`:label;
   await loadArea();
 }
-const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
+const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+let osmErrors=[];
 async function loadArea(){
   const {lat,lng}=S.center, R=S.radius;
-  const query=`[out:json][timeout:25];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng}););out tags geom;`;
+  const query=`[out:json][timeout:25];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng}););out body geom;`;
   loading(true,`Estrazione edifici reali entro ${R} m…`);
-  let data=null;
+  let data=null; osmErrors=[];
   for(const url of OVERPASS){
-    try{ data=await fetchJSON(url,{method:'POST',body:'data='+encodeURIComponent(query),headers:{'Content-Type':'application/x-www-form-urlencoded'}},18000); break; }
-    catch(e){ console.warn('Overpass',url,e.message); }
+    const host=url.split('/')[2];
+    $('#loadTxt').textContent=`Estrazione edifici reali entro ${R} m… (${host})`;
+    try{
+      const c=new AbortController(); const tm=setTimeout(()=>c.abort(),25000);
+      const r=await fetch(url+'?data='+encodeURIComponent(query),{signal:c.signal}); clearTimeout(tm);
+      const txt=await r.text();
+      if(!r.ok){ osmErrors.push(`${host}: HTTP ${r.status}${r.status===429?' (troppe richieste)':r.status===504?' (server occupato)':''}`); continue; }
+      try{ data=JSON.parse(txt); }catch(_){ const m=txt.match(/<strong[^>]*>([^<]+)<\/strong>\s*([^<]*)/); osmErrors.push(`${host}: risposta non valida ${m?'– '+m[1]+' '+m[2]:''}`.slice(0,160)); continue; }
+      if(data.remark&&!(data.elements||[]).length){ osmErrors.push(`${host}: ${data.remark}`.slice(0,160)); data=null; continue; }
+      break;
+    }catch(e){ osmErrors.push(`${host}: ${e.name==='AbortError'?'nessuna risposta in 25 s':'connessione rifiutata ('+e.message+')'}`); }
   }
   loading(false);
   if(data){
@@ -729,8 +739,8 @@ async function loadArea(){
     S.source='osm'; toast(`${S.buildings.length} edifici reali estratti da OpenStreetMap`);
     reverseLabel();
   } else {
-    loadDemo(); S.source='demo';
-    toast('Server OSM non raggiungibili: caricato scenario DEMO (dati non reali)');
+    if(!navigator.onLine||!S.buildings.length||S.source==='demo'){ loadDemo(); S.source='demo'; }
+    osmFail();
   }
   chooseTarget(); refreshAll(true); loadWeather(true);
 }
@@ -797,6 +807,13 @@ function loadDemo(){
       B.push(finalizeBuilding({id:`demo-${i}-${k}`,name:`Fabbricato DEMO ${i+1}.${k+1}`,kind:'yes',pts:rect(x,z,w,d,(rnd()-.5)*0.1),levels:1+Math.floor(rnd()*5),basement:0,fh:3.1,est:false,src:'demo',stype:'nd',damage:'nd',side1:null})); } });
   S.buildings=B;
   S.roads=[{pts:[{x:-90,z:-17},{x:90,z:-17}],kind:'residential'},{pts:[{x:-90,z:19},{x:90,z:19}],kind:'residential'},{pts:[{x:-19,z:-90},{x:-19,z:90}],kind:'tertiary'},{pts:[{x:20,z:-90},{x:20,z:90}],kind:'residential'}];
+}
+
+function osmFail(){
+  openModal('OpenStreetMap non ha risposto',`<p style="font-size:13px;line-height:1.55">Non sono riuscito a scaricare gli edifici reali. Di solito i server pubblici sono solo occupati: riprova tra qualche secondo.</p>
+    <div class="coordbox" style="display:block;line-height:1.6;font-size:11.5px">${osmErrors.map(esc).join('<br>')||'—'}</div>
+    <p class="hint" style="margin-top:10px">Nel frattempo puoi disegnare la sagoma a mano (passo 2 → <b>Disegna sagoma</b>). ${S.source==='demo'?'Ora è visibile lo scenario <b>DEMO</b> (dati non reali).':''}</p>`,
+    `<button class="btn sm" onclick="closeModal();setStep(2);setTool('footprint')"><i data-lucide="pentagon"></i>Disegna a mano</button><button class="btn pri sm" onclick="closeModal();loadArea()"><i data-lucide="refresh-cw"></i>Riprova</button>`);
 }
 
 /* ---------------- SALVATAGGIO / UNDO ---------------- */
@@ -1573,7 +1590,7 @@ try{ ui.theme=localStorage.getItem(LS_KEY+'_theme')||'plastico'; }catch(e){}
 renderTools(); icons(); init3D(); planResize();
 const restored=restore();
 fillInputs(); loadOvFromState(); loadLogos(); gateCheck();
-if(restored&&S.buildings.length){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
+if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
 else { $('#q').value=PRESET.label.replace(' (esempio)',''); loadArea(); }
 setTool('select'); setView('3d');
 </script>
