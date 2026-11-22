@@ -164,6 +164,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .tools .div{width:1px;background:var(--line2);margin:4px 4px;flex-shrink:0}
 .stage{position:relative;flex:1;min-height:0;overflow:hidden}
 #three,#plan,#mapview{position:absolute;inset:0}
+#mapview{z-index:0;isolation:isolate} /* la mappa resta sotto finestre e menu */
 #plan{touch-action:none;cursor:crosshair;width:100%;height:100%;display:block}
 #three canvas{touch-action:none;display:block}
 .hidden{display:none!important}
@@ -209,7 +210,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 #meteoview{position:absolute;inset:0;background:#0b1220}
 #meteoview iframe{width:100%;height:100%;border:0;display:block}
 /* PIN D'ACCESSO */
-#gate{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 50% 30%,#1a2440,#080d17 70%);display:flex;align-items:center;justify-content:center;padding:20px}
+#gate{position:fixed;inset:0;z-index:3000;background:radial-gradient(circle at 50% 30%,#1a2440,#080d17 70%);display:flex;align-items:center;justify-content:center;padding:20px}
 .gbox{width:min(360px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #000a}
 .ghead{background:linear-gradient(90deg,#a6101e,#7d0a16);padding:14px 16px;display:flex;align-items:center;gap:10px}
 .ghead img{width:42px;height:42px;border-radius:50%}
@@ -255,7 +256,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .pad3d button.wide{width:auto;padding:0 10px;font-size:11px;gap:6px;display:flex;align-items:center}
 .baseSeg button{padding:0 9px}
 /* MODAL */
-.modal{position:fixed;inset:0;z-index:100;background:#03060cd9;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{position:fixed;inset:0;z-index:2000;background:#03060cd9;display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:var(--panel);border:1px solid var(--line2);border-radius:14px;width:min(1100px,100%);max-height:94vh;display:flex;flex-direction:column;overflow:hidden}
 .mhead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .mhead h2{font-size:14px;font-weight:800;flex:1}
@@ -527,7 +528,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.13</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.14</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -604,7 +605,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.13</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.14</p>
     </div>
   </div>
 </div>
@@ -655,7 +656,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.13 · 22/11/2026'; const APP_V='v2.13';
+const APP_VER = '2.14 · 22/11/2026'; const APP_V='v2.14';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
