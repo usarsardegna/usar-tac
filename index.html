@@ -524,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.2</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.3</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -601,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.2</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.3</p>
     </div>
   </div>
 </div>
@@ -652,7 +652,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.2 · 22/11/2026'; const APP_V='v2.2';
+const APP_VER = '2.3 · 22/11/2026'; const APP_V='v2.3';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -745,9 +745,22 @@ function bHeight(b){ return b.levels*b.fh; }
 // CORPI: parti dell'edificio con numero di piani diverso
 function partsOf(b){ if(b&&b.parts&&b.parts.length){ b.parts.forEach((p,i)=>{ if(!p.polys) p.polys=[p.pts]; if(!p.name) p.name=i?'Ala '+i:'Corpo principale'; }); return b.parts; } return [{id:'p0',name:'Edificio',polys:[b.pts],levels:b.levels}]; }
 function partArea(p){ return p.polys.reduce((s,q)=>s+polyArea(q),0); }
-function syncLevels(b){ if(b.parts&&b.parts.length) b.levels=Math.max(...b.parts.map(p=>p.levels)); }
-function grossArea(b){ return partsOf(b).reduce((s,p)=>s+partArea(p)*p.levels,0)+b.area*(b.basement||0); }
-function volumeOf(b){ return partsOf(b).reduce((s,p)=>s+partArea(p)*p.levels*b.fh,0); }
+const isFloors=p=>!p.kind||p.kind==='normal';
+function partLabel(p){ return p.kind==='canopy'?'Tettoia':p.kind==='void'?'Nessun fabbricato':p.levels+(p.levels===1?' piano':' piani'); }
+function syncLevels(b){ if(b.parts&&b.parts.length){ const n=b.parts.filter(isFloors).map(p=>p.levels); b.levels=n.length?Math.max(...n):1; } }
+function grossArea(b){ return partsOf(b).filter(isFloors).reduce((s,p)=>s+partArea(p)*p.levels,0)+b.area*(b.basement||0); }
+function volumeOf(b){ return partsOf(b).filter(isFloors).reduce((s,p)=>s+partArea(p)*p.levels*b.fh,0); }
+function levelPicker(title,intro,cb){ window._lpCb=cb;
+  openModal(title,`<p class="hint" style="margin-bottom:10px">${intro}</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">${Array.from({length:10},(_,i)=>`<button class="btn" style="height:56px;font-size:22px;font-family:var(--mono)" onclick="lpPick(${i+1})">${i+1}</button>`).join('')}</div>
+    <div class="row" style="margin-top:10px;gap:8px"><span class="hint" style="white-space:nowrap">Altro:</span><input class="inp mono" id="lpN" type="number" min="1" max="60" inputmode="numeric" placeholder="es. 14" style="font-size:18px;height:44px" onkeydown="if(event.key==='Enter')lpPick(+this.value)"><span class="hint">piani</span><button class="btn pri" style="height:44px" onclick="lpPick(+$('#lpN').value)">OK</button></div>
+    <div class="grid2" style="margin-top:12px"><button class="btn" style="height:52px;flex-direction:column;gap:2px" onclick="lpPick('canopy')"><b>⌂ Tettoia / porticato</b><span class="hint">copertura su pilastri</span></button>
+    <button class="btn" style="height:52px;flex-direction:column;gap:2px" onclick="lpPick('void')"><b>⬚ Nessun fabbricato</b><span class="hint">cortile, crollato, demolito</span></button></div>`,
+    `<button class="btn sm" onclick="closeModal()">Annulla</button>`); }
+function lpPick(v){ if(typeof v==='number'&&!(v>=1&&v<=60)){ toast('Scrivi un numero di piani da 1 a 60'); return; } closeModal(); const cb=window._lpCb; window._lpCb=null; if(cb) cb(v); }
+function specOf(v){ return v==='canopy'?{kind:'canopy',levels:1}:v==='void'?{kind:'void',levels:1}:{kind:'normal',levels:v}; }
+function editPart(i){ const t=target(); if(!t) return; const p=partsOf(t)[i]; ui.selPart=i; drawPlanLive();
+  levelPicker(`${p.name}: cosa c'è?`,`Ora: <b>${partLabel(p)}</b> · ${Math.round(partArea(p))} m². Piani fuori terra, piano terra compreso.`,v=>{ pushUndo(); if(!t.parts) t.parts=partsOf(t).map(x=>({...x})); Object.assign(t.parts[i],specOf(v)); syncLevels(t); t.est=false; if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); toast(`${t.parts[i].name}: ${partLabel(t.parts[i])}`); }); }
 function clipConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; let out=poly; for(let i=0;i<Rr.length;i++){ out=clipHalf(out,Rr[i],Rr[(i+1)%Rr.length],o); if(out.length<3) return []; } return out; }
 function diffConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; const pieces=[]; let cur=poly;
   for(let i=0;i<Rr.length;i++){ const a=Rr[i], b=Rr[(i+1)%Rr.length]; const outP=clipHalf(cur,a,b,-o); if(outP.length>=3&&polyArea(outP)>0.3) pieces.push(outP); cur=clipHalf(cur,a,b,o); if(cur.length<3) break; }
@@ -755,16 +768,14 @@ function diffConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; const pieces=[]; le
 function wingRect(a,b){ const t=target(); const u=t&&t.obb?t.obb.u:{x:1,z:0}, v=t&&t.obb?t.obb.v:{x:0,z:1}; const dx=b.x-a.x, dz=b.z-a.z; const du=dx*u.x+dz*u.z, dv=dx*v.x+dz*v.z;
   return {du,dv,R:[{x:a.x,z:a.z},{x:a.x+u.x*du,z:a.z+u.z*du},{x:a.x+u.x*du+v.x*dv,z:a.z+u.z*du+v.z*dv},{x:a.x+v.x*dv,z:a.z+v.z*dv}]}; }
 function askWingLevels(Rr){ window._wingR=Rr; const t=target();
-  openModal('Quanti piani ha quest\'ala?',`<p class="hint" style="margin-bottom:10px">Piani fuori terra della zona che hai riquadrato (piano terra compreso). Il resto dell'edificio resta a ${t?t.levels:'—'} piani.</p>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${Array.from({length:12},(_,i)=>`<button class="btn" style="height:58px;font-size:22px;font-family:var(--mono)" onclick="addWing(${i+1})">${i+1}</button>`).join('')}</div>`,
-    `<button class="btn sm" onclick="closeModal()">Annulla</button>`); }
-function addWing(levels){ closeModal(); const t=target(); const Rr=window._wingR; if(!t||!Rr) return;
+  levelPicker('Cosa c\'è in quest\'ala?',`Piani fuori terra della zona riquadrata (piano terra compreso). Il resto dell'edificio non cambia.`,v=>addWing(v)); }
+function addWing(v){ const spec=specOf(v); const levels=spec.levels; const t=target(); const Rr=window._wingR; if(!t||!Rr) return;
   const parts=partsOf(t).map(p=>({...p,polys:p.polys.map(q=>q.map(z=>({...z})))})); if(!t.parts||!t.parts.length) parts[0].name='Corpo principale';
   const inters=[]; parts.forEach(p=>{ const np=[]; p.polys.forEach(poly=>{ const I=clipConvex(poly,Rr); if(I.length>=3&&polyArea(I)>0.5) inters.push(I); diffConvex(poly,Rr).forEach(D=>np.push(D)); }); p.polys=np; });
   if(!inters.length){ toast('Il riquadro non tocca l\'edificio: trascinalo sopra l\'ala'); return; }
   pushUndo(); const left=parts.filter(p=>p.polys.length); const n=left.filter(p=>p.name.startsWith('Ala')).length+1;
-  left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1;
-  setTool('select'); setStep(2); refreshAll(false); toast(`Ala ${n}: ${levels} piani`); }
+  left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels,kind:spec.kind}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1;
+  setTool('select'); setStep(2); refreshAll(false); toast(`Ala ${n}: ${partLabel(left[left.length-1])}`); }
 function clipHalf(poly,a,b,keep){ const side=q=>((b.x-a.x)*(q.z-a.z)-(b.z-a.z)*(q.x-a.x))*keep; const out=[];
   for(let i=0;i<poly.length;i++){ const P=poly[i],Q=poly[(i+1)%poly.length]; const sp=side(P), sq=side(Q);
     if(sp>=0) out.push({x:P.x,z:P.z}); if((sp>=0)!==(sq>=0)){ const k=sp/(sp-sq); out.push({x:P.x+(Q.x-P.x)*k,z:P.z+(Q.z-P.z)*k}); } }
@@ -779,7 +790,7 @@ function splitTarget(a,b){
   pushUndo(); parts.splice(i,1,{id:'p'+Date.now(),pts:L,levels:P.levels},{id:'p'+(Date.now()+1),pts:Rr,levels:P.levels});
   t.parts=parts; syncLevels(t); ui.selPart=i; setTool('select'); setStep(2); refreshAll(false); toast(`Edificio diviso in ${parts.length} corpi: imposta i piani di ciascuno`);
 }
-function adjPart(i,d){ const t=target(); if(!t||!t.parts) return; pushUndo(); const p=t.parts[i]; p.levels=Math.max(1,Math.min(60,p.levels+d)); syncLevels(t); t.est=false; ui.selPart=i; if(t.parts.length===1){ delete t.parts; }
+function adjPart(i,d){ const t=target(); if(!t||!t.parts) return; pushUndo(); const p=t.parts[i]; if(!isFloors(p)){ p.kind='normal'; p.levels=1; } else p.levels=Math.max(1,Math.min(60,p.levels+d)); syncLevels(t); t.est=false; ui.selPart=i; if(t.parts.length===1){ delete t.parts; }
   if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); }
 function selPart(i){ ui.selPart=ui.selPart===i?null:i; renderTarget(); drawPlanLive(); build3D(); }
 function mergeParts(){ const t=target(); if(!t||!t.parts) return; pushUndo(); delete t.parts; ui.selPart=null; refreshAll(false); toast('Corpi riuniti: un unico edificio'); }
@@ -1059,10 +1070,10 @@ function renderTarget(){
       <div><label class="lb">Stato / danno</label><select class="inp" onchange="setB('damage',this.value)">${Object.entries(DMG).map(([k,v])=>`<option value="${k}" ${t.damage===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
     <label class="lb" style="margin-top:12px">Corpi / ali con piani diversi</label>
-    ${hasParts?partsOf(t).map((p,i)=>`<div class="partrow ${ui.selPart===i?'sel':''}" onclick="selPart(${i})"><span class="pd">${i+1}</span><div style="flex:1;font-size:12px"><b>${esc(p.name)}</b><br><span class="hint">${Math.round(partArea(p))} m² · h ${(p.levels*t.fh).toFixed(1)} m</span></div>
-        <div class="stepper" onclick="event.stopPropagation()"><button onclick="adjPart(${i},-1)">−</button><span>${p.levels}P</span><button onclick="adjPart(${i},1)">+</button></div></div>`).join('')+
+    ${hasParts?partsOf(t).map((p,i)=>`<div class="partrow ${ui.selPart===i?'sel':''}" onclick="editPart(${i})" title="Tocca per cambiare piani o tipo"><span class="pd" style="${isFloors(p)?'':'background:#94a3b8'}">${i+1}</span><div style="flex:1;font-size:12px"><b>${esc(p.name)}</b> · <span style="color:var(--amber)">${partLabel(p)}</span><br><span class="hint">${Math.round(partArea(p))} m²${isFloors(p)?' · h '+(p.levels*t.fh).toFixed(1)+' m':''} · tocca per cambiare</span></div>
+        ${isFloors(p)?`<div class="stepper" onclick="event.stopPropagation()"><button onclick="adjPart(${i},-1)">−</button><span>${p.levels}P</span><button onclick="adjPart(${i},1)">+</button></div>`:`<i data-lucide="pencil" style="color:var(--mute)"></i>`}</div>`).join('')+
       `<div class="grid2" style="margin-top:8px"><button class="btn sm amb" onclick="setTool('wing')"><i data-lucide="square-dashed"></i>Altra ala</button><button class="btn sm" onclick="mergeParts()"><i data-lucide="merge"></i>Riunisci tutto</button></div>`
-     :`<p class="hint">Un'ala ha meno (o più) piani? Premi il pulsante, poi <b>trascina un riquadro sopra l'ala</b> nella pianta (anche abbondante): ti chiede quanti piani ha.</p><button class="btn sm full amb" style="margin-top:6px" onclick="setTool('wing')"><i data-lucide="square-dashed"></i>Ala con piani diversi</button>`}
+     :`<p class="hint">Un'ala ha piani diversi, è una <b>tettoia</b> o non c'è più? Premi il pulsante e <b>trascina un riquadro sopra l'ala</b> nella pianta (anche abbondante): poi scegli cosa c'è.</p><button class="btn sm full amb" style="margin-top:6px" onclick="setTool('wing')"><i data-lucide="square-dashed"></i>Ala con piani diversi</button>`}
     <div class="side1"><span class="n">1</span><div><b>Lato 1 · ingresso</b> esposto a <b>${bearingName(s1.nx,s1.nz)}</b><br><small>${t.side1Manual?'Impostato dall\'operatore':'Automatico (lato verso strada): verifica!'}</small></div></div>
     <div class="grid3" style="margin-top:6px">
       <button class="btn sm" onclick="cycleSide(-1)" title="Ruota antiorario"><i data-lucide="rotate-ccw"></i>Antiorario</button>
@@ -1288,13 +1299,17 @@ function drawPlan(g,W,H,V,opt={}){
     pathPoly(g,t.pts,T); g.lineWidth=3; g.strokeStyle=C.tStroke; g.lineJoin='miter'; g.stroke();
     // corpi con piani diversi
     if(t.parts&&t.parts.length){ g.save();
-      partsOf(t).forEach((p,i)=>{ p.polys.forEach(pp=>{ if(f>=0&&f>=p.levels){ pathPoly(g,pp,T); g.save(); g.clip(); g.strokeStyle='rgba(100,116,139,.55)'; g.lineWidth=1.2;
+      partsOf(t).forEach((p,i)=>{ p.polys.forEach(pp=>{ if(!isFloors(p)){ pathPoly(g,pp,T); g.save(); g.clip(); g.strokeStyle=p.kind==='canopy'?'rgba(71,85,105,.5)':'rgba(100,116,139,.6)'; g.lineWidth=1;
+          const bb=pp.map(q=>T(q.x,q.z)); const xs=bb.map(v=>v[0]), ys=bb.map(v=>v[1]); const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+          for(let k=x0-(y1-y0);k<x1;k+=10){ g.beginPath(); g.moveTo(k,y1); g.lineTo(k+(y1-y0),y0); g.stroke(); if(p.kind==='canopy'){ g.beginPath(); g.moveTo(k,y0); g.lineTo(k+(y1-y0),y1); g.stroke(); } } g.restore();
+          pathPoly(g,pp,T); g.fillStyle=p.kind==='canopy'?'rgba(203,213,225,.35)':'rgba(148,163,184,.25)'; g.fill(); }
+        else if(f>=0&&f>=p.levels){ pathPoly(g,pp,T); g.save(); g.clip(); g.strokeStyle='rgba(100,116,139,.55)'; g.lineWidth=1.2;
           const bb=pp.map(q=>T(q.x,q.z)); const xs=bb.map(v=>v[0]), ys=bb.map(v=>v[1]); const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
           for(let k=x0-(y1-y0);k<x1;k+=8){ g.beginPath(); g.moveTo(k,y1); g.lineTo(k+(y1-y0),y0); g.stroke(); } g.restore();
           pathPoly(g,pp,T); g.fillStyle='rgba(100,116,139,.18)'; g.fill(); }
         pathPoly(g,pp,T); g.setLineDash([6,4]); g.lineWidth=ui.selPart===i?3.5:2; g.strokeStyle='#f59e0b'; g.stroke(); g.setLineDash([]); });
         const big=p.polys.slice().sort((a,b)=>polyArea(b)-polyArea(a))[0]; if(!big) return;
-        const c=interiorPoint({pts:big,c:centroid(big)}); const [x,y]=T(c.x,c.z); const lab=`${p.name} · ${p.levels}P`+(f>=0&&f>=p.levels?' · assente qui':'');
+        const c=interiorPoint({pts:big,c:centroid(big)}); const [x,y]=T(c.x,c.z); const lab=`${p.name} · `+(isFloors(p)?`${p.levels}P`+(f>=0&&f>=p.levels?' · assente qui':''):partLabel(p));
         g.font='800 11px "JetBrains Mono",monospace'; const w=g.measureText(lab).width+12; g.fillStyle='#f59e0b'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y+18,w,18,5):g.rect(x-w/2,y+18,w,18); g.fill();
         g.fillStyle='#1a1205'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y+27); });
       g.restore(); }
@@ -1443,7 +1458,7 @@ function planClick(w,px,py){
     return; }
   if(tool==='select'){
     { const hm=hitMarker(px,py); if(hm){ markerCard(hm.id); return; } }
-    if(t&&t.parts&&t.parts.length&&ui.step===2&&pointInPoly(w,t.pts)){ const i=partsOf(t).findIndex(p=>p.polys.some(q=>pointInPoly(w,q))); if(i>=0){ selPart(i); const p=t.parts[i]; toast(`${p.name}: ${p.levels} piani · usa + / − nella scheda`); return; } }
+    if(t&&t.parts&&t.parts.length&&ui.step===2&&pointInPoly(w,t.pts)){ const i=partsOf(t).findIndex(p=>p.polys.some(q=>pointInPoly(w,q))); if(i>=0){ editPart(i); return; } }
     if(t&&pointInPoly(w,t.pts)){ const Q=quadGeom(t); let q=Q.quads.find(q=>q.q==='E'&&pointInPoly(w,q.poly))||Q.quads.find(q=>q.q!=='E'&&pointInPoly(w,q.poly));
       if(q){ ui.selQ=q.q; setStep(3); renderSectors(); drawPlanLive(); toast(`Settore ${q.q} · ${floorLong(S.floor)}`); } return; }
     const b=S.buildings.find(b=>pointInPoly(w,b.pts)); if(b) setTarget(b.id);
@@ -1551,12 +1566,19 @@ function build3D(){
       const op=ui.xray?(act?0.55:0.16):(act?0.92:(ui.cut?0.95:0.9));
       const mat=new THREE.MeshStandardMaterial({color:col,roughness:0.6,transparent:op<1,opacity:op,depthWrite:!ui.xray||act});
       const eCol=act?0xe1251b:(ui.theme==='plastico'?0xc2410c:0xff6b5b);
-      const pieces=f<0?[{pts:t.pts,i:-1}]:partsOf(t).flatMap((p,i)=>p.levels>f?p.polys.map(q=>({pts:q,i})):[]);
+      const pieces=f<0?[{pts:t.pts,i:-1}]:partsOf(t).flatMap((p,i)=>isFloors(p)&&p.levels>f?p.polys.map(q=>({pts:q,i})):[]);
       pieces.forEach(p=>{ const geo=extrude(p.pts,t.fh); const m=new THREE.Mesh(geo,mat);
         m.position.y=y; m.castShadow=!ui.xray; m.receiveShadow=true; m.userData={bid:t.id,floor:f,target:true,part:p.i}; world.add(m); clickables.push(m);
         const selp=t.parts&&ui.selPart===p.i;
         const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:selp?0xf59e0b:eCol})); e.position.y=y; world.add(e); });
     });
+    // tettoie (copertura su pilastri) e aree senza fabbricato
+    if(t.parts) partsOf(t).forEach((p,i)=>{ if(isFloors(p)) return; const sel=ui.selPart===i;
+      p.polys.forEach(pp=>{ if(p.kind==='void'){ const g0=extrude(pp,0.06); const m=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({color:0x94a3b8,roughness:1,transparent:true,opacity:0.55})); m.position.y=floorBase(t,0)+0.02; m.userData={bid:t.id,floor:0,target:true,part:i}; world.add(m); clickables.push(m);
+          const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x64748b})); e.position.y=m.position.y; world.add(e); return; }
+        const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({color:0xcbd5e1,roughness:0.8,transparent:true,opacity:ui.xray?0.3:0.9})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
+        const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x475569})); e.position.y=roof.position.y; world.add(e);
+        const pm=new THREE.MeshStandardMaterial({color:0x94a3b8}); pp.forEach(q=>{ const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
     // assi settori e lettere sul piano attivo
     const ya=floorBase(t,S.floor)+(ui.cut?t.fh+0.05:0.08)+(ui.cut?0:0); const yl=ui.cut?ya+0.4:floorBase(t,S.floor)+t.fh+0.4;
     const o=Q.o; const ax=new THREE.LineBasicMaterial({color:0xe1251b,depthTest:false});
@@ -1793,7 +1815,7 @@ function summaryText(){
   L.push(`📍 ${t?.addr||S.label}`); L.push(`🌐 ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`); L.push(`🗺 https://www.google.com/maps/search/?api=1&query=${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`);
   if(S.cad.foglio||S.cad.particella) L.push(`📑 Catasto: ${S.cad.comune} F.${S.cad.foglio} P.${S.cad.particella}${S.cad.sub?' Sub.'+S.cad.sub:''}`);
   if(t){ const g1=quadGeom(t).sides[0]; L.push(`🏢 ${t.levels} piani f.t. + ${t.basement||0} interrati · h ${bHeight(t).toFixed(1)} m · impronta ${Math.round(t.area)} m²${t.est?' (piani stimati)':''}`);
-    if(t.parts&&t.parts.length) L.push(`   ↳ ${partsOf(t).map(p=>p.name+' '+p.levels+'P').join(' · ')}`);
+    if(t.parts&&t.parts.length) L.push(`   ↳ ${partsOf(t).map(p=>p.name+': '+partLabel(p)).join(' · ')}`);
     L.push(`🧱 ${STYPE[t.stype]} · ${DMG[t.damage]}${S.asr?' · '+S.asr:''}`); L.push(`➊ Lato 1 (fronte) esposto a ${bearingName(g1.nx,g1.nz)}`);
     const act=[]; floorsOf(t).slice().reverse().forEach(f=>QUADS.forEach(q=>{ const s=sec(f,q); if(s.st!=='todo') act.push(`${floorLabel(f)}-${q}: ${ST[s.st].full}${s.sq?' ('+s.sq+')':''}`); }));
     if(act.length){ L.push('▦ Settori:'); act.forEach(a=>L.push('  • '+a)); } }
