@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#a6101e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="USAR-TAC">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-apple.png">
+<link rel="manifest" href="manifest.json">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>USAR-TAC · Analisi strutturale e settorializzazione</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -219,6 +225,27 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .gkeys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .gkeys button{height:56px;border-radius:12px;background:var(--panel3);border:1px solid var(--line2);font-size:22px;font-weight:700;font-family:var(--mono)}
 .gkeys button:active{background:var(--amber);color:#1a1205}
+/* ETICHETTE BREVI, BARRE, OPERATORI, CREDITI */
+.tools button .ts,.ibtn .il2,.baseSeg .bl2{display:none}
+.donebar{top:118px;right:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.credit{flex-shrink:0;padding:7px 12px;border-top:1px solid var(--line);font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between;gap:8px;align-items:center}
+.credit b{color:var(--mute);font-weight:600}
+.credit button{color:var(--mute);font-size:10.5px;text-decoration:underline}
+#opTip{position:fixed;z-index:60;pointer-events:none;background:#0b1220f2;border:1px solid #2563eb;border-radius:10px;padding:6px;display:flex;gap:8px;align-items:center;max-width:260px}
+#opTip img,#opTip .ini{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#2563eb;display:grid;place-items:center;font-weight:800;color:#fff;flex-shrink:0}
+#opTip b{display:block;font-size:12.5px}#opTip span{font-size:10.5px;color:var(--mute)}
+.oprow{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#0a101c;border:1px solid var(--line);border-radius:8px}
+.oprow .av{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#2563eb;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0;border:2px solid #fff3}
+.oprow .t{flex:1;min-width:0}.oprow .t div{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.oprow .t small{font-size:10.5px;color:var(--mute)}
+.oplist{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.opbig{display:flex;gap:14px;align-items:center}
+.opbig .av{width:96px;height:96px;border-radius:50%;object-fit:cover;background:#2563eb;display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;border:3px solid #fff3;flex-shrink:0}
+.partrow{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#0a101c;border:1px solid var(--line);border-radius:8px;margin-top:6px;cursor:pointer}
+.partrow.sel{border-color:var(--amber)}
+.partrow .pd{width:22px;height:22px;border-radius:6px;background:#f59e0b;color:#1a1205;font-weight:800;font-size:11px;display:grid;place-items:center}
+.partrow .stepper{height:30px;width:112px}
+.cadauto{margin-top:6px;font-size:11px;font-family:var(--mono);color:#5ee69a}
+.info p{font-size:13px;line-height:1.55;margin-bottom:8px}.info h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin:12px 0 4px}
 /* PAD 3D + BASE */
 .pad3d{bottom:56px;right:10px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
 .pad3d .prow{display:flex;gap:5px}
@@ -290,7 +317,14 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   .hide-m{display:none!important}
   .show-m{display:inline}
   .tools button .tl{display:none}
-  .tools button{padding:0 8px}
+  .tools button .ts{display:block;font-size:9px;font-weight:700;line-height:1;letter-spacing:.01em}
+  .tools button{padding:3px 6px;height:48px;flex-direction:column;justify-content:center;gap:4px;min-width:52px}
+  .ibtn{flex-direction:column;height:46px;gap:2px;padding:0 6px;min-width:46px}
+  .ibtn span,.ibtn .il2{display:block!important;font-size:8.5px;line-height:1}
+  .baseSeg button{flex-direction:column;height:40px;gap:2px;padding:0 6px}
+  .baseSeg .bl2{display:block;font-size:8.5px;line-height:1}
+  .toolhint{white-space:normal;border-radius:12px;font-size:11px;line-height:1.35;text-align:center;bottom:8px}
+  .donebar{top:auto;bottom:70px;right:8px}
 }
 </style>
 </head>
@@ -308,6 +342,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <span class="chip hide-m" id="wxChip" style="display:none;cursor:pointer" onclick="setStep(1)"></span>
     <span class="chip hide-m" id="netChip"><span class="led"></span><span id="netTxt">—</span></span>
     <span class="chip"><i data-lucide="clock-3" style="width:13px;height:13px"></i><span id="clock">--:--</span></span>
+    <button class="chip hide-m" onclick="openInfo()" title="Informazioni e crediti" style="cursor:pointer"><i data-lucide="info" style="width:14px;height:14px"></i></button>
   </div>
 </header>
 
@@ -349,6 +384,8 @@ input[type=range]{width:100%;accent-color:var(--amber)}
           <div><label class="lb">Particella</label><input class="inp mono" id="cadPart" oninput="setCad()"></div>
           <div><label class="lb">Subalterno</label><input class="inp mono" id="cadSub" oninput="setCad()"></div>
         </div>
+        <button class="btn full amb" style="margin-top:10px" onclick="cadLookupTarget(false)"><i data-lucide="scan-search"></i>Rileva foglio e particella (Catasto AdE)</button>
+        <div class="cadauto" id="cadAuto"></div>
         <div class="links" style="margin-top:10px">
           <a href="https://www.mappecatasto.it/pro/coordinate.php" target="_blank" rel="noopener" onclick="copyCoords(true)"><i data-lucide="file-search"></i>Particella da coord.</a>
           <a href="https://www.mappecatasto.it/c2.htm" target="_blank" rel="noopener" onclick="copyCoords(true)"><i data-lucide="locate"></i>MappeCatasto GPS</a>
@@ -429,6 +466,14 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       </div>
       <div class="card" id="secEditor"></div>
       <div class="card">
+        <h3><i data-lucide="users"></i>Operatori in area<span class="r" id="opCount"></span></h3>
+        <div class="grid2" style="margin-bottom:8px">
+          <button class="btn sm amb" onclick="setTool('oper')"><i data-lucide="user-plus"></i>Posiziona</button>
+          <button class="btn sm" onclick="openRoster()"><i data-lucide="contact"></i>Elenco operatori</button>
+        </div>
+        <div class="mlist" id="opList"></div>
+      </div>
+      <div class="card">
         <h3><i data-lucide="map-pinned"></i>Marcature<span class="r"><label style="cursor:pointer"><input type="checkbox" id="mOnlyFloor" onchange="renderMarkers()"> solo piano</label></span></h3>
         <div class="mlist" id="mList"></div>
       </div>
@@ -474,6 +519,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -488,16 +534,16 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="floors" id="floors"></div>
       <div class="sp"></div>
       <div class="seg baseSeg" id="baseSeg" title="Sfondo">
-        <button data-base="plastico"><i data-lucide="box"></i><span class="hide-m">Plastico</span></button>
-        <button data-base="sat"><i data-lucide="satellite"></i><span class="hide-m">Satellite</span></button>
-        <button data-base="osm"><i data-lucide="map"></i><span class="hide-m">Stradale</span></button>
+        <button data-base="plastico"><i data-lucide="box"></i><span class="hide-m">Plastico</span><span class="bl2">Plastico</span></button>
+        <button data-base="sat"><i data-lucide="satellite"></i><span class="hide-m">Satellite</span><span class="bl2">Satellite</span></button>
+        <button data-base="osm"><i data-lucide="map"></i><span class="hide-m">Stradale</span><span class="bl2">Strade</span></button>
       </div>
-      <button class="ibtn" id="bCut" title="Sezione: nasconde i piani sopra quello attivo" onclick="toggleUi('cut')"><i data-lucide="scissors"></i><span class="hide-m">Sezione</span></button>
-      <button class="ibtn" id="bExp" title="Esploso piani" onclick="toggleUi('exploded')"><i data-lucide="layers-3"></i><span class="hide-m">Esploso</span></button>
-      <button class="ibtn" id="bXray" title="Trasparenza (raggi X)" onclick="toggleUi('xray')"><i data-lucide="scan-eye"></i></button>
-      <button class="ibtn" id="bIso" title="Isola obiettivo (nasconde il contesto)" onclick="toggleUi('isolate')"><i data-lucide="focus"></i></button>
-      <button class="ibtn" id="bTheme" title="Stile: plastico chiaro / notte" onclick="toggleTheme()"><i data-lucide="sun-moon"></i></button>
-      <button class="ibtn" title="Inquadra obiettivo" onclick="fitAll()"><i data-lucide="scan"></i></button>
+      <button class="ibtn" id="bCut" title="Sezione: nasconde i piani sopra quello attivo" onclick="toggleUi('cut')"><i data-lucide="scissors"></i><span>Sezione</span></button>
+      <button class="ibtn" id="bExp" title="Esploso piani" onclick="toggleUi('exploded')"><i data-lucide="layers-3"></i><span>Esploso</span></button>
+      <button class="ibtn" id="bXray" title="Trasparenza (raggi X)" onclick="toggleUi('xray')"><i data-lucide="scan-eye"></i><b class="il2">Raggi X</b></button>
+      <button class="ibtn" id="bIso" title="Isola obiettivo (nasconde il contesto)" onclick="toggleUi('isolate')"><i data-lucide="focus"></i><b class="il2">Isola</b></button>
+      <button class="ibtn" id="bTheme" title="Stile: plastico chiaro / notte" onclick="toggleTheme()"><i data-lucide="sun-moon"></i><b class="il2">Notte</b></button>
+      <button class="ibtn" title="Inquadra obiettivo" onclick="fitAll()"><i data-lucide="scan"></i><b class="il2">Inquadra</b></button>
     </div>
     <div class="tools" id="tools"></div>
     <div class="stage" id="stage">
@@ -512,6 +558,10 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="ov fpbar hidden" id="fpBar">
         <button class="btn sm pri" onclick="closeFootprint()"><i data-lucide="check"></i>Chiudi sagoma</button>
         <button class="btn sm" onclick="cancelFootprint()"><i data-lucide="x"></i>Annulla</button>
+      </div>
+      <div class="ov donebar hidden" id="doneBar">
+        <button class="btn sm pri" onclick="setTool('select')"><i data-lucide="check"></i><span id="doneTxt">Fine</span></button>
+        <button class="btn sm hidden" id="doneUndo" onclick="undo()"><i data-lucide="undo-2"></i>Annulla ultimo</button>
       </div>
       <div class="ov mapctl hidden" id="mapCtl">
         <div class="seg"><button data-b="osm" class="on">Stradale</button><button data-b="sat">Satellite</button></div>
@@ -540,6 +590,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino</p>
     </div>
   </div>
 </div>
@@ -547,6 +598,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <div class="mbox"><div class="mhead"><h2 id="mTitle"></h2><div id="mActions" class="row"></div><button class="ib" onclick="closeModal()"><i data-lucide="x"></i></button></div><div class="mbody" id="mBody"></div></div>
 </div>
 <div id="printArea"></div>
+<div id="opTip" class="hidden"></div>
 
 <script>
 'use strict';
@@ -582,11 +634,14 @@ const STYPE = {nd:'Non determinata', ca:'Telaio in C.A.', mur:'Muratura portante
 const DMG = {nd:'Non valutato', none:'Nessun danno visibile', lieve:'Danno lieve', grave:'Danno grave', parz:'Crollo parziale', tot:'Crollo totale'};
 const QUADS = ['A','B','C','D','E'];
 const TOOLS = [
-  ['select','mouse-pointer-2','Seleziona'],['side1','flag','Lato 1'],
+  ['select','mouse-pointer-2','Seleziona'],['side1','flag','Lato 1'],['oper','user-round','Operatore'],
   '|','access','hazard','victimL','victimV','victimD','void','shore','cleared','|',
-  ['wall','pen-line','Muro'],['footprint','pentagon','Sagoma'],['measure','ruler','Misura'],['erase','eraser','Gomma'],
+  ['wall','pen-line','Muro'],['split','split','Corpi'],['footprint','pentagon','Sagoma'],['measure','ruler','Misura'],['erase','eraser','Gomma'],
   '|',['undo','undo-2','Annulla']
 ];
+const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',split:'Corpi',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
+const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split'];
+const APP_VER = '2.0 · 22/11/2026';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -595,6 +650,8 @@ const HINTS = {
   side1:'Clic sul lato dell\'INGRESSO PRINCIPALE: diventa il Lato 1 e i settori A–D si ricalcolano in senso orario',
   erase:'Clic su una marcatura o un muro per eliminarlo',
   ovmove:'Trascina l\'immagine di ricalco per allinearla alla sagoma',
+  split:'Tocca DUE punti per tracciare la linea di taglio attraverso l\'edificio: si divide in due corpi con piani separati',
+  oper:'Tocca il punto dove si trova l\'operatore e scegli il nome dall\'elenco · trascina un operatore per spostarlo',
 };
 const PRESET = {label:'Cagliari – Piazza Yenne (esempio)', lat:39.21635, lng:9.11045};
 
@@ -602,7 +659,7 @@ const PRESET = {label:'Cagliari – Piazza Yenne (esempio)', lat:39.21635, lng:9
 function defaultState(){
   return { v:2, center:{lat:PRESET.lat,lng:PRESET.lng}, label:PRESET.label, radius:120,
     buildings:[], roads:[], source:'none', targetId:null, floor:0,
-    markers:[], walls:[], sectors:{}, asr:'', seq:1,
+    markers:[], walls:[], ops:[], sectors:{}, asr:'', seq:1,
     cad:{comune:'',foglio:'',particella:'',sub:''},
     meta:{evento:'',team:'USAR M Sardegna',op:'',note:''},
     overlay:null, recent:[] };
@@ -674,6 +731,29 @@ function finalizeBuilding(b){
 }
 function target(){ return S.buildings.find(b=>b.id===S.targetId) || null; }
 function bHeight(b){ return b.levels*b.fh; }
+// CORPI: parti dell'edificio con numero di piani diverso
+function partsOf(b){ return (b&&b.parts&&b.parts.length)?b.parts:[{id:'p0',pts:b.pts,levels:b.levels}]; }
+function syncLevels(b){ if(b.parts&&b.parts.length) b.levels=Math.max(...b.parts.map(p=>p.levels)); }
+function grossArea(b){ return partsOf(b).reduce((s,p)=>s+polyArea(p.pts)*p.levels,0)+b.area*(b.basement||0); }
+function volumeOf(b){ return partsOf(b).reduce((s,p)=>s+polyArea(p.pts)*p.levels*b.fh,0); }
+function clipHalf(poly,a,b,keep){ const side=q=>((b.x-a.x)*(q.z-a.z)-(b.z-a.z)*(q.x-a.x))*keep; const out=[];
+  for(let i=0;i<poly.length;i++){ const P=poly[i],Q=poly[(i+1)%poly.length]; const sp=side(P), sq=side(Q);
+    if(sp>=0) out.push({x:P.x,z:P.z}); if((sp>=0)!==(sq>=0)){ const k=sp/(sp-sq); out.push({x:P.x+(Q.x-P.x)*k,z:P.z+(Q.z-P.z)*k}); } }
+  return out; }
+function splitTarget(a,b){
+  const t=target(); if(!t) return; const parts=partsOf(t).map(p=>({...p,pts:p.pts.map(q=>({...q}))}));
+  const m=mid(a,b); let i=parts.findIndex(p=>pointInPoly(m,p.pts)); if(i<0) i=parts.findIndex(p=>pointInPoly(a,p.pts)||pointInPoly(b,p.pts));
+  if(i<0){ let best=-1,ba=0; parts.forEach((p,k)=>{ const L=clipHalf(p.pts,a,b,1),Rr=clipHalf(p.pts,a,b,-1); const mn=Math.min(L.length>2?polyArea(L):0,Rr.length>2?polyArea(Rr):0); if(mn>ba){ba=mn;best=k;} }); i=best; }
+  if(i<0){ toast('La linea deve attraversare un corpo dell\'edificio'); return; }
+  const P=parts[i]; const L=clipHalf(P.pts,a,b,1), Rr=clipHalf(P.pts,a,b,-1);
+  if(L.length<3||Rr.length<3||polyArea(L)<2||polyArea(Rr)<2){ toast('La linea deve attraversare il corpo da parte a parte'); return; }
+  pushUndo(); parts.splice(i,1,{id:'p'+Date.now(),pts:L,levels:P.levels},{id:'p'+(Date.now()+1),pts:Rr,levels:P.levels});
+  t.parts=parts; syncLevels(t); ui.selPart=i; setTool('select'); setStep(2); refreshAll(false); toast(`Edificio diviso in ${parts.length} corpi: imposta i piani di ciascuno`);
+}
+function adjPart(i,d){ const t=target(); if(!t||!t.parts) return; pushUndo(); const p=t.parts[i]; p.levels=Math.max(1,Math.min(60,p.levels+d)); syncLevels(t); t.est=false; ui.selPart=i;
+  if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); }
+function selPart(i){ ui.selPart=ui.selPart===i?null:i; renderTarget(); drawPlanLive(); build3D(); }
+function mergeParts(){ const t=target(); if(!t||!t.parts) return; pushUndo(); delete t.parts; ui.selPart=null; refreshAll(false); toast('Corpi riuniti: un unico edificio'); }
 function floorLabel(f){ return f<0?('S'+(-f)):(f===0?'PT':'P'+f); }
 function floorLong(f){ return f<0?('Interrato '+(-f)):(f===0?'Piano terra (G)':'Piano '+f); }
 function floorsOf(b){ const a=[]; if(!b) return [0]; for(let f=-(b.basement||0); f<b.levels; f++) a.push(f); return a; }
@@ -752,7 +832,7 @@ async function loadArea(){
     if(!navigator.onLine||!S.buildings.length||S.source==='demo'){ loadDemo(); S.source='demo'; }
     osmFail(); setTimeout(icons,50);
   }
-  chooseTarget(); refreshAll(true); loadWeather(true); if(S.source==='osm') reverseLabel();
+  chooseTarget(); refreshAll(true); loadWeather(true); if(S.source==='osm'){ reverseLabel(); cadLookupTarget(true); }
 }
 async function reverseLabel(){
   try{ const t=target(); if(!t||t.addr) return;
@@ -801,7 +881,7 @@ function setTarget(id,silent){
   S.targetId=id; const t=target(); if(!t) return;
   if(t.side1==null) t.side1=autoSide1(t);
   S.floor=0; ui.selQ='A';
-  if(!silent) { toast('Obiettivo: '+t.name); if(t.src==='osm') reverseLabel(); renderAll(); build3D(); flyToTarget(); planFit(); drawPlanLive(); if(map) updateMap(true); save(); if(windyKey&&ui.view==='meteo') showWindy(); return; }
+  if(!silent) { toast('Obiettivo: '+t.name); if(t.src==='osm') reverseLabel(); if(t.src!=='demo') cadLookupTarget(true); renderAll(); build3D(); flyToTarget(); planFit(); drawPlanLive(); if(map) updateMap(true); save(); if(windyKey&&ui.view==='meteo') showWindy(); return; }
   if(windyKey&&ui.view==='meteo') showWindy();
   refreshAll(true);
 }
@@ -872,8 +952,8 @@ function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{
   try{ const o={...S, overlay:S.overlay}; localStorage.setItem(LS_KEY,JSON.stringify(o)); $('#saveState').textContent='salvato '+hhmm(); }
   catch(e){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null})); $('#saveState').textContent='salvato (senza immagine)'; }catch(_){ $('#saveState').textContent='non salvato'; } }
 },500); }
-function restore(){ try{ const j=JSON.parse(localStorage.getItem(LS_KEY)); if(j&&j.v===2){ S={...defaultState(),...j}; S.buildings.forEach(finalizeBuilding); return true; } }catch(e){} return false; }
-function pushUndo(){ undoStack.push(JSON.stringify({markers:S.markers,walls:S.walls,sectors:S.sectors,buildings:S.buildings.map(b=>({...b,obb:undefined})),targetId:S.targetId,seq:S.seq})); if(undoStack.length>60) undoStack.shift(); }
+function restore(){ try{ const j=JSON.parse(localStorage.getItem(LS_KEY)); if(j&&j.v===2){ S={...defaultState(),...j}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); return true; } }catch(e){} return false; }
+function pushUndo(){ undoStack.push(JSON.stringify({ops:S.ops,markers:S.markers,walls:S.walls,sectors:S.sectors,buildings:S.buildings.map(b=>({...b,obb:undefined})),targetId:S.targetId,seq:S.seq})); if(undoStack.length>60) undoStack.shift(); }
 function undo(){
   const s=undoStack.pop(); if(!s){ toast('Niente da annullare'); return; }
   const o=JSON.parse(s); Object.assign(S,o); S.buildings.forEach(finalizeBuilding); refreshAll(false); toast('Azione annullata');
@@ -914,14 +994,14 @@ function fillInputs(){
   $('#mEvento').value=S.meta.evento; $('#mTeam').value=S.meta.team; $('#mOp').value=S.meta.op; $('#mNote').value=S.meta.note;
   $('#asrSel').value=S.asr||'';
 }
-function setCad(){ S.cad={comune:$('#cadComune').value,foglio:$('#cadFoglio').value,particella:$('#cadPart').value,sub:$('#cadSub').value}; renderHeader(); save(); }
+function setCad(){ S.cad={...S.cad,comune:$('#cadComune').value,foglio:$('#cadFoglio').value,particella:$('#cadPart').value,sub:$('#cadSub').value,auto:false}; renderCadAuto(); renderHeader(); save(); }
 function setMeta(){ S.meta={evento:$('#mEvento').value,team:$('#mTeam').value,op:$('#mOp').value,note:$('#mNote').value}; renderHeader(); save(); }
 function setASR(v){ S.asr=v; save(); }
 
 function renderTarget(){
   const t=target(), el=$('#targetCard');
   if(!t){ el.innerHTML=`<h3><i data-lucide="building"></i>Edificio obiettivo</h3><div class="empty">Nessun obiettivo.<br>Cerca un indirizzo (passo 1) oppure usa <b>Sagoma</b> per disegnarlo.</div>`; icons(); return; }
-  const o=t.obb, L=Math.max(o.hu,o.hv)*2, W=Math.min(o.hu,o.hv)*2, H=bHeight(t), nf=t.levels+(t.basement||0);
+  const o=t.obb, L=Math.max(o.hu,o.hv)*2, W=Math.min(o.hu,o.hv)*2, H=bHeight(t), hasParts=!!(t.parts&&t.parts.length);
   const src={osm:'<span class="badge osm">OSM REALE</span>',demo:'<span class="badge demo">DEMO · NON REALE</span>',manual:'<span class="badge man">SAGOMA MANUALE</span>'}[t.src]||'';
   const g=quadGeom(t), s1=g.sides[0];
   el.innerHTML=`<h3><i data-lucide="building"></i>Edificio obiettivo<span class="r">${t.kind&&t.kind!=='yes'?esc(t.kind):''}</span></h3>
@@ -933,11 +1013,11 @@ function renderTarget(){
       <div class="kpi"><span>Perimetro</span><b>${Math.round(t.perim)} m</b></div>
       <div class="kpi"><span>Ingombro</span><b>${L.toFixed(0)}×${W.toFixed(0)} m</b></div>
       <div class="kpi"><span>Altezza</span><b>${H.toFixed(1)} m</b></div>
-      <div class="kpi"><span>Sup. lorda</span><b>${Math.round(t.area*nf)} m²</b></div>
-      <div class="kpi"><span>Volume</span><b>${Math.round(t.area*H)} m³</b></div>
+      <div class="kpi"><span>Sup. lorda</span><b>${Math.round(grossArea(t))} m²</b></div>
+      <div class="kpi"><span>Volume</span><b>${Math.round(volumeOf(t))} m³</b></div>
     </div>
     <div class="grid3" style="margin-top:6px">
-      <div><label class="lb">Piani f.t.</label><div class="stepper"><button onclick="adj('levels',-1)">−</button><span>${t.levels}</span><button onclick="adj('levels',1)">+</button></div></div>
+      <div><label class="lb">Piani f.t.${hasParts?' (max)':''}</label>${hasParts?`<div class="stepper"><span style="font-size:12px">${t.levels} · per corpo ↓</span></div>`:`<div class="stepper"><button onclick="adj('levels',-1)">−</button><span>${t.levels}</span><button onclick="adj('levels',1)">+</button></div>`}</div>
       <div><label class="lb">Interrati</label><div class="stepper"><button onclick="adj('basement',-1)">−</button><span>${t.basement||0}</span><button onclick="adj('basement',1)">+</button></div></div>
       <div><label class="lb">Interpiano</label><div class="stepper"><button onclick="adj('fh',-0.1)">−</button><span>${t.fh.toFixed(1)}</span><button onclick="adj('fh',0.1)">+</button></div></div>
     </div>
@@ -945,6 +1025,11 @@ function renderTarget(){
       <div><label class="lb">Struttura</label><select class="inp" onchange="setB('stype',this.value)">${Object.entries(STYPE).map(([k,v])=>`<option value="${k}" ${t.stype===k?'selected':''}>${v}</option>`).join('')}</select></div>
       <div><label class="lb">Stato / danno</label><select class="inp" onchange="setB('damage',this.value)">${Object.entries(DMG).map(([k,v])=>`<option value="${k}" ${t.damage===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
+    <label class="lb" style="margin-top:12px">Corpi / ali con piani diversi</label>
+    ${hasParts?t.parts.map((p,i)=>`<div class="partrow ${ui.selPart===i?'sel':''}" onclick="selPart(${i})"><span class="pd">${i+1}</span><div style="flex:1;font-size:12px"><b>Corpo ${i+1}</b><br><span class="hint">${Math.round(polyArea(p.pts))} m² · h ${(p.levels*t.fh).toFixed(1)} m</span></div>
+        <div class="stepper" onclick="event.stopPropagation()"><button onclick="adjPart(${i},-1)">−</button><span>${p.levels}P</span><button onclick="adjPart(${i},1)">+</button></div></div>`).join('')+
+      `<div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="setTool('split')"><i data-lucide="split"></i>Dividi ancora</button><button class="btn sm" onclick="mergeParts()"><i data-lucide="merge"></i>Riunisci tutto</button></div>`
+     :`<p class="hint">Un'ala ha meno piani? Premi <b>Dividi in corpi</b> e tocca due punti per tagliare l'edificio: ogni corpo avrà i suoi piani.</p><button class="btn sm full" style="margin-top:6px" onclick="setTool('split')"><i data-lucide="split"></i>Dividi in corpi</button>`}
     <div class="side1"><span class="n">1</span><div><b>Lato 1 · ingresso</b> esposto a <b>${bearingName(s1.nx,s1.nz)}</b><br><small>${t.side1Manual?'Impostato dall\'operatore':'Automatico (lato verso strada): verifica!'}</small></div></div>
     <div class="grid3" style="margin-top:6px">
       <button class="btn sm" onclick="cycleSide(-1)" title="Ruota antiorario"><i data-lucide="rotate-ccw"></i>Antiorario</button>
@@ -1020,19 +1105,28 @@ function focusM(id){ const m=S.markers.find(x=>x.id===id); if(!m) return; if(m.f
 function renderTools(){
   $('#tools').innerHTML=TOOLS.map(t=>{
     if(t==='|') return '<span class="div"></span>';
-    if(typeof t==='string'){ const m=MT[t]; return `<button data-tool="${t}" class="${ui.tool===t?'on':''}" onclick="setTool('${t}')" title="${m.label}"><span class="tdot" style="background:${m.color}">${m.code}</span><span class="tl">${m.label.replace(/ \(.\)/,'').replace('Potenziale vittima','Potenziale').replace('Vittima deceduta','Deceduta').replace('Vittima viva','Viva')}</span></button>`; }
-    const [id,ic,lab]=t; return `<button data-tool="${id}" class="${ui.tool===id?'on':''}" onclick="${id==='undo'?'undo()':`setTool('${id}')`}" title="${lab}"><i data-lucide="${ic}"></i><span class="tl">${lab}</span></button>`;
+    if(typeof t==='string'){ const m=MT[t]; return `<button data-tool="${t}" class="${ui.tool===t?'on':''}" onclick="setTool('${t}')" title="${m.label}"><span class="tdot" style="background:${m.color}">${m.code}</span><span class="ts">${SHORT[t]}</span><span class="tl">${m.label.replace(/ \(.\)/,'').replace('Potenziale vittima','Potenziale').replace('Vittima deceduta','Deceduta').replace('Vittima viva','Viva')}</span></button>`; }
+    const [id,ic,lab]=t; return `<button data-tool="${id}" class="${ui.tool===id?'on':''}" onclick="${id==='undo'?'undo()':`setTool('${id}')`}" title="${lab}"><i data-lucide="${ic}"></i><span class="ts">${SHORT[id]||lab}</span><span class="tl">${lab}</span></button>`;
   }).join('');
   icons();
 }
 function setTool(t){
-  ui.tool=t; if(t!=='footprint') cancelFootprint(true); plan.measure=[];
-  if(['wall','footprint','measure','erase','ovmove'].includes(t) && ui.view!=='plan') setView('plan');
+  if(t!=='oper') ui.movingOp=null;
+  ui.tool=t; if(t!=='footprint') cancelFootprint(true); plan.measure=[]; plan.split=[]; plan.wallPrev=null;
+  if(PLAN_ONLY.includes(t) && ui.view!=='plan') setView('plan');
   if(t==='ovmove'&&!ovImg){ toast('Carica prima un\'immagine da ricalcare'); ui.tool='select'; }
-  $$('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tool===ui.tool));
-  renderHint(); $('#fpBar').classList.toggle('hidden',ui.tool!=='footprint');
+  if(t==='split'&&!target()){ toast('Nessun edificio obiettivo'); ui.tool='select'; }
+  if(t==='oper'&&!roster.length){ ui.tool='select'; openRoster(true); }
+  syncToolUi();
   if(t==='footprint'&&window.innerWidth<960) toast(HINTS.footprint);
   drawPlanLive();
+}
+function syncToolUi(){
+  $$('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tool===ui.tool));
+  const on=$('#tools button.on'); if(on&&on.scrollIntoView) try{ on.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(e){}
+  renderHint(); $('#fpBar').classList.toggle('hidden',ui.tool!=='footprint');
+  const done={wall:'Fine muri',split:'Fine',measure:'Fine misura',erase:'Fine gomma',oper:'Fine',ovmove:'Fine'}[ui.tool];
+  $('#doneBar').classList.toggle('hidden',!done); if(done) $('#doneTxt').textContent=done; $('#doneUndo').classList.toggle('hidden',ui.tool!=='wall');
 }
 function renderHint(){
   let h=HINTS[ui.tool]; if(MT[ui.tool]) h=`Clic sul punto da marcare come «${MT[ui.tool].label}» · piano attivo: ${floorLong(S.floor)}`;
@@ -1047,6 +1141,7 @@ function renderVLabel(){
   $('#vLabel').innerHTML=`<span>${v} · ${floorLong(S.floor).toUpperCase()}</span>${s?`<span class="src" style="background:${s[0]};color:${s[1]}">${s[2]}</span>`:''}`;
 }
 function setView(v){
+  if(v!=='plan'&&PLAN_ONLY.includes(ui.tool)){ ui.tool='select'; cancelFootprint(true); plan.wallPrev=null; plan.split=[]; syncToolUi(); }
   ui.view=v; $$('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   $('#three').classList.toggle('hidden',v!=='3d'); $('#plan').classList.toggle('hidden',v!=='plan'); $('#mapview').classList.toggle('hidden',v!=='map'); $('#meteoview').classList.toggle('hidden',v!=='meteo');
   $('#mapCtl').classList.toggle('hidden',v!=='map'); $('#compass').classList.toggle('hidden',v==='map'||v==='meteo'); $('#windChip').classList.toggle('hidden',v==='map'||v==='meteo'||!S.wx);
@@ -1063,7 +1158,7 @@ function toggleUi(k){ ui[k]=!ui[k]; ({cut:'#bCut',exploded:'#bExp',xray:'#bXray'
 function toggleTheme(){ ui.theme=ui.theme==='plastico'?'notte':'plastico'; try{localStorage.setItem(LS_KEY+'_theme',ui.theme);}catch(e){} build3D(); drawPlanLive(); }
 function fitAll(){ fit3D(); planFit(); drawPlanLive(); if(map&&ui.view==='map') updateMap(true); }
 
-function renderAll(){ renderHeader(); renderLinks(); renderTarget(); renderFloors(); renderSectors(); renderMarkers(); renderVLabel(); renderHint(); setNet(); renderWeather(); }
+function renderAll(){ renderHeader(); renderLinks(); renderTarget(); renderFloors(); renderSectors(); renderMarkers(); renderOps(); renderVLabel(); renderHint(); setNet(); renderWeather(); renderCadAuto(); }
 function refreshAll(fit){ renderAll(); build3D(); if(fit){ fit3D(); planFit(); } drawPlanLive(); if(map) updateMap(fit); save(); }
 
 /* ---------------- TEMI ---------------- */
@@ -1140,6 +1235,17 @@ function drawPlan(g,W,H,V,opt={}){
     S.walls.forEach(w=>{ if(w.floor!==f&&w.floor!==f-1) return; const [a,b]=[T(w.x1,w.z1),T(w.x2,w.z2)];
       g.lineCap='butt'; g.lineWidth=Math.max(2.5,0.25*V.s); g.strokeStyle=w.floor===f?'#7c3aed':hexA('#7c3aed',0.18); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); });
     pathPoly(g,t.pts,T); g.lineWidth=3; g.strokeStyle=C.tStroke; g.lineJoin='miter'; g.stroke();
+    // corpi con piani diversi
+    if(t.parts&&t.parts.length){ g.save();
+      t.parts.forEach((p,i)=>{ if(f>=0&&f>=p.levels){ pathPoly(g,p.pts,T); g.save(); g.clip(); g.strokeStyle='rgba(100,116,139,.55)'; g.lineWidth=1.2;
+          const bb=p.pts.map(q=>T(q.x,q.z)); const xs=bb.map(v=>v[0]), ys=bb.map(v=>v[1]); const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+          for(let k=x0-(y1-y0);k<x1;k+=8){ g.beginPath(); g.moveTo(k,y1); g.lineTo(k+(y1-y0),y0); g.stroke(); } g.restore();
+          pathPoly(g,p.pts,T); g.fillStyle='rgba(100,116,139,.18)'; g.fill(); }
+        pathPoly(g,p.pts,T); g.setLineDash([6,4]); g.lineWidth=ui.selPart===i?3.5:2; g.strokeStyle='#f59e0b'; g.stroke(); g.setLineDash([]);
+        const c=centroid(p.pts); const [x,y]=T(c.x,c.z); const lab=`${i+1} · ${p.levels}P`+(f>=0&&f>=p.levels?' · assente qui':'');
+        g.font='800 11px "JetBrains Mono",monospace'; const w=g.measureText(lab).width+12; g.fillStyle='#f59e0b'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y+18,w,18,5):g.rect(x-w/2,y+18,w,18); g.fill();
+        g.fillStyle='#1a1205'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y+27); });
+      g.restore(); }
     // quote lati
     const ori=signedArea(t.pts)>0?1:-1; g.font=`700 ${Math.max(9,Math.min(12,V.s*0.9))}px "JetBrains Mono",monospace`; g.fillStyle=onImg?'#fff':C.ink; g.textAlign='center'; g.textBaseline='middle'; if(onImg){ g.shadowColor='#000'; g.shadowBlur=4; }
     for(let i=0;i<t.pts.length;i++){ const p=t.pts[i], q=t.pts[(i+1)%t.pts.length]; const L=Math.hypot(q.x-p.x,q.z-p.z); if(L*V.s<38) continue;
@@ -1172,6 +1278,14 @@ function drawPlan(g,W,H,V,opt={}){
     g.beginPath(); g.moveTo(x-5,y+10); g.lineTo(x,y+17); g.lineTo(x+5,y+10); g.fillStyle='#fff'; g.fill();
     g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y-1);
     if(m.note&&V.s>8){ g.font='600 10px Inter'; g.fillStyle=C.ink; g.fillText(m.note.slice(0,24),x,y+27); } });
+  // operatori
+  (S.ops||[]).forEach(o=>{ const [x,y]=T(o.x,o.z); const img=opImg.get(o.opId);
+    if(o.floor!==f){ g.beginPath(); g.arc(x,y,6,0,7); g.fillStyle='rgba(37,99,235,.35)'; g.fill(); return; }
+    const R0=15; g.save(); g.shadowColor='rgba(0,0,0,.45)'; g.shadowBlur=7; g.beginPath(); g.arc(x,y,R0+3,0,7); g.fillStyle='#fff'; g.fill(); g.restore();
+    g.save(); g.beginPath(); g.arc(x,y,R0,0,7); g.clip();
+    if(img&&img.complete&&img.naturalWidth) g.drawImage(img,x-R0,y-R0,R0*2,R0*2); else { g.fillStyle='#2563eb'; g.fillRect(x-R0,y-R0,R0*2,R0*2); g.fillStyle='#fff'; g.font='800 12px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(o.nome),x,y+1); }
+    g.restore(); g.beginPath(); g.arc(x,y,R0+3,0,7); g.lineWidth=3; g.strokeStyle=ui.movingOp===o.opId?'#f59e0b':'#2563eb'; g.stroke();
+    if(V.s>3){ const lab=o.nome.length>18?o.nome.slice(0,17)+'…':o.nome; g.font='700 10.5px Inter,sans-serif'; const w=g.measureText(lab).width+10; g.fillStyle='#2563eb'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y+R0+6,w,16,5):g.rect(x-w/2,y+R0+6,w,16); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y+R0+14); } });
   // anteprime strumenti
   if(opt.live){
     if(plan.wallPrev){ const w=plan.wallPrev; const [a,b]=[T(w.x1,w.z1),T(w.x2,w.z2)]; g.setLineDash([6,4]); g.lineWidth=3; g.strokeStyle='#a78bfa'; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); g.setLineDash([]);
@@ -1181,6 +1295,9 @@ function drawPlan(g,W,H,V,opt={}){
     if(plan.measure.length){ const a=plan.measure[0], b=plan.measure[1]||plan.hover; if(b){ const [p,q]=[T(a.x,a.z),T(b.x,b.z)]; g.lineWidth=2; g.strokeStyle='#f59e0b'; g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke();
       label(g,(p[0]+q[0])/2,(p[1]+q[1])/2-14,Math.hypot(b.x-a.x,b.z-a.z).toFixed(2)+' m','#b45309'); }
       const [x,y]=T(a.x,a.z); g.beginPath(); g.arc(x,y,5,0,7); g.fillStyle='#f59e0b'; g.fill(); }
+    if(ui.tool==='split'&&(plan.split||[]).length){ const a=plan.split[0], b=plan.split[1]||plan.hover; if(b){ const dx=b.x-a.x, dz=b.z-a.z, L=Math.hypot(dx,dz)||1, ex=dx/L*400, ez=dz/L*400;
+        const [p,q]=[T(a.x-ex,a.z-ez),T(a.x+ex,a.z+ez)]; g.save(); g.setLineDash([10,6]); g.lineWidth=3; g.strokeStyle='#f59e0b'; g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke(); g.restore(); }
+      const [x,y]=T(a.x,a.z); g.beginPath(); g.arc(x,y,7,0,7); g.fillStyle='#f59e0b'; g.fill(); }
     if(ui.tool==='side1'&&plan.hoverSide!=null&&t&&t.obb){ const P=t.obb.P, k=plan.hoverSide; const [a,b]=[T(P[k].x,P[k].z),T(P[(k+1)%4].x,P[(k+1)%4].z)];
       g.save(); g.lineWidth=8; g.strokeStyle='rgba(245,165,36,.85)'; g.lineCap='round'; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); g.restore();
       label(g,(a[0]+b[0])/2,(a[1]+b[1])/2-18,'LATO 1 = INGRESSO?','#b45309'); }
@@ -1198,7 +1315,7 @@ function label(g,x,y,txt,bg){ g.font='700 11px "JetBrains Mono"'; const w=g.meas
 function evPos(e){ const r=plan.cv.getBoundingClientRect(); return {px:e.clientX-r.left, py:e.clientY-r.top}; }
 function snapPoint(p,from){
   const t=target(); let best=null, bd=12/plan.s;
-  const cand=[]; if(t) cand.push(...t.pts); S.walls.filter(w=>w.floor===S.floor).forEach(w=>cand.push({x:w.x1,z:w.z1},{x:w.x2,z:w.z2}));
+  const cand=[]; if(t){ cand.push(...t.pts); if(t.parts) t.parts.forEach(p=>cand.push(...p.pts)); } S.walls.filter(w=>w.floor===S.floor).forEach(w=>cand.push({x:w.x1,z:w.z1},{x:w.x2,z:w.z2}));
   cand.forEach(c=>{ const d=Math.hypot(c.x-p.x,c.z-p.z); if(d<bd){bd=d;best=c;} });
   if(best) { plan.snap=best; return {...best}; }
   plan.snap=null;
@@ -1212,6 +1329,7 @@ plan.cv.addEventListener('pointerdown',e=>{
   const w=s2w(px,py);
   plan.drag={px,py,moved:false,cx:plan.cx,cz:plan.cz,btn:e.button};
   if(ui.tool==='wall'&&e.button===0){ const p=snapPoint(w); plan.wallPrev={x1:p.x,z1:p.z,x2:p.x,z2:p.z}; plan.drag.mode='wall'; }
+  else if((ui.tool==='select'||ui.tool==='oper')&&!ui.movingOp&&hitOp(px,py)){ const o=hitOp(px,py); plan.drag.mode='op'; plan.drag.op=o; plan.drag.ox=o.x; plan.drag.oz=o.z; }
   else if(ui.tool==='ovmove'&&S.overlay){ plan.drag.mode='ov'; plan.drag.ox=S.overlay.dx; plan.drag.oz=S.overlay.dz; }
   else plan.drag.mode='pan';
 });
@@ -1221,25 +1339,28 @@ plan.cv.addEventListener('pointermove',e=>{
     plan.s=Math.max(0.6,Math.min(120,P.s*d/P.d)); const mx=(a.px+b.px)/2,my=(a.py+b.py)/2;
     const wx=(P.mx-plan.w/2)/P.s+P.cx, wz=(P.my-plan.h/2)/P.s+P.cz; plan.cx=wx-(mx-plan.w/2)/plan.s; plan.cz=wz-(my-plan.h/2)/plan.s; drawPlanLive(); return; }
   const w=s2w(px,py); const D=plan.drag;
+  if(!D&&e.pointerType==='mouse') opTip(hitOp(px,py),e.clientX,e.clientY);
+  if(D&&D.mode==='op'){ if(Math.hypot(px-D.px,py-D.py)>5) D.moved=true; if(D.moved){ D.op.x=D.ox+(px-D.px)/plan.s; D.op.z=D.oz+(py-D.py)/plan.s; drawPlanLive(); } return; }
   if(D){ if(Math.hypot(px-D.px,py-D.py)>5) D.moved=true;
     if(D.mode==='wall'){ const p=snapPoint(w,{x:plan.wallPrev.x1,z:plan.wallPrev.z1}); plan.wallPrev.x2=p.x; plan.wallPrev.z2=p.z; }
     else if(D.mode==='ov'){ S.overlay.dx=D.ox+(px-D.px)/plan.s; S.overlay.dz=D.oz+(py-D.py)/plan.s; }
     else if(D.moved){ plan.cx=D.cx-(px-D.px)/plan.s; plan.cz=D.cz-(py-D.py)/plan.s; }
     drawPlanLive(); return; }
   if(ui.tool==='side1'){ plan.hoverSide=nearestSide(w); drawPlanLive(); return; }
-  if(ui.tool==='footprint'||ui.tool==='measure'||ui.tool==='wall'){ plan.hover=ui.tool==='footprint'?snapPoint(w,plan.fp.at(-1)):(ui.tool==='wall'?(snapPoint(w),w):w); drawPlanLive(); }
+  if(ui.tool==='footprint'||ui.tool==='measure'||ui.tool==='wall'||ui.tool==='split'){ plan.hover=ui.tool==='footprint'?snapPoint(w,plan.fp.at(-1)):(ui.tool==='wall'||ui.tool==='split'?(snapPoint(w),w):w); drawPlanLive(); }
 });
 function endPtr(e){
   plan.ptr.delete(e.pointerId); if(plan.ptr.size<2) plan.pinch=null;
   const D=plan.drag; if(!D) return; plan.drag=null; const {px,py}=evPos(e); const w=s2w(px,py);
   if(D.mode==='wall'&&plan.wallPrev){ const W=plan.wallPrev; plan.wallPrev=null; plan.snap=null;
-    if(Math.hypot(W.x2-W.x1,W.z2-W.z1)>0.3){ pushUndo(); S.walls.push({id:'w'+Date.now(),floor:S.floor,...W}); build3D(); save(); toast(`Muro ${Math.hypot(W.x2-W.x1,W.z2-W.z1).toFixed(2)} m · ${floorLabel(S.floor)}`); }
+    if(Math.hypot(W.x2-W.x1,W.z2-W.z1)>0.5){ pushUndo(); S.walls.push({id:'w'+Date.now(),floor:S.floor,...W}); build3D(); save(); toast(`Muro ${Math.hypot(W.x2-W.x1,W.z2-W.z1).toFixed(2)} m · ${floorLabel(S.floor)}`); }
     drawPlanLive(); return; }
   if(D.mode==='ov'){ save(); return; }
+  if(D.mode==='op'){ const o=D.op; if(D.moved){ const nx=o.x,nz=o.z; o.x=D.ox; o.z=D.oz; pushUndo(); o.x=nx; o.z=nz; o.t=new Date().toISOString(); afterOps(); toast(o.nome+' spostato · '+floorLabel(o.floor)); } else opCard(o.opId); return; }
   if(!D.moved&&e.type==='pointerup') planClick(w,px,py);
 }
 plan.cv.addEventListener('pointerup',endPtr); plan.cv.addEventListener('pointercancel',endPtr);
-plan.cv.addEventListener('pointerleave',()=>{ plan.hover=null; if(!plan.drag) drawPlanLive(); });
+plan.cv.addEventListener('pointerleave',()=>{ plan.hover=null; opTip(null); if(!plan.drag) drawPlanLive(); });
 plan.cv.addEventListener('wheel',e=>{ e.preventDefault(); const {px,py}=evPos(e); const w=s2w(px,py); plan.s=Math.max(0.6,Math.min(120,plan.s*Math.exp(-e.deltaY*0.0015)));
   plan.cx=w.x-(px-plan.w/2)/plan.s; plan.cz=w.z-(py-plan.h/2)/plan.s; drawPlanLive(); },{passive:false});
 plan.cv.addEventListener('dblclick',e=>{ if(ui.tool==='footprint') closeFootprint(); });
@@ -1251,6 +1372,8 @@ function planClick(w,px,py){
     if(plan.fp.length>=3){ const [fx,fy]=w2s(plan,plan.w,plan.h)(plan.fp[0].x,plan.fp[0].z); if(Math.hypot(fx-px,fy-py)<14){ closeFootprint(); return; } }
     plan.fp.push(snapPoint(w,plan.fp.at(-1))); drawPlanLive(); return; }
   if(tool==='side1'){ if(!t){ toast('Nessun obiettivo'); return; } const k=nearestSide(w); setSide1(k); setTool('select'); return; }
+  if(tool==='split'){ const q=snapPoint(w); plan.snap=null; plan.split=plan.split||[]; plan.split.push(q); if(plan.split.length===2){ const [a,b]=plan.split; plan.split=[]; if(Math.hypot(b.x-a.x,b.z-a.z)<0.5){ toast('Punti troppo vicini'); return; } splitTarget(a,b); } else { toast('Ora tocca il secondo punto della linea di taglio'); drawPlanLive(); } return; }
+  if(tool==='oper'){ opPick(w.x,w.z); return; }
   if(tool==='measure'){ if(plan.measure.length>=2) plan.measure=[]; plan.measure.push(w); if(plan.measure.length===2) toast('Distanza: '+Math.hypot(plan.measure[1].x-plan.measure[0].x,plan.measure[1].z-plan.measure[0].z).toFixed(2)+' m'); drawPlanLive(); return; }
   if(tool==='erase'){
     let bm=null,bd=16/plan.s; S.markers.filter(m=>m.floor===S.floor).forEach(m=>{const d=Math.hypot(m.x-w.x,m.z-w.z); if(d<bd){bd=d;bm=m;}});
@@ -1360,13 +1483,17 @@ function build3D(){
     const fls=floorsOf(t); const Q=quadGeom(t);
     fls.forEach(f=>{
       if(ui.cut&&f>S.floor) return;
-      const act=f===S.floor; const y=floorBase(t,f); const geo=extrude(t.pts,t.fh);
+      const act=f===S.floor; const y=floorBase(t,f);
       const st=QUADS.map(q=>sec(f,q).st); const allClear=st.every(s=>s==='clear'); const anyDanger=st.includes('danger');
       let col=act?C.floorAct3:C.floor3; if(!act&&allClear) col=0x86efac; if(!act&&anyDanger&&!allClear) col=ui.theme==='plastico'?0xfecaca:0x5b1a1a;
       const op=ui.xray?(act?0.55:0.16):(act?0.92:(ui.cut?0.95:0.9));
-      const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:col,roughness:0.6,transparent:op<1,opacity:op,depthWrite:!ui.xray||act}));
-      m.position.y=y; m.castShadow=!ui.xray; m.receiveShadow=true; m.userData={bid:t.id,floor:f,target:true}; world.add(m); clickables.push(m);
-      const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:act?0xe1251b:(ui.theme==='plastico'?0xc2410c:0xff6b5b)})); e.position.y=y; world.add(e);
+      const mat=new THREE.MeshStandardMaterial({color:col,roughness:0.6,transparent:op<1,opacity:op,depthWrite:!ui.xray||act});
+      const eCol=act?0xe1251b:(ui.theme==='plastico'?0xc2410c:0xff6b5b);
+      const pieces=f<0?[{pts:t.pts,i:-1}]:partsOf(t).map((p,i)=>({...p,i})).filter(p=>p.levels>f);
+      pieces.forEach(p=>{ const geo=extrude(p.pts,t.fh); const m=new THREE.Mesh(geo,mat);
+        m.position.y=y; m.castShadow=!ui.xray; m.receiveShadow=true; m.userData={bid:t.id,floor:f,target:true,part:p.i}; world.add(m); clickables.push(m);
+        const selp=t.parts&&ui.selPart===p.i;
+        const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:selp?0xf59e0b:eCol})); e.position.y=y; world.add(e); });
     });
     // assi settori e lettere sul piano attivo
     const ya=floorBase(t,S.floor)+(ui.cut?t.fh+0.05:0.08)+(ui.cut?0:0); const yl=ui.cut?ya+0.4:floorBase(t,S.floor)+t.fh+0.4;
@@ -1380,6 +1507,8 @@ function build3D(){
     S.walls.forEach(w=>{ if(ui.cut&&w.floor>S.floor) return; if(w.floor<-(t.basement||0)||w.floor>=t.levels) return; const L=Math.hypot(w.x2-w.x1,w.z2-w.z1); const h=t.fh*0.9;
       const m=new THREE.Mesh(new THREE.BoxGeometry(L,h,0.25),wMat); m.position.set((w.x1+w.x2)/2,floorBase(t,w.floor)+h/2,(w.z1+w.z2)/2); m.rotation.y=-Math.atan2(w.z2-w.z1,w.x2-w.x1); m.castShadow=true; world.add(m); });
     // marcature
+    (S.ops||[]).forEach(o=>{ if(ui.cut&&o.floor>S.floor) return; const y=floorBase(t,Math.max(-(t.basement||0),Math.min(t.levels-1,o.floor)));
+      const sp=sprite(initials(o.nome),'#2563eb','#fff',sz*0.9); sp.position.set(o.x,y+1.6+sz*0.3,o.z); if(o.floor!==S.floor) sp.material.opacity=0.45; sp.userData.op=o.opId; world.add(sp); });
     S.markers.forEach(mk=>{ if(ui.cut&&mk.floor>S.floor) return; const M=MT[mk.type]; const y=floorBase(t,Math.max(-(t.basement||0),Math.min(t.levels-1,mk.floor)));
       const col=new THREE.Color(M.color); const pin=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,2.4,8),new THREE.MeshBasicMaterial({color:col})); pin.position.set(mk.x,y+1.2,mk.z); world.add(pin);
       const sp=sprite(M.code+mk.n,M.color,'#fff',sz*0.85); sp.position.set(mk.x,y+2.4+sz*0.4,mk.z); if(mk.floor!==S.floor) sp.material.opacity=0.45; world.add(sp); });
@@ -1415,6 +1544,7 @@ function click3D(e){
   const ud=hit.object.userData;
   if(MT[ui.tool]){ addMarker(ui.tool,hit.point.x,hit.point.z); return; }
   if(ui.tool==='side1'){ const k=nearestSide({x:hit.point.x,z:hit.point.z}); if(k!=null){ setSide1(k); setTool('select'); } return; }
+  if(ui.tool==='oper'){ if(ud.target&&ud.floor!=null&&ud.floor!==S.floor) setFloor(ud.floor); opPick(hit.point.x,hit.point.z); return; }
   if(ui.tool==='select'){
     if(ud.target&&ud.floor!=null){ if(ud.floor!==S.floor){ setFloor(ud.floor); toast(floorLong(ud.floor)); } return; }
     if(ud.bid&&ud.bid!==S.targetId) setTarget(ud.bid);
@@ -1490,6 +1620,7 @@ function initMap(){
   mapL.osm.addTo(map); mapL.cat.addTo(map);
   mapGroup=L.layerGroup().addTo(map);
   map.on('click',e=>{ mapPickLL=e.latlng; $('#mapPick').classList.remove('hidden'); $('#mapPickTxt').textContent=`${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+    if(catOn) cadQuery(e.latlng.lat,e.latlng.lng).then(c=>{ if(mapPickLL===e.latlng) $('#mapPickTxt').textContent+=` · F.${c.foglio} P.${c.particella}`; }).catch(()=>{});
     mapGroup.eachLayer(l=>{ if(l.options&&l.options.pick) mapGroup.removeLayer(l); }); L.circleMarker(e.latlng,{radius:8,color:'#f5a524',weight:3,fillOpacity:0.3,pick:true}).addTo(mapGroup); });
   $$('#mapCtl [data-b]').forEach(b=>b.onclick=()=>{ $$('#mapCtl [data-b]').forEach(x=>x.classList.toggle('on',x===b)); map.removeLayer(mapL.osm); map.removeLayer(mapL.sat); mapL[b.dataset.b].addTo(map); mapL[b.dataset.b].bringToBack(); });
 }
@@ -1551,6 +1682,7 @@ function buildTavola(){
   y+=4*28+10; const h3=top+ph-y-12;
   if(renderer&&h3>160){ const w3=cw-24; snapshot3D(w3,h3,cv=>g.drawImage(cv,0,0,cv.width,cv.height,cx+12,y,w3,h3));
     g.strokeStyle='#0f172a'; g.lineWidth=1.5; g.strokeRect(cx+12,y,w3,h3); g.fillStyle='#0f172a'; g.fillRect(cx+12,y,110,28); g.fillStyle='#fff'; g.font='800 14px "JetBrains Mono"'; g.fillText('VISTA 3D',cx+22,y+15); resize3D(); }
+  g.fillStyle='#64748b'; g.font='500 15px Inter'; g.textAlign='left'; g.textBaseline='middle'; g.fillText('USAR-TAC v'+APP_VER+' · Ideata e realizzata da Alessio Corvino · Edifici © contributori OpenStreetMap',mx,Hc-14);
   return {canvas:c};
 }
 function wrap(g,txt,x,y,w,lh,max){ const words=txt.split(' '); let line='',n=0; for(const wd of words){ const tl=line?line+' '+wd:wd; if(g.measureText(tl).width>w&&line){ g.fillText(line,x,y); y+=lh; line=wd; if(++n>=max-1){ break; } } else line=tl; } g.fillText(line,x,y); }
@@ -1584,7 +1716,9 @@ function openReport(){
     <div class="pg"><h2>Vista 3D</h2>${img3?`<img src="${img3}" style="max-height:110mm;object-fit:contain">`:''}
     <h2>Settori per piano (A–D orari dal lato 1, E centro)</h2><table><tr><th>Piano</th>${QUADS.map(q=>`<th>${q}</th>`).join('')}</tr>${secRows}</table>
     <h2>Marcature</h2><table><tr><th>ID</th><th>Tipo</th><th>Piano</th><th>Coordinate</th><th>Nota</th><th>Ora</th></tr>${mRows}</table>
-    ${S.meta.note?`<h2>Note operative</h2><p style="font-size:10pt;white-space:pre-wrap">${esc(S.meta.note)}</p>`:''}</div>`;
+    ${(S.ops||[]).length?`<h2>Operatori in area</h2><table><tr><th>Nome</th><th>Squadra</th><th>Ruolo</th><th>Piano</th><th>Ultimo aggiornamento</th></tr>${S.ops.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td>${esc(o.squadra||'')}</td><td>${esc(o.ruolo||'')}</td><td>${floorLong(o.floor)}</td><td>${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table>`:''}
+    ${S.meta.note?`<h2>Note operative</h2><p style="font-size:10pt;white-space:pre-wrap">${esc(S.meta.note)}</p>`:''}
+    <p style="font-size:8pt;color:#666;margin-top:14px">Generato con USAR-TAC v${APP_VER} · Ideata e realizzata da Alessio Corvino · Edifici © contributori OpenStreetMap · Iniziativa non ufficiale: non sostituisce la documentazione ufficiale CNVVF.</p></div>`;
   $('#printArea').innerHTML=html;
   openModal('Report A4',`<div style="background:#fff;color:#000;padding:16px;border-radius:8px" class="rep">${html}</div><style>.rep table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}.rep th{background:#eee}.rep h1{font-size:18px}.rep h2{font-size:13px;margin:14px 0 4px;text-transform:uppercase}.rep img{width:100%;border:1px solid #000;margin-top:6px}.rep h1+div img,.rep div>img{width:auto;border:0;margin:0}</style>`,
     `<button class="btn pri sm" onclick="doPrint()"><i data-lucide="printer"></i>Stampa / PDF</button>`);
@@ -1596,6 +1730,7 @@ function summaryText(){
   L.push(`📍 ${t?.addr||S.label}`); L.push(`🌐 ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`); L.push(`🗺 https://www.google.com/maps/search/?api=1&query=${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`);
   if(S.cad.foglio||S.cad.particella) L.push(`📑 Catasto: ${S.cad.comune} F.${S.cad.foglio} P.${S.cad.particella}${S.cad.sub?' Sub.'+S.cad.sub:''}`);
   if(t){ const g1=quadGeom(t).sides[0]; L.push(`🏢 ${t.levels} piani f.t. + ${t.basement||0} interrati · h ${bHeight(t).toFixed(1)} m · impronta ${Math.round(t.area)} m²${t.est?' (piani stimati)':''}`);
+    if(t.parts&&t.parts.length) L.push(`   ↳ corpi: ${t.parts.map((p,i)=>(i+1)+') '+p.levels+'P').join(' · ')}`);
     L.push(`🧱 ${STYPE[t.stype]} · ${DMG[t.damage]}${S.asr?' · '+S.asr:''}`); L.push(`➊ Lato 1 (fronte) esposto a ${bearingName(g1.nx,g1.nz)}`);
     const act=[]; floorsOf(t).slice().reverse().forEach(f=>QUADS.forEach(q=>{ const s=sec(f,q); if(s.st!=='todo') act.push(`${floorLabel(f)}-${q}: ${ST[s.st].full}${s.sq?' ('+s.sq+')':''}`); }));
     if(act.length){ L.push('▦ Settori:'); act.forEach(a=>L.push('  • '+a)); } }
@@ -1603,6 +1738,7 @@ function summaryText(){
   const c=k=>S.markers.filter(m=>m.type===k).length;
   if(S.markers.length){ L.push(`🧍 Vittime: viva L ${c('victimL')} · potenz. V ${c('victimV')} · deced. D ${c('victimD')}`); L.push(`⚠️ Pericoli ${c('hazard')} · Accessi ${c('access')} · Spazi vuoti ${c('void')} · Puntell. ${c('shore')}`);
     S.markers.filter(m=>m.note).forEach(m=>L.push(`  • ${MT[m.type].code}${m.n} ${floorLabel(m.floor)}: ${m.note}`)); }
+  if((S.ops||[]).length){ L.push(`👷 Operatori in area: ${S.ops.length}`); S.ops.slice().sort((a,b)=>b.floor-a.floor).forEach(o=>L.push(`  • ${o.nome}${o.squadra?' ('+o.squadra+')':''} – ${floorLabel(o.floor)}`)); }
   L.push(`🕒 ${nowStr()} · ${S.meta.team}${S.meta.op?' · '+S.meta.op:''}`);
   return L.join('\n');
 }
@@ -1694,6 +1830,115 @@ function setLogo(n,file){ if(!file) return; const r=new FileReader(); r.onload=e
 function downscalePng(src,max,cb){ const i=new Image(); i.onload=()=>{ const k=Math.min(1,max/Math.max(i.width,i.height)); const c=document.createElement('canvas'); c.width=Math.round(i.width*k); c.height=Math.round(i.height*k); c.getContext('2d').drawImage(i,0,0,c.width,c.height); cb(c.toDataURL('image/png')); }; i.src=src; }
 function clearLogos(){ S_logos={l1:null,l2:null}; try{ localStorage.removeItem(LS_KEY+'_logos'); }catch(e){} applyLogos(); toast('Loghi standard ripristinati'); }
 
+/* =====================================================================
+   OPERATORI IN AREA (elenco locale con foto + posizione per piano)
+   ===================================================================== */
+let roster=[]; const opImg=new Map();
+function loadRoster(){ try{ roster=JSON.parse(localStorage.getItem(LS_KEY+'_roster'))||[]; }catch(e){ roster=[]; } roster.forEach(cacheOpImg); renderOps(); }
+function saveRoster(){ try{ localStorage.setItem(LS_KEY+'_roster',JSON.stringify(roster)); return true; }catch(e){ toast('Memoria del dispositivo piena: usa meno foto'); return false; } }
+function cacheOpImg(r){ opImg.delete(r.id); if(r.foto){ const i=new Image(); i.onload=()=>drawPlanLive(); i.src=r.foto; opImg.set(r.id,i); } }
+const rosterOf=id=>roster.find(r=>r.id===id);
+function initials(n){ return (n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join(''); }
+function avatarHtml(r,cls='av'){ return r&&r.foto?`<img class="${cls}" src="${r.foto}" alt="">`:`<span class="${cls}">${esc(initials(r?r.nome:'?'))}</span>`; }
+function minsAgo(t){ const m=Math.round((Date.now()-new Date(t))/60000); return m<1?'adesso':m<60?m+' min fa':Math.floor(m/60)+' h fa'; }
+function hitOp(px,py){ let best=null,bd=22; (S.ops||[]).filter(o=>o.floor===S.floor).forEach(o=>{ const [x,y]=w2s(plan,plan.w,plan.h)(o.x,o.z); const d=Math.hypot(x-px,y-py); if(d<bd){bd=d;best=o;} }); return best; }
+function opTip(o,cx,cy){ const el=$('#opTip'); if(!o){ el.classList.add('hidden'); return; } const r=rosterOf(o.opId)||o;
+  el.innerHTML=`${r.foto?`<img src="${r.foto}">`:`<span class="ini">${esc(initials(o.nome))}</span>`}<div><b>${esc(o.nome)}</b><span>${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}<br>${floorLong(o.floor)} · ${minsAgo(o.t)}</span></div>`;
+  el.style.left=(cx+16)+'px'; el.style.top=(cy+12)+'px'; el.classList.remove('hidden'); }
+function opPick(x,z){
+  if(ui.movingOp){ const o=S.ops.find(o=>o.opId===ui.movingOp); ui.movingOp=null; if(o){ pushUndo(); Object.assign(o,{x,z,floor:S.floor,t:new Date().toISOString()}); afterOps(); toast(o.nome+' · '+floorLabel(S.floor)); } setTool('select'); return; }
+  window._opXZ={x,z,floor:S.floor};
+  openModal('Chi c\'è in questo punto? · '+floorLong(S.floor),`<input class="inp" id="opSearch" placeholder="Cerca nome o squadra…" oninput="opFilter()"><div class="oplist" id="opPickList" style="margin-top:8px"></div>`,
+    `<button class="btn sm" onclick="openRoster()"><i data-lucide="contact"></i>Elenco</button>`);
+  opFilter(); if(window.innerWidth>960) setTimeout(()=>{ const i=$('#opSearch'); i&&i.focus(); },50);
+}
+function opFilter(){ const q=(($('#opSearch')||{}).value||'').toLowerCase(); const l=roster.filter(r=>(r.nome+' '+(r.squadra||'')+' '+(r.ruolo||'')).toLowerCase().includes(q));
+  $('#opPickList').innerHTML=l.map(r=>{ const o=(S.ops||[]).find(o=>o.opId===r.id); return `<button class="oprow" style="text-align:left;width:100%" onclick="opPlace('${r.id}')">${avatarHtml(r)}<div class="t"><div>${esc(r.nome)}</div><small>${esc(r.squadra||'')}${r.ruolo?' · '+esc(r.ruolo):''}${o?' · ora in '+floorLabel(o.floor):''}</small></div></button>`; }).join('')||'<div class="empty">Nessun nome trovato</div>'; }
+function opPlace(id){ const r=rosterOf(id), p=window._opXZ; if(!r||!p) return; pushUndo(); S.ops=S.ops||[]; const o=S.ops.find(o=>o.opId===id);
+  const d={opId:id,nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',floor:p.floor,x:p.x,z:p.z,t:new Date().toISOString()};
+  if(o) Object.assign(o,d); else S.ops.push(d); closeModal(); afterOps(); toast(`${r.nome} · ${floorLabel(p.floor)}`); }
+function afterOps(){ renderOps(); build3D(); drawPlanLive(); save(); }
+function renderOps(){ const el=$('#opList'); if(!el) return; const ops=(S.ops||[]).slice().sort((a,b)=>b.floor-a.floor);
+  $('#opCount').textContent=ops.length?ops.length+' in area':'';
+  el.innerHTML=ops.length?ops.map(o=>{ const r=rosterOf(o.opId)||o; return `<div class="oprow">${avatarHtml(r)}<div class="t"><div>${esc(o.nome)}</div><small>${esc(o.squadra||'')} · ${floorLabel(o.floor)} · ${minsAgo(o.t)}</small></div>
+    <button class="ib" title="Mostra" onclick="focusOp('${o.opId}')"><i data-lucide="crosshair"></i></button><button class="ib" title="Esce dall'area" onclick="opRemove('${o.opId}')"><i data-lucide="log-out"></i></button></div>`; }).join('')
+    :`<div class="empty">Nessun operatore posizionato.<br>${roster.length?'Premi <b>Posiziona</b> e tocca la pianta o il 3D.':'Prima crea l\'<b>Elenco operatori</b> (una volta sola).'}</div>`;
+  icons(); }
+function opCard(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; const r=rosterOf(id)||o;
+  openModal(o.nome,`<div class="opbig">${avatarHtml(r,'av')}<div><div style="font-size:18px;font-weight:800">${esc(o.nome)}</div><div class="hint">${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}</div>
+    <div style="margin-top:10px;font-family:var(--mono);font-size:13px">${floorLong(o.floor)}<br>aggiornato alle ${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} (${minsAgo(o.t)})</div></div></div>`,
+    `<button class="btn sm amb" onclick="opMove('${id}')"><i data-lucide="move"></i>Sposta</button><button class="btn sm" onclick="opRemove('${id}')"><i data-lucide="log-out"></i>Esce dall'area</button>`); }
+function opMove(id){ closeModal(); setTool('oper'); ui.movingOp=id; drawPlanLive(); toast('Tocca il nuovo punto (cambia piano prima, se serve)'); }
+function opRemove(id){ pushUndo(); S.ops=S.ops.filter(o=>o.opId!==id); closeModal(); afterOps(); toast('Operatore uscito dall\'area'); }
+function focusOp(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; if(o.floor!==S.floor) setFloor(o.floor); setView('plan'); plan.cx=o.x; plan.cz=o.z; plan.s=Math.max(plan.s,20); drawPlanLive(); }
+// gestione elenco
+let _rFoto=null;
+function openRoster(first){
+  const sq=['USAR-1','USAR-2','USAR-3','USAR-4','CANI-1','CANI-2','TEC-1','SAN-1','LOG-1'].map(x=>`<option value="${x}">`).join('');
+  openModal('Elenco operatori',`${first?'<p class="hint" style="margin-bottom:10px">Per posizionare gli operatori serve prima l\'elenco. Si crea una volta sola e resta salvato su questo dispositivo (puoi esportarlo per gli altri tablet).</p>':''}
+    <div class="grid3" style="grid-template-columns:2fr 1fr 1fr;gap:6px"><input class="inp" id="rNome" placeholder="Nome e cognome"><input class="inp" id="rSq" placeholder="Squadra" list="sqList"><input class="inp" id="rRuolo" placeholder="Ruolo (es. CS)"></div><datalist id="sqList">${sq}</datalist>
+    <div class="row" style="margin-top:6px"><label class="btn sm" style="flex:1"><i data-lucide="camera"></i><span id="rFotoTxt">Foto (facoltativa)</span><input type="file" accept="image/*" class="hidden" onchange="rFotoSel(this.files[0])"></label><button class="btn sm pri" onclick="rAdd()"><i data-lucide="user-plus"></i>Aggiungi</button></div>
+    <div class="oplist" id="rList" style="margin-top:10px"></div>
+    <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Importa molti nomi insieme (una riga per persona: Nome;Squadra;Ruolo)</summary><textarea id="rCsv" style="min-height:110px;margin-top:6px" placeholder="Mario Rossi;USAR-1;CS&#10;Luca Bianchi;USAR-1;VP"></textarea><button class="btn sm" style="margin-top:6px" onclick="rImport()"><i data-lucide="list-plus"></i>Importa</button></details>`,
+    `<button class="btn sm" onclick="rExport()"><i data-lucide="download"></i>Esporta</button><label class="btn sm"><i data-lucide="upload"></i>Carica<input type="file" accept=".json,application/json" class="hidden" onchange="rLoadFile(this.files[0]);this.value=''"></label>`);
+  rRender(); }
+function rRender(){ const el=$('#rList'); if(!el) return; $('#mTitle').textContent=`Elenco operatori (${roster.length})`;
+  el.innerHTML=roster.map(r=>`<div class="oprow">${avatarHtml(r)}<div class="t"><div>${esc(r.nome)}</div><small>${esc(r.squadra||'—')}${r.ruolo?' · '+esc(r.ruolo):''}</small></div>
+    <label class="ib" title="Cambia foto"><i data-lucide="camera"></i><input type="file" accept="image/*" class="hidden" onchange="rSetFoto('${r.id}',this.files[0])"></label><button class="ib" title="Elimina" onclick="rDel('${r.id}')"><i data-lucide="trash-2"></i></button></div>`).join('')||'<div class="empty">Elenco vuoto</div>';
+  icons(); }
+function photoThumb(file,cb){ const fr=new FileReader(); fr.onload=e=>{ const i=new Image(); i.onload=()=>{ const S0=160, c=document.createElement('canvas'); c.width=c.height=S0; const k=Math.min(i.width,i.height);
+  c.getContext('2d').drawImage(i,(i.width-k)/2,(i.height-k)/2,k,k,0,0,S0,S0); cb(c.toDataURL('image/jpeg',0.8)); }; i.src=e.target.result; }; fr.readAsDataURL(file); }
+function rFotoSel(f){ if(!f) return; photoThumb(f,u=>{ _rFoto=u; $('#rFotoTxt').textContent='Foto pronta ✓'; }); }
+function rAdd(){ const n=$('#rNome').value.trim(); if(!n){ toast('Scrivi nome e cognome'); return; }
+  const r={id:'o'+Date.now()+Math.floor(Math.random()*999),nome:n,squadra:$('#rSq').value.trim(),ruolo:$('#rRuolo').value.trim(),foto:_rFoto||''}; roster.push(r); _rFoto=null;
+  if(!saveRoster()){ roster.pop(); return; } cacheOpImg(r); $('#rNome').value=''; $('#rRuolo').value=''; $('#rFotoTxt').textContent='Foto (facoltativa)'; rRender(); renderOps(); toast(n+' aggiunto'); }
+function rSetFoto(id,f){ const r=rosterOf(id); if(!r||!f) return; photoThumb(f,u=>{ r.foto=u; if(saveRoster()){ cacheOpImg(r); rRender(); renderOps(); drawPlanLive(); } }); }
+function rDel(id){ roster=roster.filter(r=>r.id!==id); saveRoster(); rRender(); renderOps(); }
+function rImport(){ const lines=$('#rCsv').value.split(/\n/).map(l=>l.trim()).filter(Boolean); let n=0;
+  lines.forEach(l=>{ const [nome,squadra,ruolo]=l.split(/[;,\t]/).map(x=>(x||'').trim()); if(nome&&!roster.some(r=>r.nome.toLowerCase()===nome.toLowerCase())){ roster.push({id:'o'+Date.now()+n+Math.floor(Math.random()*999),nome,squadra:squadra||'',ruolo:ruolo||'',foto:''}); n++; } });
+  saveRoster(); $('#rCsv').value=''; rRender(); renderOps(); toast(n+' operatori importati'); }
+function rExport(){ dl(URL.createObjectURL(new Blob([JSON.stringify({usartac_roster:1,roster})],{type:'application/json'})),'USAR-TAC_elenco_operatori.json'); }
+function rLoadFile(f){ if(!f) return; const fr=new FileReader(); fr.onload=()=>{ try{ const j=JSON.parse(fr.result); const list=j.roster||j; let n=0;
+  list.forEach(r=>{ if(!r.nome) return; const ex=roster.find(x=>x.nome.toLowerCase()===r.nome.toLowerCase()); if(ex){ Object.assign(ex,{squadra:r.squadra||ex.squadra,ruolo:r.ruolo||ex.ruolo,foto:r.foto||ex.foto}); } else { roster.push({id:r.id||('o'+Date.now()+n),nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',foto:r.foto||''}); } n++; });
+  saveRoster(); roster.forEach(cacheOpImg); rRender(); renderOps(); toast(n+' operatori caricati'); }catch(e){ toast('File non valido'); } }; fr.readAsText(f); }
+
+/* =====================================================================
+   CATASTO AUTOMATICO (Agenzia delle Entrate, servizio WMS INSPIRE)
+   ===================================================================== */
+async function cadQuery(lat,lng){
+  const d=0.00005, base='https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&REQUEST=GetFeatureInfo&LAYERS=CP.CadastralParcel&QUERY_LAYERS=CP.CadastralParcel&STYLES=&WIDTH=11&HEIGHT=11&INFO_FORMAT=text/html&FORMAT=image/png';
+  const tries=[`${base}&VERSION=1.3.0&CRS=EPSG:4258&BBOX=${lat-d},${lng-d},${lat+d},${lng+d}&I=5&J=5`,`${base}&VERSION=1.1.1&SRS=EPSG:4258&BBOX=${lng-d},${lat-d},${lng+d},${lat+d}&X=5&Y=5`];
+  let err='nessuna risposta';
+  for(const u of tries){ try{ const c=new AbortController(); const tm=setTimeout(()=>c.abort(),10000); const r=await fetch(u,{signal:c.signal}); clearTimeout(tm); const txt=await r.text();
+      const m=txt.match(/([A-Z]\d{3})([A-Z_0-9])(\d{4})([0-9A-Z])([0-9A-Z])\.([0-9A-Za-z]+)/);
+      if(m) return {codice:m[1],sezione:m[2]==='_'?'':m[2],foglio:String(parseInt(m[3],10)),allegato:m[4]==='0'?'':m[4],particella:m[6],raw:m[0]};
+      err='nessuna particella trovata in quel punto';
+    }catch(e){ err=e.name==='AbortError'?'il servizio del catasto non risponde':'il servizio del catasto non permette la lettura automatica da questa app'; } }
+  throw new Error(err);
+}
+function interiorPoint(b){ if(pointInPoly(b.c,b.pts)) return b.c; let best=null,bd=1e9; const xs=b.pts.map(p=>p.x), zs=b.pts.map(p=>p.z); const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
+  for(let i=1;i<12;i++) for(let j=1;j<12;j++){ const p={x:x0+(x1-x0)*i/12,z:z0+(z1-z0)*j/12}; if(pointInPoly(p,b.pts)){ const d=Math.hypot(p.x-b.c.x,p.z-b.c.z); if(d<bd){bd=d;best=p;} } } return best||b.c; }
+let cadSeq=0;
+async function cadLookupTarget(silent){
+  const t=target(); if(!t){ if(!silent) toast('Nessun edificio obiettivo'); return; } if(silent&&S.cad.foglio&&!S.cad.auto) return;
+  const my=++cadSeq; const p=interiorPoint(t), ll=toLatLng(p.x,p.z); if(!silent){ $('#cadAuto').style.color='var(--mute)'; $('#cadAuto').textContent='Interrogo il Catasto…'; }
+  try{ const c=await cadQuery(ll.lat,ll.lng); if(my!==cadSeq) return;
+    S.cad={...S.cad,foglio:c.foglio+(c.allegato?' all. '+c.allegato:''),particella:c.particella,codice:c.codice,sezione:c.sezione,auto:true,autoT:Date.now()};
+    fillInputs(); renderHeader(); save(); renderCadAuto(); toast(`Catasto: foglio ${c.foglio}, particella ${c.particella}`);
+  }catch(e){ if(my!==cadSeq) return; if(S.cad.auto){ S.cad={...S.cad,foglio:'',particella:'',auto:false}; fillInputs(); renderHeader(); save(); }
+    if(!silent){ $('#cadAuto').style.color='#ff8a80'; $('#cadAuto').textContent='Non riuscito: '+e.message+'. Usa MAPPA → Catasto o i pulsanti MappeCatasto.'; } else renderCadAuto(); }
+}
+function renderCadAuto(){ const el=$('#cadAuto'); if(!el) return; el.style.color='#5ee69a';
+  el.textContent=S.cad.auto&&S.cad.particella?`✓ Rilevato dal Catasto AdE (codice comune ${S.cad.codice||'—'}${S.cad.sezione?' sez. '+S.cad.sezione:''}) · verifica sul posto`:''; }
+
+/* ---------------- INFO E CREDITI ---------------- */
+function openInfo(){ openModal('USAR-TAC · Informazioni',`<div class="info">
+  <div class="row" style="gap:12px;margin-bottom:6px"><img src="${LOGO_EMB[1]}" style="width:54px;height:54px"><img src="${LOGO_EMB[2]}" style="width:54px;height:54px"><div><div style="font-size:19px;font-weight:800;font-family:var(--mono)">USAR-TAC</div><div class="hint">Tattica · Analisi · Coordinamento · versione ${APP_VER}</div></div></div>
+  <h4>Crediti</h4><p>Ideata e realizzata da <b>VE Alessio Corvino – Comando VVF Cagliari</b>, per il team USAR M Sardegna.</p>
+  <h4>Avviso</h4><p>Iniziativa non ufficiale a supporto del team: non sostituisce la documentazione, le procedure e le linee guida ufficiali CNVVF e INSARAG. Gli edifici sono quelli delle mappe pubbliche prima dell'evento: piani, accessi e catasto vanno sempre verificati sul posto.</p>
+  <h4>Fonti dei dati</h4><p>Edifici e strade © contributori OpenStreetMap (licenza ODbL) · Indirizzi: Nominatim · Meteo: Open-Meteo (CC BY 4.0) e Windy · Foto aeree: Esri World Imagery · Catasto: Agenzia delle Entrate (servizio WMS INSPIRE) e MappeCatasto.</p>
+  <h4>Dati e privacy</h4><p>Scenari, elenco operatori e foto restano salvati solo su questo dispositivo: nulla viene inviato a server del team. Per passarli a un altro tablet usa Esporta / Carica.</p></div>`); }
+
 /* ---------------- PIN D'ACCESSO ---------------- */
 // Per cambiare PIN: sostituire PIN_HASH con lo SHA-256 di "usartac|NUOVOPIN"
 const PIN_HASH='be6e0a87399370381b33ce98ceb783e4c4f7a3413a1151583d4098041f72c5b2', PIN_LEN=4; let gBuf='';
@@ -1731,7 +1976,7 @@ try{ ui.theme=localStorage.getItem(LS_KEY+'_theme')||'plastico'; ui.base=localSt
 $$('#baseSeg button').forEach(b=>{ b.onclick=()=>setBase(b.dataset.base); b.classList.toggle('on',b.dataset.base===ui.base); });
 renderTools(); icons(); init3D(); planResize();
 const restored=restore();
-fillInputs(); loadOvFromState(); loadLogos(); gateCheck();
+fillInputs(); loadOvFromState(); loadLogos(); gateCheck(); loadRoster();
 if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
 else { $('#q').value=PRESET.label.replace(' (esempio)',''); loadArea(); }
 setTool('select'); setView('3d');
