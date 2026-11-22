@@ -528,7 +528,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.14</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.15</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -605,7 +605,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.14</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.15</p>
     </div>
   </div>
 </div>
@@ -656,7 +656,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.14 · 22/11/2026'; const APP_V='v2.14';
+const APP_VER = '2.15 · 22/11/2026'; const APP_V='v2.15';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2223,7 +2223,12 @@ async function logAccess(ev,force){ if(!LINK||!LINK.url||!WHO) return; let last=
   try{ await api('log',{},{nome:WHO.nome,inList:WHO.inList?'1':'0',ev,dev:devName(),ver:APP_V,id:devId()},15000); localStorage.setItem(LS_KEY+'_wlog',String(Date.now())); }catch(e){} }
 let _whoList=[];
 async function whoAsk(){
-  openModal('Chi sta usando l\'app?',`<p class="hint" style="margin-bottom:8px">Scegli il tuo nome: serve una volta sola su questo dispositivo e resta nel <b>registro accessi</b> del team.</p>
+  openModal('Benvenuto in USAR-TAC',`<div style="display:flex;align-items:center;gap:12px;margin:-4px 0 12px;padding:12px 14px;border-radius:12px;background:linear-gradient(90deg,#a6101e,#7d0a16)">
+      <img src="${logoSrc(1)}" style="width:46px;height:46px;object-fit:contain;background:transparent" alt=""><img src="${logoSrc(2)}" style="width:46px;height:46px;object-fit:contain;background:transparent" alt="">
+      <div style="line-height:1.25"><div style="font-weight:800;font-size:15px;letter-spacing:.05em;color:#fff">VIGILI DEL FUOCO</div><div style="font-size:11.5px;color:#ffd9d6;letter-spacing:.08em">USAR M SARDEGNA</div></div>
+      <div style="margin-left:auto;text-align:right;line-height:1.25"><div style="font-family:var(--mono);font-weight:800;color:#fff">USAR-TAC</div><div style="font-size:10.5px;color:#ffd9d6">primo accesso</div></div></div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:4px">Chi sta usando l'app?</div>
+    <p class="hint" style="margin-bottom:8px">Scegli il <b>tuo nome</b> dall'elenco del team: serve <b>una volta sola</b> su questo dispositivo e resta nel <b>registro accessi</b>.</p>
     <input class="inp" id="whoQ" placeholder="Cerca il tuo nome o cognome…" oninput="whoFilter()"><div class="oplist" id="whoList" style="margin-top:8px;max-height:46vh;overflow:auto"><div class="empty">Carico l'elenco del team…</div></div>
     <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Non sono nell'elenco</summary><div class="row" style="gap:6px;margin-top:6px"><input class="inp" id="whoFree" placeholder="Nome, cognome e comando/team"><button class="btn sm" onclick="whoOut()">Conferma</button></div>
     <p class="hint" style="margin-top:4px">Verrà segnalato come <b>fuori elenco</b> al referente dell'app.</p></details>`,'');
