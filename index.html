@@ -472,6 +472,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
           <button class="btn sm" onclick="openRoster()"><i data-lucide="contact"></i>Elenco operatori</button>
         </div>
         <div class="mlist" id="opList"></div>
+        <div class="row" style="margin-top:8px;gap:8px"><span class="hint" style="flex:1">Avviso tempo in area dopo</span><input class="inp mono" id="opLimit" type="number" min="5" max="240" style="width:74px;height:32px" onchange="setOpLimit(this.value)"><span class="hint">min</span></div>
       </div>
       <div class="card">
         <h3><i data-lucide="map-pinned"></i>Marcature<span class="r"><label style="cursor:pointer"><input type="checkbox" id="mOnlyFloor" onchange="renderMarkers()"> solo piano</label></span></h3>
@@ -508,6 +509,10 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <button class="btn sm full" style="margin-top:8px" onclick="clearLogos()"><i data-lucide="rotate-ccw"></i>Ripristina loghi standard</button>
         <p class="hint" style="margin-top:8px">Già impostati i loghi del sistema USAR (cartella Drive condivisa). Tocca un riquadro solo per sostituirne uno: vale per testata, tavola PNG e report.</p>
       </div>
+      <div class="card" id="linkCard">
+        <h3><i data-lucide="cloud"></i>Foglio USAR-TAC e condivisione<span class="r" id="linkState">non collegato</span></h3>
+        <div id="linkBody"></div>
+      </div>
       <div class="card">
         <h3><i data-lucide="save"></i>Scenario<span class="r" id="saveState">—</span></h3>
         <div class="grid2">
@@ -519,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.1</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -575,6 +580,12 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <div class="prow"><button onclick="rot3(-1)" title="Ruota a sinistra"><i data-lucide="rotate-ccw"></i></button><button onclick="zoom3(0.75)" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="rot3(1)" title="Ruota a destra"><i data-lucide="rotate-cw"></i></button></div>
         <div class="prow"><button id="bTop" onclick="topView()" title="Vista dall'alto"><i data-lucide="arrow-down-to-dot"></i></button><button onclick="zoom3(1.33)" title="Allontana"><i data-lucide="minus"></i></button><button onclick="flyToTarget()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
       </div>
+      <div class="ov pad3d hidden" id="pad2d">
+        <div class="prow"><button class="wide" onclick="planOrient()" title="Ruota la pianta con il Lato 1 (ingresso) in basso"><i data-lucide="flag"></i><span>Lato 1 giù</span></button></div>
+        <div class="prow"><button onclick="planRot(-1)" title="Ruota a sinistra"><i data-lucide="rotate-ccw"></i></button><button onclick="planZoom(1.35)" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="planRot(1)" title="Ruota a destra"><i data-lucide="rotate-cw"></i></button></div>
+        <div class="prow"><button onclick="planNorth()" title="Nord in alto"><b style="font-size:13px">N</b></button><button onclick="planZoom(0.74)" title="Allontana"><i data-lucide="minus"></i></button><button onclick="planCenter()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
+      </div>
+      <div class="ov hidden" id="shareBar" style="top:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:700"></div>
       <div class="ov toolhint" id="toolHint"></div>
       <div id="toast"></div>
       <div id="loading" class="hidden"><div class="spin"></div><p id="loadTxt">Caricamento…</p><button class="btn sm hidden" id="loadCancel" onclick="cancelLoad()"><i data-lucide="x"></i>Annulla</button></div>
@@ -590,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.1</p>
     </div>
   </div>
 </div>
@@ -636,12 +647,12 @@ const QUADS = ['A','B','C','D','E'];
 const TOOLS = [
   ['select','mouse-pointer-2','Seleziona'],['side1','flag','Lato 1'],['oper','user-round','Operatore'],
   '|','access','hazard','victimL','victimV','victimD','void','shore','cleared','|',
-  ['wall','pen-line','Muro'],['split','split','Corpi'],['footprint','pentagon','Sagoma'],['measure','ruler','Misura'],['erase','eraser','Gomma'],
+  ['wall','pen-line','Muro'],['wing','square-dashed','Ala'],['footprint','pentagon','Sagoma'],['measure','ruler','Misura'],['erase','eraser','Gomma'],
   '|',['undo','undo-2','Annulla']
 ];
-const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',split:'Corpi',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
-const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split'];
-const APP_VER = '2.0 · 22/11/2026';
+const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
+const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
+const APP_VER = '2.1 · 22/11/2026'; const APP_V='v2.1';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -650,7 +661,7 @@ const HINTS = {
   side1:'Clic sul lato dell\'INGRESSO PRINCIPALE: diventa il Lato 1 e i settori A–D si ricalcolano in senso orario',
   erase:'Clic su una marcatura o un muro per eliminarlo',
   ovmove:'Trascina l\'immagine di ricalco per allinearla alla sagoma',
-  split:'Tocca DUE punti per tracciare la linea di taglio attraverso l\'edificio: si divide in due corpi con piani separati',
+  wing:'Tieni premuto e TRASCINA un riquadro sopra l\'ala con piani diversi (anche abbondante): poi scegli quanti piani ha',
   oper:'Tocca il punto dove si trova l\'operatore e scegli il nome dall\'elenco · trascina un operatore per spostarlo',
 };
 const PRESET = {label:'Cagliari – Piazza Yenne (esempio)', lat:39.21635, lng:9.11045};
@@ -732,10 +743,28 @@ function finalizeBuilding(b){
 function target(){ return S.buildings.find(b=>b.id===S.targetId) || null; }
 function bHeight(b){ return b.levels*b.fh; }
 // CORPI: parti dell'edificio con numero di piani diverso
-function partsOf(b){ return (b&&b.parts&&b.parts.length)?b.parts:[{id:'p0',pts:b.pts,levels:b.levels}]; }
+function partsOf(b){ if(b&&b.parts&&b.parts.length){ b.parts.forEach((p,i)=>{ if(!p.polys) p.polys=[p.pts]; if(!p.name) p.name=i?'Ala '+i:'Corpo principale'; }); return b.parts; } return [{id:'p0',name:'Edificio',polys:[b.pts],levels:b.levels}]; }
+function partArea(p){ return p.polys.reduce((s,q)=>s+polyArea(q),0); }
 function syncLevels(b){ if(b.parts&&b.parts.length) b.levels=Math.max(...b.parts.map(p=>p.levels)); }
-function grossArea(b){ return partsOf(b).reduce((s,p)=>s+polyArea(p.pts)*p.levels,0)+b.area*(b.basement||0); }
-function volumeOf(b){ return partsOf(b).reduce((s,p)=>s+polyArea(p.pts)*p.levels*b.fh,0); }
+function grossArea(b){ return partsOf(b).reduce((s,p)=>s+partArea(p)*p.levels,0)+b.area*(b.basement||0); }
+function volumeOf(b){ return partsOf(b).reduce((s,p)=>s+partArea(p)*p.levels*b.fh,0); }
+function clipConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; let out=poly; for(let i=0;i<Rr.length;i++){ out=clipHalf(out,Rr[i],Rr[(i+1)%Rr.length],o); if(out.length<3) return []; } return out; }
+function diffConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; const pieces=[]; let cur=poly;
+  for(let i=0;i<Rr.length;i++){ const a=Rr[i], b=Rr[(i+1)%Rr.length]; const outP=clipHalf(cur,a,b,-o); if(outP.length>=3&&polyArea(outP)>0.3) pieces.push(outP); cur=clipHalf(cur,a,b,o); if(cur.length<3) break; }
+  return pieces; }
+function wingRect(a,b){ const t=target(); const u=t&&t.obb?t.obb.u:{x:1,z:0}, v=t&&t.obb?t.obb.v:{x:0,z:1}; const dx=b.x-a.x, dz=b.z-a.z; const du=dx*u.x+dz*u.z, dv=dx*v.x+dz*v.z;
+  return {du,dv,R:[{x:a.x,z:a.z},{x:a.x+u.x*du,z:a.z+u.z*du},{x:a.x+u.x*du+v.x*dv,z:a.z+u.z*du+v.z*dv},{x:a.x+v.x*dv,z:a.z+v.z*dv}]}; }
+function askWingLevels(Rr){ window._wingR=Rr; const t=target();
+  openModal('Quanti piani ha quest\'ala?',`<p class="hint" style="margin-bottom:10px">Piani fuori terra della zona che hai riquadrato (piano terra compreso). Il resto dell'edificio resta a ${t?t.levels:'—'} piani.</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${Array.from({length:12},(_,i)=>`<button class="btn" style="height:58px;font-size:22px;font-family:var(--mono)" onclick="addWing(${i+1})">${i+1}</button>`).join('')}</div>`,
+    `<button class="btn sm" onclick="closeModal()">Annulla</button>`); }
+function addWing(levels){ closeModal(); const t=target(); const Rr=window._wingR; if(!t||!Rr) return;
+  const parts=partsOf(t).map(p=>({...p,polys:p.polys.map(q=>q.map(z=>({...z})))})); if(!t.parts||!t.parts.length) parts[0].name='Corpo principale';
+  const inters=[]; parts.forEach(p=>{ const np=[]; p.polys.forEach(poly=>{ const I=clipConvex(poly,Rr); if(I.length>=3&&polyArea(I)>0.5) inters.push(I); diffConvex(poly,Rr).forEach(D=>np.push(D)); }); p.polys=np; });
+  if(!inters.length){ toast('Il riquadro non tocca l\'edificio: trascinalo sopra l\'ala'); return; }
+  pushUndo(); const left=parts.filter(p=>p.polys.length); const n=left.filter(p=>p.name.startsWith('Ala')).length+1;
+  left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1;
+  setTool('select'); setStep(2); refreshAll(false); toast(`Ala ${n}: ${levels} piani`); }
 function clipHalf(poly,a,b,keep){ const side=q=>((b.x-a.x)*(q.z-a.z)-(b.z-a.z)*(q.x-a.x))*keep; const out=[];
   for(let i=0;i<poly.length;i++){ const P=poly[i],Q=poly[(i+1)%poly.length]; const sp=side(P), sq=side(Q);
     if(sp>=0) out.push({x:P.x,z:P.z}); if((sp>=0)!==(sq>=0)){ const k=sp/(sp-sq); out.push({x:P.x+(Q.x-P.x)*k,z:P.z+(Q.z-P.z)*k}); } }
@@ -750,7 +779,7 @@ function splitTarget(a,b){
   pushUndo(); parts.splice(i,1,{id:'p'+Date.now(),pts:L,levels:P.levels},{id:'p'+(Date.now()+1),pts:Rr,levels:P.levels});
   t.parts=parts; syncLevels(t); ui.selPart=i; setTool('select'); setStep(2); refreshAll(false); toast(`Edificio diviso in ${parts.length} corpi: imposta i piani di ciascuno`);
 }
-function adjPart(i,d){ const t=target(); if(!t||!t.parts) return; pushUndo(); const p=t.parts[i]; p.levels=Math.max(1,Math.min(60,p.levels+d)); syncLevels(t); t.est=false; ui.selPart=i;
+function adjPart(i,d){ const t=target(); if(!t||!t.parts) return; pushUndo(); const p=t.parts[i]; p.levels=Math.max(1,Math.min(60,p.levels+d)); syncLevels(t); t.est=false; ui.selPart=i; if(t.parts.length===1){ delete t.parts; }
   if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); }
 function selPart(i){ ui.selPart=ui.selPart===i?null:i; renderTarget(); drawPlanLive(); build3D(); }
 function mergeParts(){ const t=target(); if(!t||!t.parts) return; pushUndo(); delete t.parts; ui.selPart=null; refreshAll(false); toast('Corpi riuniti: un unico edificio'); }
@@ -950,10 +979,14 @@ function osmFail(){
 let saveT=null;
 function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{
   try{ const o={...S, overlay:S.overlay}; localStorage.setItem(LS_KEY,JSON.stringify(o)); $('#saveState').textContent='salvato '+hhmm(); }
-  catch(e){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null})); $('#saveState').textContent='salvato (senza immagine)'; }catch(_){ $('#saveState').textContent='non salvato'; } }
+  catch(e){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null})); $('#saveState').textContent='salvato (senza immagine ricalco)'; }
+    catch(_){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null,markers:S.markers.map(m=>({...m,foto:''}))})); $('#saveState').textContent='salvato SENZA foto: esporta lo scenario'; if(!save._warn){ save._warn=1; toast('Memoria piena: le foto restano finché non chiudi. Esporta lo scenario per conservarle'); } }
+      catch(__){ $('#saveState').textContent='non salvato'; } } }
+  shareAfterSave();
 },500); }
 function restore(){ try{ const j=JSON.parse(localStorage.getItem(LS_KEY)); if(j&&j.v===2){ S={...defaultState(),...j}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); return true; } }catch(e){} return false; }
-function pushUndo(){ undoStack.push(JSON.stringify({ops:S.ops,markers:S.markers,walls:S.walls,sectors:S.sectors,buildings:S.buildings.map(b=>({...b,obb:undefined})),targetId:S.targetId,seq:S.seq})); if(undoStack.length>60) undoStack.shift(); }
+function pushUndo(){ if(typeof SHARE!=='undefined'&&SHARE&&SHARE.mode==='follow'){ toast('Modalità SEGUI: le modifiche si fanno sul tablet che condivide'); throw new Error('sola lettura'); }
+  undoStack.push(JSON.stringify({ops:S.ops,markers:S.markers,walls:S.walls,sectors:S.sectors,buildings:S.buildings.map(b=>({...b,obb:undefined})),targetId:S.targetId,seq:S.seq})); if(undoStack.length>60) undoStack.shift(); }
 function undo(){
   const s=undoStack.pop(); if(!s){ toast('Niente da annullare'); return; }
   const o=JSON.parse(s); Object.assign(S,o); S.buildings.forEach(finalizeBuilding); refreshAll(false); toast('Azione annullata');
@@ -992,7 +1025,7 @@ async function copyText(t,msg){ try{ await navigator.clipboard.writeText(t); toa
 function fillInputs(){
   $('#cadComune').value=S.cad.comune; $('#cadFoglio').value=S.cad.foglio; $('#cadPart').value=S.cad.particella; $('#cadSub').value=S.cad.sub;
   $('#mEvento').value=S.meta.evento; $('#mTeam').value=S.meta.team; $('#mOp').value=S.meta.op; $('#mNote').value=S.meta.note;
-  $('#asrSel').value=S.asr||'';
+  $('#asrSel').value=S.asr||''; if($('#opLimit')) $('#opLimit').value=S.opLimit||40;
 }
 function setCad(){ S.cad={...S.cad,comune:$('#cadComune').value,foglio:$('#cadFoglio').value,particella:$('#cadPart').value,sub:$('#cadSub').value,auto:false}; renderCadAuto(); renderHeader(); save(); }
 function setMeta(){ S.meta={evento:$('#mEvento').value,team:$('#mTeam').value,op:$('#mOp').value,note:$('#mNote').value}; renderHeader(); save(); }
@@ -1026,10 +1059,10 @@ function renderTarget(){
       <div><label class="lb">Stato / danno</label><select class="inp" onchange="setB('damage',this.value)">${Object.entries(DMG).map(([k,v])=>`<option value="${k}" ${t.damage===k?'selected':''}>${v}</option>`).join('')}</select></div>
     </div>
     <label class="lb" style="margin-top:12px">Corpi / ali con piani diversi</label>
-    ${hasParts?t.parts.map((p,i)=>`<div class="partrow ${ui.selPart===i?'sel':''}" onclick="selPart(${i})"><span class="pd">${i+1}</span><div style="flex:1;font-size:12px"><b>Corpo ${i+1}</b><br><span class="hint">${Math.round(polyArea(p.pts))} m² · h ${(p.levels*t.fh).toFixed(1)} m</span></div>
+    ${hasParts?partsOf(t).map((p,i)=>`<div class="partrow ${ui.selPart===i?'sel':''}" onclick="selPart(${i})"><span class="pd">${i+1}</span><div style="flex:1;font-size:12px"><b>${esc(p.name)}</b><br><span class="hint">${Math.round(partArea(p))} m² · h ${(p.levels*t.fh).toFixed(1)} m</span></div>
         <div class="stepper" onclick="event.stopPropagation()"><button onclick="adjPart(${i},-1)">−</button><span>${p.levels}P</span><button onclick="adjPart(${i},1)">+</button></div></div>`).join('')+
-      `<div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="setTool('split')"><i data-lucide="split"></i>Dividi ancora</button><button class="btn sm" onclick="mergeParts()"><i data-lucide="merge"></i>Riunisci tutto</button></div>`
-     :`<p class="hint">Un'ala ha meno piani? Premi <b>Dividi in corpi</b> e tocca due punti per tagliare l'edificio: ogni corpo avrà i suoi piani.</p><button class="btn sm full" style="margin-top:6px" onclick="setTool('split')"><i data-lucide="split"></i>Dividi in corpi</button>`}
+      `<div class="grid2" style="margin-top:8px"><button class="btn sm amb" onclick="setTool('wing')"><i data-lucide="square-dashed"></i>Altra ala</button><button class="btn sm" onclick="mergeParts()"><i data-lucide="merge"></i>Riunisci tutto</button></div>`
+     :`<p class="hint">Un'ala ha meno (o più) piani? Premi il pulsante, poi <b>trascina un riquadro sopra l'ala</b> nella pianta (anche abbondante): ti chiede quanti piani ha.</p><button class="btn sm full amb" style="margin-top:6px" onclick="setTool('wing')"><i data-lucide="square-dashed"></i>Ala con piani diversi</button>`}
     <div class="side1"><span class="n">1</span><div><b>Lato 1 · ingresso</b> esposto a <b>${bearingName(s1.nx,s1.nz)}</b><br><small>${t.side1Manual?'Impostato dall\'operatore':'Automatico (lato verso strada): verifica!'}</small></div></div>
     <div class="grid3" style="margin-top:6px">
       <button class="btn sm" onclick="cycleSide(-1)" title="Ruota antiorario"><i data-lucide="rotate-ccw"></i>Antiorario</button>
@@ -1094,11 +1127,20 @@ function renderMarkers(){
   if(!list.length){ $('#mList').innerHTML=`<div class="empty">Nessuna marcatura. Scegli un simbolo nella barra strumenti e clicca sulla pianta o sul 3D.</div>`; return; }
   $('#mList').innerHTML=list.map(m=>`<div class="mitem"><span class="mdot" style="background:${MT[m.type].color}">${MT[m.type].code}${m.n}</span>
     <div class="t"><div>${MT[m.type].label} · ${floorLabel(m.floor)}</div><input value="${esc(m.note||'')}" placeholder="nota…" oninput="noteM('${m.id}',this.value)"></div>
+    ${m.foto?`<img src="${m.foto}" onclick="markerCard('${m.id}')" style="width:34px;height:34px;border-radius:6px;object-fit:cover;cursor:pointer">`:`<label class="ib" title="Aggiungi foto"><i data-lucide="camera"></i><input type="file" accept="image/*" class="hidden" onchange="photoM('${m.id}',this.files[0])"></label>`}
     <button class="ib" title="Mostra" onclick="focusM('${m.id}')"><i data-lucide="crosshair"></i></button>
     <button class="ib" title="Elimina" onclick="delM('${m.id}')"><i data-lucide="trash-2"></i></button></div>`).join('');
   icons();
 }
 function noteM(id,v){ const m=S.markers.find(x=>x.id===id); if(m){ m.note=v; save(); } }
+function photoM(id,f){ const m=S.markers.find(x=>x.id===id); if(!m||!f) return; const fr=new FileReader(); fr.onload=e=>downscale(e.target.result,720,u=>{ m.foto=u; renderMarkers(); drawPlanLive(); save(); if($('#modal')&&!$('#modal').classList.contains('hidden')) markerCard(id); toast('Foto aggiunta a '+MT[m.type].code+m.n); }); fr.readAsDataURL(f); }
+function markerCard(id){ const m=S.markers.find(x=>x.id===id); if(!m) return; const M=MT[m.type];
+  openModal(`${M.code}${m.n} · ${M.label}`,`<div class="row" style="gap:8px;margin-bottom:10px"><span class="mdot" style="background:${M.color};height:30px;min-width:44px">${M.code}${m.n}</span><div class="hint">${floorLong(m.floor)} · segnata alle ${new Date(m.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</div></div>
+    ${m.foto?`<img src="${m.foto}" style="width:100%;max-height:56vh;object-fit:contain;border-radius:8px;background:#000">`:`<div class="empty">Nessuna foto</div>`}
+    <label class="lb">Nota</label><input class="inp" value="${esc(m.note||'')}" oninput="noteM('${m.id}',this.value);renderMarkers();drawPlanLive()" placeholder="es. voce udita sotto la scala">`,
+    `<label class="btn sm amb"><i data-lucide="camera"></i>${m.foto?'Cambia foto':'Aggiungi foto'}<input type="file" accept="image/*" class="hidden" onchange="photoM('${m.id}',this.files[0])"></label>${m.foto?`<button class="btn sm" onclick="delPhotoM('${m.id}')"><i data-lucide="image-off"></i>Togli foto</button>`:''}<button class="btn sm" onclick="closeModal();delM('${m.id}')"><i data-lucide="trash-2"></i>Elimina</button>`); }
+function delPhotoM(id){ const m=S.markers.find(x=>x.id===id); if(!m) return; m.foto=''; renderMarkers(); save(); markerCard(id); }
+function hitMarker(px,py){ let best=null,bd=18; S.markers.filter(m=>m.floor===S.floor).forEach(m=>{ const [x,y]=w2s(plan,plan.w,plan.h)(m.x,m.z); const d=Math.hypot(x-px,y-py); if(d<bd){bd=d;best=m;} }); return best; }
 function delM(id){ pushUndo(); S.markers=S.markers.filter(x=>x.id!==id); renderMarkers(); build3D(); drawPlanLive(); save(); }
 function focusM(id){ const m=S.markers.find(x=>x.id===id); if(!m) return; if(m.floor!==S.floor) setFloor(m.floor); setView('plan'); plan.cx=m.x; plan.cz=m.z; plan.s=Math.max(plan.s,22); drawPlanLive(); }
 
@@ -1115,7 +1157,7 @@ function setTool(t){
   ui.tool=t; if(t!=='footprint') cancelFootprint(true); plan.measure=[]; plan.split=[]; plan.wallPrev=null;
   if(PLAN_ONLY.includes(t) && ui.view!=='plan') setView('plan');
   if(t==='ovmove'&&!ovImg){ toast('Carica prima un\'immagine da ricalcare'); ui.tool='select'; }
-  if(t==='split'&&!target()){ toast('Nessun edificio obiettivo'); ui.tool='select'; }
+  if(t==='wing'&&!target()){ toast('Nessun edificio obiettivo'); ui.tool='select'; }
   if(t==='oper'&&!roster.length){ ui.tool='select'; openRoster(true); }
   syncToolUi();
   if(t==='footprint'&&window.innerWidth<960) toast(HINTS.footprint);
@@ -1125,12 +1167,13 @@ function syncToolUi(){
   $$('#tools button').forEach(b=>b.classList.toggle('on',b.dataset.tool===ui.tool));
   const on=$('#tools button.on'); if(on&&on.scrollIntoView) try{ on.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(e){}
   renderHint(); $('#fpBar').classList.toggle('hidden',ui.tool!=='footprint');
-  const done={wall:'Fine muri',split:'Fine',measure:'Fine misura',erase:'Fine gomma',oper:'Fine',ovmove:'Fine'}[ui.tool];
+  const done={wall:'Fine muri',wing:'Annulla ala',measure:'Fine misura',erase:'Fine gomma',oper:'Fine',ovmove:'Fine'}[ui.tool];
   $('#doneBar').classList.toggle('hidden',!done); if(done) $('#doneTxt').textContent=done; $('#doneUndo').classList.toggle('hidden',ui.tool!=='wall');
 }
 function renderHint(){
   let h=HINTS[ui.tool]; if(MT[ui.tool]) h=`Clic sul punto da marcare come «${MT[ui.tool].label}» · piano attivo: ${floorLong(S.floor)}`;
   if(ui.view==='map') h='Clic su un punto della mappa per analizzare quell\'edificio · attiva Catasto per foglio/particella';
+  if(ui.view==='plan'&&ui.tool==='select') h='Trascina = sposta · rotella / due dita = zoom e rotazione · pulsanti a destra: ruota, centra, Lato 1 giù · tocca un settore per selezionarlo';
   if(ui.view==='meteo') h='Windy centrato sull\'obiettivo · vento al suolo (modello ECMWF)';
   $('#toolHint').textContent=h||'';
 }
@@ -1146,7 +1189,7 @@ function setView(v){
   $('#three').classList.toggle('hidden',v!=='3d'); $('#plan').classList.toggle('hidden',v!=='plan'); $('#mapview').classList.toggle('hidden',v!=='map'); $('#meteoview').classList.toggle('hidden',v!=='meteo');
   $('#mapCtl').classList.toggle('hidden',v!=='map'); $('#compass').classList.toggle('hidden',v==='map'||v==='meteo'); $('#windChip').classList.toggle('hidden',v==='map'||v==='meteo'||!S.wx);
   $('#meteoNote').classList.add('hidden'); if(v==='meteo') showWindy();
-  $('#pad3d').classList.toggle('hidden',v!=='3d');
+  $('#pad3d').classList.toggle('hidden',v!=='3d'); $('#pad2d').classList.toggle('hidden',v!=='plan');
   if(v!=='map'){ $('#mapPick').classList.add('hidden'); $('#mapNote').classList.add('hidden'); }
   if(v==='3d'){ resize3D(); needs3D=true; }
   if(v==='plan'){ planResize(); }
@@ -1187,9 +1230,17 @@ function fitView(W,H,margin=1.75){
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9; pts.forEach(p=>{x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);});
   return {cx:(x0+x1)/2, cz:(z0+z1)/2, s:Math.min(W/((x1-x0)*margin+12), H/((z1-z0)*margin+12))};
 }
-function planFit(){ if(!plan.w) return; Object.assign(plan,fitView(plan.w,plan.h)); }
-const w2s=(V,W,H)=>(x,z)=>[W/2+(x-V.cx)*V.s, H/2+(z-V.cz)*V.s];
-function s2w(px,py){ return {x:(px-plan.w/2)/plan.s+plan.cx, z:(py-plan.h/2)/plan.s+plan.cz}; }
+function planFit(){ if(!plan.w) return; const r=plan.rot||0; Object.assign(plan,fitView(plan.w,plan.h)); plan.rot=r; }
+function planRot(d){ plan.rot=((plan.rot||0)+d*Math.PI/12); drawPlanLive(); updateCompass(); }
+function planZoom(k){ plan.s=Math.max(0.6,Math.min(120,plan.s*k)); drawPlanLive(); }
+function planNorth(){ plan.rot=0; drawPlanLive(); updateCompass(); }
+function planCenter(){ const r=plan.rot||0; Object.assign(plan,fitView(plan.w,plan.h)); plan.rot=r; drawPlanLive(); }
+function planOrient(){ const t=target(); if(!t){ toast('Nessun obiettivo'); return; } const sd=quadGeom(t).sides[0]; plan.rot=Math.PI/2-Math.atan2(sd.nz,sd.nx); planCenter(); updateCompass(); toast('Pianta orientata: Lato 1 (ingresso) in basso'); }
+const w2s=(V,W,H)=>{ const r=V.rot||0, c=Math.cos(r), s=Math.sin(r); return (x,z)=>{ const dx=(x-V.cx)*V.s, dz=(z-V.cz)*V.s; return [W/2+dx*c-dz*s, H/2+dx*s+dz*c]; }; };
+function scr2w(V,W,H,px,py){ const r=V.rot||0, c=Math.cos(r), s=Math.sin(r); const dx=(px-W/2)/V.s, dy=(py-H/2)/V.s; return {x:V.cx+dx*c+dy*s, z:V.cz-dx*s+dy*c}; }
+function s2w(px,py){ return scr2w(plan,plan.w,plan.h,px,py); }
+function dScr2w(dx,dy){ const r=plan.rot||0, c=Math.cos(r), s=Math.sin(r); return {x:(dx*c+dy*s)/plan.s, z:(-dx*s+dy*c)/plan.s}; }
+function anchorPlan(w,px,py){ const d=dScr2w(px-plan.w/2,py-plan.h/2); plan.cx=w.x-d.x; plan.cz=w.z-d.z; }
 function drawPlanLive(){ if(ui.view!=='plan'||!plan.w) return; pctx.setTransform(plan.dpr,0,0,plan.dpr,0,0); drawPlan(pctx,plan.w,plan.h,plan,{live:true}); }
 function pathPoly(g,pts,T){ g.beginPath(); pts.forEach((p,i)=>{ const [x,y]=T(p.x,p.z); i?g.lineTo(x,y):g.moveTo(x,y); }); g.closePath(); }
 function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; }
@@ -1198,10 +1249,10 @@ function drawPlan(g,W,H,V,opt={}){
   const C=TC(opt.theme||ui.theme), T=w2s(V,W,H), t=target(), f=S.floor;
   g.save(); g.fillStyle=C.bg; g.fillRect(0,0,W,H);
   // griglia metrica
-  const step=V.s>26?1:V.s>9?5:V.s>3?10:50; const x0=Math.floor((V.cx-W/2/V.s)/step)*step, z0=Math.floor((V.cz-H/2/V.s)/step)*step;
+  const step=V.s>26?1:V.s>9?5:V.s>3?10:50; const RR=Math.hypot(W,H)/2/V.s+step; const x0=Math.floor((V.cx-RR)/step)*step, z0=Math.floor((V.cz-RR)/step)*step;
   g.lineWidth=1;
-  for(let x=x0;x<V.cx+W/2/V.s;x+=step){ const [sx]=T(x,0); g.strokeStyle=Math.round(x/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(Math.round(sx)+.5,0); g.lineTo(Math.round(sx)+.5,H); g.stroke(); }
-  for(let z=z0;z<V.cz+H/2/V.s;z+=step){ const [,sy]=T(0,z); g.strokeStyle=Math.round(z/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(0,Math.round(sy)+.5); g.lineTo(W,Math.round(sy)+.5); g.stroke(); }
+  for(let x=x0;x<V.cx+RR;x+=step){ const a=T(x,V.cz-RR), b=T(x,V.cz+RR); g.strokeStyle=Math.round(x/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
+  for(let z=z0;z<V.cz+RR;z+=step){ const a=T(V.cx-RR,z), b=T(V.cx+RR,z); g.strokeStyle=Math.round(z/step)%5===0?C.grid2:C.grid; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); }
   // sfondo satellite / stradale
   const onImg=ui.base!=='plastico'&&!opt.noBase;
   if(onImg) drawTiles2D(g,T,V);
@@ -1221,7 +1272,7 @@ function drawPlan(g,W,H,V,opt={}){
   // immagine di ricalco
   if(ovImg&&S.overlay&&t){
     const o=S.overlay; const [sx,sy]=T(t.c.x+o.dx,t.c.z+o.dz); const wpx=o.w*V.s, hpx=wpx*ovImg.height/ovImg.width;
-    g.save(); g.translate(sx,sy); g.rotate(o.rot*Math.PI/180); g.globalAlpha=o.op; g.drawImage(ovImg,-wpx/2,-hpx/2,wpx,hpx); g.restore();
+    g.save(); g.translate(sx,sy); g.rotate(o.rot*Math.PI/180+(V.rot||0)); g.globalAlpha=o.op; g.drawImage(ovImg,-wpx/2,-hpx/2,wpx,hpx); g.restore();
   }
   if(t){
     const Q=quadGeom(t);
@@ -1237,21 +1288,23 @@ function drawPlan(g,W,H,V,opt={}){
     pathPoly(g,t.pts,T); g.lineWidth=3; g.strokeStyle=C.tStroke; g.lineJoin='miter'; g.stroke();
     // corpi con piani diversi
     if(t.parts&&t.parts.length){ g.save();
-      t.parts.forEach((p,i)=>{ if(f>=0&&f>=p.levels){ pathPoly(g,p.pts,T); g.save(); g.clip(); g.strokeStyle='rgba(100,116,139,.55)'; g.lineWidth=1.2;
-          const bb=p.pts.map(q=>T(q.x,q.z)); const xs=bb.map(v=>v[0]), ys=bb.map(v=>v[1]); const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+      partsOf(t).forEach((p,i)=>{ p.polys.forEach(pp=>{ if(f>=0&&f>=p.levels){ pathPoly(g,pp,T); g.save(); g.clip(); g.strokeStyle='rgba(100,116,139,.55)'; g.lineWidth=1.2;
+          const bb=pp.map(q=>T(q.x,q.z)); const xs=bb.map(v=>v[0]), ys=bb.map(v=>v[1]); const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
           for(let k=x0-(y1-y0);k<x1;k+=8){ g.beginPath(); g.moveTo(k,y1); g.lineTo(k+(y1-y0),y0); g.stroke(); } g.restore();
-          pathPoly(g,p.pts,T); g.fillStyle='rgba(100,116,139,.18)'; g.fill(); }
-        pathPoly(g,p.pts,T); g.setLineDash([6,4]); g.lineWidth=ui.selPart===i?3.5:2; g.strokeStyle='#f59e0b'; g.stroke(); g.setLineDash([]);
-        const c=centroid(p.pts); const [x,y]=T(c.x,c.z); const lab=`${i+1} · ${p.levels}P`+(f>=0&&f>=p.levels?' · assente qui':'');
+          pathPoly(g,pp,T); g.fillStyle='rgba(100,116,139,.18)'; g.fill(); }
+        pathPoly(g,pp,T); g.setLineDash([6,4]); g.lineWidth=ui.selPart===i?3.5:2; g.strokeStyle='#f59e0b'; g.stroke(); g.setLineDash([]); });
+        const big=p.polys.slice().sort((a,b)=>polyArea(b)-polyArea(a))[0]; if(!big) return;
+        const c=interiorPoint({pts:big,c:centroid(big)}); const [x,y]=T(c.x,c.z); const lab=`${p.name} · ${p.levels}P`+(f>=0&&f>=p.levels?' · assente qui':'');
         g.font='800 11px "JetBrains Mono",monospace'; const w=g.measureText(lab).width+12; g.fillStyle='#f59e0b'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y+18,w,18,5):g.rect(x-w/2,y+18,w,18); g.fill();
         g.fillStyle='#1a1205'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y+27); });
       g.restore(); }
     // quote lati
     const ori=signedArea(t.pts)>0?1:-1; g.font=`700 ${Math.max(9,Math.min(12,V.s*0.9))}px "JetBrains Mono",monospace`; g.fillStyle=onImg?'#fff':C.ink; g.textAlign='center'; g.textBaseline='middle'; if(onImg){ g.shadowColor='#000'; g.shadowBlur=4; }
     for(let i=0;i<t.pts.length;i++){ const p=t.pts[i], q=t.pts[(i+1)%t.pts.length]; const L=Math.hypot(q.x-p.x,q.z-p.z); if(L*V.s<38) continue;
-      const dx=(q.x-p.x)/L, dz=(q.z-p.z)/L; const nx=ori*dz, nz=-ori*dx; const m=mid(p,q); const [sx,sy]=T(m.x,m.z);
-      let ang=Math.atan2(dz,dx); if(ang>Math.PI/2) ang-=Math.PI; if(ang<-Math.PI/2) ang+=Math.PI;
-      g.save(); g.translate(sx+nx*13,sy+nz*13); g.rotate(ang); g.fillText(L.toFixed(2)+' m',0,0); g.restore(); }
+      const dx=(q.x-p.x)/L, dz=(q.z-p.z)/L; const nx=ori*dz, nz=-ori*dx; const m=mid(p,q);
+      const [ax,ay]=T(p.x,p.z), [bx,by]=T(q.x,q.z), [ox,oy]=T(m.x+nx*13/V.s,m.z+nz*13/V.s);
+      let ang=Math.atan2(by-ay,bx-ax); if(ang>Math.PI/2) ang-=Math.PI; if(ang<-Math.PI/2) ang+=Math.PI;
+      g.save(); g.translate(ox,oy); g.rotate(ang); g.fillText(L.toFixed(2)+' m',0,0); g.restore(); }
     g.shadowBlur=0; g.shadowColor='transparent';
     // assi settori
     const o=Q.o; g.save(); g.setLineDash([7,5]); g.lineWidth=1.4; g.strokeStyle='#e1251b';
@@ -1267,7 +1320,7 @@ function drawPlan(g,W,H,V,opt={}){
     Q.sides.forEach(sd=>{ const off=Math.max(4,26/V.s); const [x,y]=T(sd.mid.x+sd.nx*(off+Math.min(o.hu,o.hv)*0.0),sd.mid.z+sd.nz*off); const r=sd.n===1?14:11;
       g.beginPath(); g.arc(x,y,r,0,7); g.fillStyle=sd.n===1?'#e1251b':(ui.theme==='plastico'||opt.print?'#0f172a':'#e8edf5'); g.fill();
       g.fillStyle=sd.n===1?'#fff':(ui.theme==='plastico'||opt.print?'#fff':'#0b1220'); g.font=`800 ${sd.n===1?14:12}px Inter`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(sd.n,x,y+1);
-      if(sd.n===1){ g.font='800 10px "JetBrains Mono",monospace'; g.fillStyle='#e1251b'; g.fillText('FRONTE',x+sd.nx*44,y+sd.nz*26); } });
+      if(sd.n===1){ const r0=V.rot||0, snx=sd.nx*Math.cos(r0)-sd.nz*Math.sin(r0), sny=sd.nx*Math.sin(r0)+sd.nz*Math.cos(r0); g.font='800 10px "JetBrains Mono",monospace'; g.fillStyle='#e1251b'; g.fillText('FRONTE',x+snx*44,y+sny*26); } });
   }
   // marcature
   S.markers.forEach(m=>{ const [x,y]=T(m.x,m.z); const M=MT[m.type];
@@ -1277,6 +1330,7 @@ function drawPlan(g,W,H,V,opt={}){
     g.lineWidth=2; g.strokeStyle='#fff'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y-12,w,22,6):g.rect(x-w/2,y-12,w,22); g.stroke();
     g.beginPath(); g.moveTo(x-5,y+10); g.lineTo(x,y+17); g.lineTo(x+5,y+10); g.fillStyle='#fff'; g.fill();
     g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y-1);
+    if(m.foto){ g.beginPath(); g.arc(x+w/2,y-12,6,0,7); g.fillStyle='#0f172a'; g.fill(); g.lineWidth=1.5; g.strokeStyle='#fff'; g.stroke(); g.fillStyle='#fff'; g.fillRect(x+w/2-3,y-14,6,4); }
     if(m.note&&V.s>8){ g.font='600 10px Inter'; g.fillStyle=C.ink; g.fillText(m.note.slice(0,24),x,y+27); } });
   // operatori
   (S.ops||[]).forEach(o=>{ const [x,y]=T(o.x,o.z); const img=opImg.get(o.opId);
@@ -1284,7 +1338,7 @@ function drawPlan(g,W,H,V,opt={}){
     const R0=15; g.save(); g.shadowColor='rgba(0,0,0,.45)'; g.shadowBlur=7; g.beginPath(); g.arc(x,y,R0+3,0,7); g.fillStyle='#fff'; g.fill(); g.restore();
     g.save(); g.beginPath(); g.arc(x,y,R0,0,7); g.clip();
     if(img&&img.complete&&img.naturalWidth) g.drawImage(img,x-R0,y-R0,R0*2,R0*2); else { g.fillStyle='#2563eb'; g.fillRect(x-R0,y-R0,R0*2,R0*2); g.fillStyle='#fff'; g.font='800 12px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(o.nome),x,y+1); }
-    g.restore(); g.beginPath(); g.arc(x,y,R0+3,0,7); g.lineWidth=3; g.strokeStyle=ui.movingOp===o.opId?'#f59e0b':'#2563eb'; g.stroke();
+    g.restore(); g.beginPath(); g.arc(x,y,R0+3,0,7); g.lineWidth=3; g.strokeStyle=ui.movingOp===o.opId?'#f59e0b':(opOver(o)?'#dc2626':'#2563eb'); g.stroke();
     if(V.s>3){ const lab=o.nome.length>18?o.nome.slice(0,17)+'…':o.nome; g.font='700 10.5px Inter,sans-serif'; const w=g.measureText(lab).width+10; g.fillStyle='#2563eb'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,y+R0+6,w,16,5):g.rect(x-w/2,y+R0+6,w,16); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,y+R0+14); } });
   // anteprime strumenti
   if(opt.live){
@@ -1295,6 +1349,8 @@ function drawPlan(g,W,H,V,opt={}){
     if(plan.measure.length){ const a=plan.measure[0], b=plan.measure[1]||plan.hover; if(b){ const [p,q]=[T(a.x,a.z),T(b.x,b.z)]; g.lineWidth=2; g.strokeStyle='#f59e0b'; g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke();
       label(g,(p[0]+q[0])/2,(p[1]+q[1])/2-14,Math.hypot(b.x-a.x,b.z-a.z).toFixed(2)+' m','#b45309'); }
       const [x,y]=T(a.x,a.z); g.beginPath(); g.arc(x,y,5,0,7); g.fillStyle='#f59e0b'; g.fill(); }
+    if(plan.wingPrev){ const {R:Rr}=wingRect(plan.wingPrev.a,plan.wingPrev.b); g.save(); pathPoly(g,Rr,T); g.fillStyle='rgba(245,158,11,.25)'; g.fill(); g.setLineDash([8,5]); g.lineWidth=2.5; g.strokeStyle='#f59e0b'; g.stroke(); g.restore();
+      const c=centroid(Rr); const [x,y]=T(c.x,c.z); label(g,x,y,'ALA','#b45309'); }
     if(ui.tool==='split'&&(plan.split||[]).length){ const a=plan.split[0], b=plan.split[1]||plan.hover; if(b){ const dx=b.x-a.x, dz=b.z-a.z, L=Math.hypot(dx,dz)||1, ex=dx/L*400, ez=dz/L*400;
         const [p,q]=[T(a.x-ex,a.z-ez),T(a.x+ex,a.z+ez)]; g.save(); g.setLineDash([10,6]); g.lineWidth=3; g.strokeStyle='#f59e0b'; g.beginPath(); g.moveTo(p[0],p[1]); g.lineTo(q[0],q[1]); g.stroke(); g.restore(); }
       const [x,y]=T(a.x,a.z); g.beginPath(); g.arc(x,y,7,0,7); g.fillStyle='#f59e0b'; g.fill(); }
@@ -1325,10 +1381,11 @@ function snapPoint(p,from){
 }
 plan.cv.addEventListener('pointerdown',e=>{
   plan.cv.setPointerCapture(e.pointerId); const {px,py}=evPos(e); plan.ptr.set(e.pointerId,{px,py});
-  if(plan.ptr.size===2){ const [a,b]=[...plan.ptr.values()]; plan.pinch={d:Math.hypot(a.px-b.px,a.py-b.py),s:plan.s,mx:(a.px+b.px)/2,my:(a.py+b.py)/2,cx:plan.cx,cz:plan.cz}; plan.drag=null; plan.wallPrev=null; return; }
+  if(plan.ptr.size===2){ const [a,b]=[...plan.ptr.values()]; const mx=(a.px+b.px)/2,my=(a.py+b.py)/2; plan.pinch={d:Math.hypot(a.px-b.px,a.py-b.py),ang:Math.atan2(b.py-a.py,b.px-a.px),s:plan.s,rot:plan.rot||0,w:s2w(mx,my)}; plan.drag=null; plan.wallPrev=null; plan.wingPrev=null; return; }
   const w=s2w(px,py);
   plan.drag={px,py,moved:false,cx:plan.cx,cz:plan.cz,btn:e.button};
-  if(ui.tool==='wall'&&e.button===0){ const p=snapPoint(w); plan.wallPrev={x1:p.x,z1:p.z,x2:p.x,z2:p.z}; plan.drag.mode='wall'; }
+  if(ui.tool==='wing'&&e.button===0){ const p=snapPoint(w); plan.snap=null; plan.wingPrev={a:p,b:p}; plan.drag.mode='wing'; }
+  else if(ui.tool==='wall'&&e.button===0){ const p=snapPoint(w); plan.wallPrev={x1:p.x,z1:p.z,x2:p.x,z2:p.z}; plan.drag.mode='wall'; }
   else if((ui.tool==='select'||ui.tool==='oper')&&!ui.movingOp&&hitOp(px,py)){ const o=hitOp(px,py); plan.drag.mode='op'; plan.drag.op=o; plan.drag.ox=o.x; plan.drag.oz=o.z; }
   else if(ui.tool==='ovmove'&&S.overlay){ plan.drag.mode='ov'; plan.drag.ox=S.overlay.dx; plan.drag.oz=S.overlay.dz; }
   else plan.drag.mode='pan';
@@ -1336,15 +1393,16 @@ plan.cv.addEventListener('pointerdown',e=>{
 plan.cv.addEventListener('pointermove',e=>{
   const {px,py}=evPos(e); if(plan.ptr.has(e.pointerId)) plan.ptr.set(e.pointerId,{px,py});
   if(plan.pinch&&plan.ptr.size===2){ const [a,b]=[...plan.ptr.values()]; const d=Math.hypot(a.px-b.px,a.py-b.py); const P=plan.pinch;
-    plan.s=Math.max(0.6,Math.min(120,P.s*d/P.d)); const mx=(a.px+b.px)/2,my=(a.py+b.py)/2;
-    const wx=(P.mx-plan.w/2)/P.s+P.cx, wz=(P.my-plan.h/2)/P.s+P.cz; plan.cx=wx-(mx-plan.w/2)/plan.s; plan.cz=wz-(my-plan.h/2)/plan.s; drawPlanLive(); return; }
+    plan.s=Math.max(0.6,Math.min(120,P.s*d/P.d)); const da=Math.atan2(b.py-a.py,b.px-a.px)-P.ang; plan.rot=P.rot+(Math.abs(da)>0.12?da:0);
+    anchorPlan(P.w,(a.px+b.px)/2,(a.py+b.py)/2); drawPlanLive(); updateCompass(); return; }
   const w=s2w(px,py); const D=plan.drag;
   if(!D&&e.pointerType==='mouse') opTip(hitOp(px,py),e.clientX,e.clientY);
-  if(D&&D.mode==='op'){ if(Math.hypot(px-D.px,py-D.py)>5) D.moved=true; if(D.moved){ D.op.x=D.ox+(px-D.px)/plan.s; D.op.z=D.oz+(py-D.py)/plan.s; drawPlanLive(); } return; }
+  if(D&&D.mode==='op'){ if(Math.hypot(px-D.px,py-D.py)>5) D.moved=true; if(D.moved){ const dd=dScr2w(px-D.px,py-D.py); D.op.x=D.ox+dd.x; D.op.z=D.oz+dd.z; drawPlanLive(); } return; }
   if(D){ if(Math.hypot(px-D.px,py-D.py)>5) D.moved=true;
     if(D.mode==='wall'){ const p=snapPoint(w,{x:plan.wallPrev.x1,z:plan.wallPrev.z1}); plan.wallPrev.x2=p.x; plan.wallPrev.z2=p.z; }
-    else if(D.mode==='ov'){ S.overlay.dx=D.ox+(px-D.px)/plan.s; S.overlay.dz=D.oz+(py-D.py)/plan.s; }
-    else if(D.moved){ plan.cx=D.cx-(px-D.px)/plan.s; plan.cz=D.cz-(py-D.py)/plan.s; }
+    else if(D.mode==='ov'){ const dd=dScr2w(px-D.px,py-D.py); S.overlay.dx=D.ox+dd.x; S.overlay.dz=D.oz+dd.z; }
+    else if(D.mode==='wing'){ plan.wingPrev.b=snapPoint(w); }
+    else if(D.moved){ const dd=dScr2w(px-D.px,py-D.py); plan.cx=D.cx-dd.x; plan.cz=D.cz-dd.z; }
     drawPlanLive(); return; }
   if(ui.tool==='side1'){ plan.hoverSide=nearestSide(w); drawPlanLive(); return; }
   if(ui.tool==='footprint'||ui.tool==='measure'||ui.tool==='wall'||ui.tool==='split'){ plan.hover=ui.tool==='footprint'?snapPoint(w,plan.fp.at(-1)):(ui.tool==='wall'||ui.tool==='split'?(snapPoint(w),w):w); drawPlanLive(); }
@@ -1356,13 +1414,15 @@ function endPtr(e){
     if(Math.hypot(W.x2-W.x1,W.z2-W.z1)>0.5){ pushUndo(); S.walls.push({id:'w'+Date.now(),floor:S.floor,...W}); build3D(); save(); toast(`Muro ${Math.hypot(W.x2-W.x1,W.z2-W.z1).toFixed(2)} m · ${floorLabel(S.floor)}`); }
     drawPlanLive(); return; }
   if(D.mode==='ov'){ save(); return; }
+  if(D.mode==='wing'&&plan.wingPrev){ const W=plan.wingPrev; plan.wingPrev=null; plan.snap=null; const {du,dv,R:Rr}=wingRect(W.a,W.b); drawPlanLive();
+    if(Math.abs(du)<1||Math.abs(dv)<1){ toast('Trascina un riquadro sopra l\'ala (tieni premuto e trascina)'); return; } askWingLevels(Rr); return; }
   if(D.mode==='op'){ const o=D.op; if(D.moved){ const nx=o.x,nz=o.z; o.x=D.ox; o.z=D.oz; pushUndo(); o.x=nx; o.z=nz; o.t=new Date().toISOString(); afterOps(); toast(o.nome+' spostato · '+floorLabel(o.floor)); } else opCard(o.opId); return; }
   if(!D.moved&&e.type==='pointerup') planClick(w,px,py);
 }
 plan.cv.addEventListener('pointerup',endPtr); plan.cv.addEventListener('pointercancel',endPtr);
 plan.cv.addEventListener('pointerleave',()=>{ plan.hover=null; opTip(null); if(!plan.drag) drawPlanLive(); });
 plan.cv.addEventListener('wheel',e=>{ e.preventDefault(); const {px,py}=evPos(e); const w=s2w(px,py); plan.s=Math.max(0.6,Math.min(120,plan.s*Math.exp(-e.deltaY*0.0015)));
-  plan.cx=w.x-(px-plan.w/2)/plan.s; plan.cz=w.z-(py-plan.h/2)/plan.s; drawPlanLive(); },{passive:false});
+  anchorPlan(w,px,py); drawPlanLive(); },{passive:false});
 plan.cv.addEventListener('dblclick',e=>{ if(ui.tool==='footprint') closeFootprint(); });
 
 function planClick(w,px,py){
@@ -1382,6 +1442,8 @@ function planClick(w,px,py){
     if(bw){ pushUndo(); S.walls=S.walls.filter(x=>x!==bw); build3D(); drawPlanLive(); save(); toast('Muro eliminato'); }
     return; }
   if(tool==='select'){
+    { const hm=hitMarker(px,py); if(hm){ markerCard(hm.id); return; } }
+    if(t&&t.parts&&t.parts.length&&ui.step===2&&pointInPoly(w,t.pts)){ const i=partsOf(t).findIndex(p=>p.polys.some(q=>pointInPoly(w,q))); if(i>=0){ selPart(i); const p=t.parts[i]; toast(`${p.name}: ${p.levels} piani · usa + / − nella scheda`); return; } }
     if(t&&pointInPoly(w,t.pts)){ const Q=quadGeom(t); let q=Q.quads.find(q=>q.q==='E'&&pointInPoly(w,q.poly))||Q.quads.find(q=>q.q!=='E'&&pointInPoly(w,q.poly));
       if(q){ ui.selQ=q.q; setStep(3); renderSectors(); drawPlanLive(); toast(`Settore ${q.q} · ${floorLong(S.floor)}`); } return; }
     const b=S.buildings.find(b=>pointInPoly(w,b.pts)); if(b) setTarget(b.id);
@@ -1433,7 +1495,7 @@ function init3D(){
 }
 function resize3D(){ if(!renderer) return; const r=$('#stage').getBoundingClientRect(); if(!r.width) return; renderer.setSize(r.width,r.height); camera.aspect=r.width/r.height; camera.updateProjectionMatrix(); needs3D=true; }
 function updCam(){ if(!camera) return; const {r,th,ph,t}=cam; camera.position.set(t.x+r*Math.sin(ph)*Math.cos(th), t.y+r*Math.cos(ph), t.z+r*Math.sin(ph)*Math.sin(th)); camera.lookAt(t); needs3D=true; updateCompass(); }
-function updateCompass(){ const g=$('#compRot'); if(!g) return; const a=ui.view==='3d'?-(Math.atan2(-Math.cos(cam.th),Math.sin(cam.th))*180/Math.PI):0; g.setAttribute('transform',`rotate(${a} 20 20)`);
+function updateCompass(){ const g=$('#compRot'); if(!g) return; const a=ui.view==='3d'?-(Math.atan2(-Math.cos(cam.th),Math.sin(cam.th))*180/Math.PI):((plan.rot||0)*180/Math.PI); g.setAttribute('transform',`rotate(${a} 20 20)`);
   const w=$('#windRot'); if(S.wx&&S.wx.cur){ w.style.display=''; w.setAttribute('transform',`rotate(${a+S.wx.cur.dir+180} 20 20)`); } else w.style.display='none'; }
 function loop(){ requestAnimationFrame(loop);
   if(cam.anim){ const a=cam.anim; let k=Math.min(1,(performance.now()-a.t0)/550); const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
@@ -1489,7 +1551,7 @@ function build3D(){
       const op=ui.xray?(act?0.55:0.16):(act?0.92:(ui.cut?0.95:0.9));
       const mat=new THREE.MeshStandardMaterial({color:col,roughness:0.6,transparent:op<1,opacity:op,depthWrite:!ui.xray||act});
       const eCol=act?0xe1251b:(ui.theme==='plastico'?0xc2410c:0xff6b5b);
-      const pieces=f<0?[{pts:t.pts,i:-1}]:partsOf(t).map((p,i)=>({...p,i})).filter(p=>p.levels>f);
+      const pieces=f<0?[{pts:t.pts,i:-1}]:partsOf(t).flatMap((p,i)=>p.levels>f?p.polys.map(q=>({pts:q,i})):[]);
       pieces.forEach(p=>{ const geo=extrude(p.pts,t.fh); const m=new THREE.Mesh(geo,mat);
         m.position.y=y; m.castShadow=!ui.xray; m.receiveShadow=true; m.userData={bid:t.id,floor:f,target:true,part:p.i}; world.add(m); clickables.push(m);
         const selp=t.parts&&ui.selPart===p.i;
@@ -1600,7 +1662,7 @@ function addTiles3D(){
   m.rotation.x=-Math.PI/2; m.position.set((X0+X1)/2,0.01,(Z0+Z1)/2); m.userData.ground=true; world.add(m); clickables.push(m);
 }
 function drawTiles2D(g,T,V){
-  g.save(); tileList().forEach(t=>{ const e=getTile(ui.base,t); if(!e.ok) return; const [a,b]=[T(t.x0,t.z0),T(t.x1,t.z1)]; g.drawImage(e.img,a[0],a[1],b[0]-a[0]+0.5,b[1]-a[1]+0.5); });
+  g.save(); tileList().forEach(t=>{ const e=getTile(ui.base,t); if(!e.ok) return; const a=T(t.x0,t.z0); g.save(); g.translate(a[0],a[1]); g.rotate(V.rot||0); g.drawImage(e.img,0,0,(t.x1-t.x0)*V.s+0.6,(t.z1-t.z0)*V.s+0.6); g.restore(); });
   g.fillStyle='rgba(0,0,0,.12)'; g.fillRect(-5,-5,1e5,1e5); g.restore();
 }
 function setBase(b){ ui.base=b; tileFail=0; try{localStorage.setItem(LS_KEY+'_base',b);}catch(e){} $$('#baseSeg button').forEach(x=>x.classList.toggle('on',x.dataset.base===b)); build3D(); drawPlanLive(); if(map){ $$('#mapCtl [data-b]').forEach(x=>{ if(x.dataset.b===(b==='sat'?'sat':'osm')) x.click(); }); } }
@@ -1700,7 +1762,7 @@ function openReport(){
   let img3=null; try{ img3=snapshot3D(1400,900); }catch(e){}
   const ll=toLatLng(t.c.x,t.c.z); const fls=floorsOf(t).slice().reverse();
   const secRows=fls.map(f=>`<tr><td><b>${floorLong(f)}</b></td>${QUADS.map(q=>{const s=sec(f,q); return `<td style="background:${hexA(ST[s.st].color,0.18)}">${ST[s.st].full}${s.sq?'<br><b>'+esc(s.sq)+'</b>':''}${s.note?'<br><i>'+esc(s.note)+'</i>':''}</td>`;}).join('')}</tr>`).join('');
-  const mRows=S.markers.slice().sort((a,b)=>b.floor-a.floor).map(m=>{const p=toLatLng(m.x,m.z); return `<tr><td><b>${MT[m.type].code}${m.n}</b></td><td>${MT[m.type].label}</td><td>${floorLong(m.floor)}</td><td>${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</td><td>${esc(m.note||'')}</td><td>${new Date(m.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;}).join('')||'<tr><td colspan="6">Nessuna marcatura</td></tr>';
+  const mRows=S.markers.slice().sort((a,b)=>b.floor-a.floor).map(m=>{const p=toLatLng(m.x,m.z); return `<tr><td><b>${MT[m.type].code}${m.n}</b></td><td>${MT[m.type].label}</td><td>${floorLong(m.floor)}</td><td>${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</td><td>${esc(m.note||'')}${m.foto?`<br><img src="${m.foto}" style="width:42mm;border:1px solid #999;margin-top:3px">`:''}</td><td>${new Date(m.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`;}).join('')||'<tr><td colspan="6">Nessuna marcatura</td></tr>';
   const g1=quadGeom(t).sides[0];
   const lg=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:linear-gradient(90deg,#a6101e,#7d0a16);color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact"><img src="${logoSrc(1)}" style="height:52px;width:52px;border:0;margin:0"><img src="${logoSrc(2)}" style="height:52px;width:52px;border:0;margin:0"><div style="flex:1;margin-left:6px"><div style="font-size:15pt;font-weight:800;letter-spacing:.08em">VIGILI DEL FUOCO</div><div style="font-size:10pt;letter-spacing:.12em">USAR M SARDEGNA</div></div><div style="text-align:right"><div style="font-size:13pt;font-weight:800">USAR-TAC</div><div style="font-size:8.5pt">Report strutturale e settorializzazione</div></div></div>`;
   const wxr=S.wx&&S.wx.cur?`<tr><th>Meteo</th><td colspan="3">Vento da ${card16(S.wx.cur.dir)} ${Math.round(S.wx.cur.ws)} km/h, raffiche ${Math.round(S.wx.cur.wg)} km/h · ${Math.round(S.wx.cur.t)}°C · ${wxText(S.wx.cur.code)} · ${esc(upwindSide()||'')} (ore ${new Date(S.wx.at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})})</td></tr>`:'';
@@ -1716,11 +1778,12 @@ function openReport(){
     <div class="pg"><h2>Vista 3D</h2>${img3?`<img src="${img3}" style="max-height:110mm;object-fit:contain">`:''}
     <h2>Settori per piano (A–D orari dal lato 1, E centro)</h2><table><tr><th>Piano</th>${QUADS.map(q=>`<th>${q}</th>`).join('')}</tr>${secRows}</table>
     <h2>Marcature</h2><table><tr><th>ID</th><th>Tipo</th><th>Piano</th><th>Coordinate</th><th>Nota</th><th>Ora</th></tr>${mRows}</table>
-    ${(S.ops||[]).length?`<h2>Operatori in area</h2><table><tr><th>Nome</th><th>Squadra</th><th>Ruolo</th><th>Piano</th><th>Ultimo aggiornamento</th></tr>${S.ops.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td>${esc(o.squadra||'')}</td><td>${esc(o.ruolo||'')}</td><td>${floorLong(o.floor)}</td><td>${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('')}</table>`:''}
+    ${(S.opLog||[]).length?`<h2>Registro uscite dall'area</h2><table><tr><th>Nome</th><th>Squadra</th><th>Entrato</th><th>Uscito</th><th>Minuti</th></tr>${S.opLog.map(l=>`<tr><td>${esc(l.nome)}</td><td>${esc(l.squadra)}</td><td>${new Date(l.tIn).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td><td>${new Date(l.tOut).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td><td>${Math.round((new Date(l.tOut)-new Date(l.tIn))/60000)}</td></tr>`).join('')}</table>`:''}
+    ${(S.ops||[]).length?`<h2>Operatori in area</h2><table><tr><th>Nome</th><th>Squadra</th><th>Ruolo</th><th>Piano</th><th>Entrato</th><th>Minuti</th></tr>${S.ops.map(o=>`<tr><td><b>${esc(o.nome)}</b></td><td>${esc(o.squadra||'')}</td><td>${esc(o.ruolo||'')}</td><td>${floorLong(o.floor)}</td><td>${new Date(o.tIn||o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td><td>${minsIn(o)}</td></tr>`).join('')}</table>`:''}
     ${S.meta.note?`<h2>Note operative</h2><p style="font-size:10pt;white-space:pre-wrap">${esc(S.meta.note)}</p>`:''}
     <p style="font-size:8pt;color:#666;margin-top:14px">Generato con USAR-TAC v${APP_VER} · Ideata e realizzata da Alessio Corvino · Edifici © contributori OpenStreetMap · Iniziativa non ufficiale: non sostituisce la documentazione ufficiale CNVVF.</p></div>`;
   $('#printArea').innerHTML=html;
-  openModal('Report A4',`<div style="background:#fff;color:#000;padding:16px;border-radius:8px" class="rep">${html}</div><style>.rep table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}.rep th{background:#eee}.rep h1{font-size:18px}.rep h2{font-size:13px;margin:14px 0 4px;text-transform:uppercase}.rep img{width:100%;border:1px solid #000;margin-top:6px}.rep h1+div img,.rep div>img{width:auto;border:0;margin:0}</style>`,
+  openModal('Report A4',`<div style="background:#fff;color:#000;padding:16px;border-radius:8px" class="rep">${html}</div><style>.rep table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.rep th,.rep td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}.rep th{background:#eee}.rep h1{font-size:18px}.rep h2{font-size:13px;margin:14px 0 4px;text-transform:uppercase}.rep img{width:100%;border:1px solid #000;margin-top:6px}.rep h1+div img,.rep div>img{width:auto;border:0;margin:0}.rep td img{width:42mm!important}</style>`,
     `<button class="btn pri sm" onclick="doPrint()"><i data-lucide="printer"></i>Stampa / PDF</button>`);
 }
 function doPrint(){ try{ window.print(); }catch(e){ toast('Stampa non disponibile qui: usa la versione installata'); } }
@@ -1730,7 +1793,7 @@ function summaryText(){
   L.push(`📍 ${t?.addr||S.label}`); L.push(`🌐 ${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`); L.push(`🗺 https://www.google.com/maps/search/?api=1&query=${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`);
   if(S.cad.foglio||S.cad.particella) L.push(`📑 Catasto: ${S.cad.comune} F.${S.cad.foglio} P.${S.cad.particella}${S.cad.sub?' Sub.'+S.cad.sub:''}`);
   if(t){ const g1=quadGeom(t).sides[0]; L.push(`🏢 ${t.levels} piani f.t. + ${t.basement||0} interrati · h ${bHeight(t).toFixed(1)} m · impronta ${Math.round(t.area)} m²${t.est?' (piani stimati)':''}`);
-    if(t.parts&&t.parts.length) L.push(`   ↳ corpi: ${t.parts.map((p,i)=>(i+1)+') '+p.levels+'P').join(' · ')}`);
+    if(t.parts&&t.parts.length) L.push(`   ↳ ${partsOf(t).map(p=>p.name+' '+p.levels+'P').join(' · ')}`);
     L.push(`🧱 ${STYPE[t.stype]} · ${DMG[t.damage]}${S.asr?' · '+S.asr:''}`); L.push(`➊ Lato 1 (fronte) esposto a ${bearingName(g1.nx,g1.nz)}`);
     const act=[]; floorsOf(t).slice().reverse().forEach(f=>QUADS.forEach(q=>{ const s=sec(f,q); if(s.st!=='todo') act.push(`${floorLabel(f)}-${q}: ${ST[s.st].full}${s.sq?' ('+s.sq+')':''}`); }));
     if(act.length){ L.push('▦ Settori:'); act.forEach(a=>L.push('  • '+a)); } }
@@ -1738,7 +1801,7 @@ function summaryText(){
   const c=k=>S.markers.filter(m=>m.type===k).length;
   if(S.markers.length){ L.push(`🧍 Vittime: viva L ${c('victimL')} · potenz. V ${c('victimV')} · deced. D ${c('victimD')}`); L.push(`⚠️ Pericoli ${c('hazard')} · Accessi ${c('access')} · Spazi vuoti ${c('void')} · Puntell. ${c('shore')}`);
     S.markers.filter(m=>m.note).forEach(m=>L.push(`  • ${MT[m.type].code}${m.n} ${floorLabel(m.floor)}: ${m.note}`)); }
-  if((S.ops||[]).length){ L.push(`👷 Operatori in area: ${S.ops.length}`); S.ops.slice().sort((a,b)=>b.floor-a.floor).forEach(o=>L.push(`  • ${o.nome}${o.squadra?' ('+o.squadra+')':''} – ${floorLabel(o.floor)}`)); }
+  if((S.ops||[]).length){ L.push(`👷 Operatori in area: ${S.ops.length}`); S.ops.slice().sort((a,b)=>b.floor-a.floor).forEach(o=>L.push(`  • ${o.nome}${o.squadra?' ('+o.squadra+')':''} – ${floorLabel(o.floor)} · ${minsIn(o)} min${opOver(o)?' ⏱':''}`)); }
   L.push(`🕒 ${nowStr()} · ${S.meta.team}${S.meta.op?' · '+S.meta.op:''}`);
   return L.join('\n');
 }
@@ -1770,11 +1833,11 @@ async function loadWeather(force){
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${ll.lat.toFixed(4)}&longitude=${ll.lng.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kmh&timezone=auto&forecast_hours=13`;
     const r=await fetchJSON(u,{},10000); const c=r.current, h=r.hourly;
-    S.wx={at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:c.temperature_2m,rh:c.relative_humidity_2m,pr:c.precipitation,code:c.weather_code,ws:c.wind_speed_10m,wd:0,dir:c.wind_direction_10m,wg:c.wind_gusts_10m},
+    if(S.wx) delete S.wx.err; S.wx={at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:c.temperature_2m,rh:c.relative_humidity_2m,pr:c.precipitation,code:c.weather_code,ws:c.wind_speed_10m,wd:0,dir:c.wind_direction_10m,wg:c.wind_gusts_10m},
       hours:h.time.map((tm,i)=>({h:tm.slice(11,16),t:h.temperature_2m[i],pp:h.precipitation_probability?.[i],ws:h.wind_speed_10m[i],wg:h.wind_gusts_10m[i],dir:h.wind_direction_10m[i],code:h.weather_code[i]})).filter((_,i)=>i%2===0).slice(1,7)};
     save();
   }catch(e){ if(S.source==='demo'&&(!S.wx||S.wx.demo)){ S.wx={demo:true,at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:17,rh:68,pr:0,code:2,ws:24,dir:315,wg:41},hours:[0,1,2,3,4,5].map(i=>({h:String((new Date().getHours()+2*(i+1))%24).padStart(2,'0')+':00',t:17-i*0.6,pp:10+i*5,ws:22+i*2,wg:38+i*3,dir:315-i*8,code:2}))}; }
-    else if(!S.wx) { $('#wxBody').innerHTML=`<div class="empty">Dati meteo non disponibili (rete).<br>Usa <b>Windy</b> dai collegamenti rapidi.</div>`; } else toast('Meteo non aggiornato: mostro l\'ultimo dato'); }
+    else if(!S.wx) { $('#wxBody').innerHTML=`<div class="empty">Dati meteo non disponibili (rete).<br>Usa <b>Windy</b> dai collegamenti rapidi.</div>`; } else { S.wx.err=1; } }
   wxBusy=false; renderWeather();
 }
 function upwindSide(){
@@ -1787,7 +1850,7 @@ function renderWeather(){
   const W=S.wx; const chip=$('#wxChip');
   if(!W||!W.cur){ chip.style.display='none'; $('#windChip').classList.add('hidden'); updateCompass(); return; }
   const c=W.cur, age=Math.round((Date.now()-W.at)/60000);
-  $('#wxTime').textContent=W.demo?'DEMO · dati non reali':`Open-Meteo · ${new Date(W.at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}${age>30?' · '+age+' min fa':''}`;
+  $('#wxTime').style.color=(age>60||W.err)?'#ffb020':''; $('#wxTime').textContent=W.demo?'DEMO · dati non reali':(W.err&&age>15?'⚠ NON AGGIORNATO · ':'')+`Open-Meteo · ${new Date(W.at).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}${age>30?' · '+(age>2880?Math.round(age/1440)+' giorni fa':age>120?Math.round(age/60)+' h fa':age+' min fa'):''}`;
   const strong=c.wg>=50||c.ws>=35, storm=[95,96,99].includes(c.code);
   $('#wxBody').innerHTML=`<div class="wx"><div class="wxdial"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="#24304a" stroke-width="2" stroke-dasharray="2 5"/><text x="42" y="12" fill="#e1251b" font-size="9" font-weight="800" text-anchor="middle" font-family="Inter">N</text><g transform="rotate(${c.dir} 42 42)"><path d="M42 6 L50 22 L42 18 L34 22 Z" fill="#2f80ed"/></g></svg><b>${Math.round(c.ws)}<small>km/h</small></b></div>
     <div class="wxk"><div><span>Vento da</span><b>${card16(c.dir)} ${Math.round(c.dir)}°</b></div><div><span>Raffiche</span><b>${Math.round(c.wg)} km/h</b></div>
@@ -1843,7 +1906,7 @@ function avatarHtml(r,cls='av'){ return r&&r.foto?`<img class="${cls}" src="${r.
 function minsAgo(t){ const m=Math.round((Date.now()-new Date(t))/60000); return m<1?'adesso':m<60?m+' min fa':Math.floor(m/60)+' h fa'; }
 function hitOp(px,py){ let best=null,bd=22; (S.ops||[]).filter(o=>o.floor===S.floor).forEach(o=>{ const [x,y]=w2s(plan,plan.w,plan.h)(o.x,o.z); const d=Math.hypot(x-px,y-py); if(d<bd){bd=d;best=o;} }); return best; }
 function opTip(o,cx,cy){ const el=$('#opTip'); if(!o){ el.classList.add('hidden'); return; } const r=rosterOf(o.opId)||o;
-  el.innerHTML=`${r.foto?`<img src="${r.foto}">`:`<span class="ini">${esc(initials(o.nome))}</span>`}<div><b>${esc(o.nome)}</b><span>${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}<br>${floorLong(o.floor)} · ${minsAgo(o.t)}</span></div>`;
+  el.innerHTML=`${r.foto?`<img src="${r.foto}">`:`<span class="ini">${esc(initials(o.nome))}</span>`}<div><b>${esc(o.nome)}</b><span>${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}<br>${floorLong(o.floor)} · in area da ${minsIn(o)} min</span></div>`;
   el.style.left=(cx+16)+'px'; el.style.top=(cy+12)+'px'; el.classList.remove('hidden'); }
 function opPick(x,z){
   if(ui.movingOp){ const o=S.ops.find(o=>o.opId===ui.movingOp); ui.movingOp=null; if(o){ pushUndo(); Object.assign(o,{x,z,floor:S.floor,t:new Date().toISOString()}); afterOps(); toast(o.nome+' · '+floorLabel(S.floor)); } setTool('select'); return; }
@@ -1855,21 +1918,26 @@ function opPick(x,z){
 function opFilter(){ const q=(($('#opSearch')||{}).value||'').toLowerCase(); const l=roster.filter(r=>(r.nome+' '+(r.squadra||'')+' '+(r.ruolo||'')).toLowerCase().includes(q));
   $('#opPickList').innerHTML=l.map(r=>{ const o=(S.ops||[]).find(o=>o.opId===r.id); return `<button class="oprow" style="text-align:left;width:100%" onclick="opPlace('${r.id}')">${avatarHtml(r)}<div class="t"><div>${esc(r.nome)}</div><small>${esc(r.squadra||'')}${r.ruolo?' · '+esc(r.ruolo):''}${o?' · ora in '+floorLabel(o.floor):''}</small></div></button>`; }).join('')||'<div class="empty">Nessun nome trovato</div>'; }
 function opPlace(id){ const r=rosterOf(id), p=window._opXZ; if(!r||!p) return; pushUndo(); S.ops=S.ops||[]; const o=S.ops.find(o=>o.opId===id);
-  const d={opId:id,nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',floor:p.floor,x:p.x,z:p.z,t:new Date().toISOString()};
+  const now=new Date().toISOString(); const d={opId:id,nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',floor:p.floor,x:p.x,z:p.z,t:now,tIn:(o&&o.tIn)||now};
   if(o) Object.assign(o,d); else S.ops.push(d); closeModal(); afterOps(); toast(`${r.nome} · ${floorLabel(p.floor)}`); }
 function afterOps(){ renderOps(); build3D(); drawPlanLive(); save(); }
 function renderOps(){ const el=$('#opList'); if(!el) return; const ops=(S.ops||[]).slice().sort((a,b)=>b.floor-a.floor);
   $('#opCount').textContent=ops.length?ops.length+' in area':'';
-  el.innerHTML=ops.length?ops.map(o=>{ const r=rosterOf(o.opId)||o; return `<div class="oprow">${avatarHtml(r)}<div class="t"><div>${esc(o.nome)}</div><small>${esc(o.squadra||'')} · ${floorLabel(o.floor)} · ${minsAgo(o.t)}</small></div>
+  el.innerHTML=ops.length?ops.map(o=>{ const r=rosterOf(o.opId)||o; const ov=opOver(o); return `<div class="oprow" style="${ov?'border-color:#dc2626;background:#2a0f0d':''}">${avatarHtml(r)}<div class="t"><div>${esc(o.nome)}</div><small>${esc(o.squadra||'')} · ${floorLabel(o.floor)} · <b style="color:${ov?'#ff8a80':'var(--text)'}">⏱ ${minsIn(o)} min</b></small></div>
     <button class="ib" title="Mostra" onclick="focusOp('${o.opId}')"><i data-lucide="crosshair"></i></button><button class="ib" title="Esce dall'area" onclick="opRemove('${o.opId}')"><i data-lucide="log-out"></i></button></div>`; }).join('')
     :`<div class="empty">Nessun operatore posizionato.<br>${roster.length?'Premi <b>Posiziona</b> e tocca la pianta o il 3D.':'Prima crea l\'<b>Elenco operatori</b> (una volta sola).'}</div>`;
   icons(); }
 function opCard(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; const r=rosterOf(id)||o;
   openModal(o.nome,`<div class="opbig">${avatarHtml(r,'av')}<div><div style="font-size:18px;font-weight:800">${esc(o.nome)}</div><div class="hint">${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}</div>
-    <div style="margin-top:10px;font-family:var(--mono);font-size:13px">${floorLong(o.floor)}<br>aggiornato alle ${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} (${minsAgo(o.t)})</div></div></div>`,
+    <div style="margin-top:10px;font-family:var(--mono);font-size:13px">${floorLong(o.floor)}<br><b style="color:${opOver(o)?'#ff8a80':'#5ee69a'}">in area da ${minsIn(o)} min</b> (entrato alle ${new Date(o.tIn||o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})})<br>posizione aggiornata alle ${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} (${minsAgo(o.t)})</div></div></div>`,
     `<button class="btn sm amb" onclick="opMove('${id}')"><i data-lucide="move"></i>Sposta</button><button class="btn sm" onclick="opRemove('${id}')"><i data-lucide="log-out"></i>Esce dall'area</button>`); }
 function opMove(id){ closeModal(); setTool('oper'); ui.movingOp=id; drawPlanLive(); toast('Tocca il nuovo punto (cambia piano prima, se serve)'); }
-function opRemove(id){ pushUndo(); S.ops=S.ops.filter(o=>o.opId!==id); closeModal(); afterOps(); toast('Operatore uscito dall\'area'); }
+function opRemove(id){ const o=S.ops.find(o=>o.opId===id); pushUndo(); if(o){ S.opLog=S.opLog||[]; S.opLog.push({nome:o.nome,squadra:o.squadra||'',tIn:o.tIn||o.t,tOut:new Date().toISOString()}); }
+  S.ops=S.ops.filter(o=>o.opId!==id); closeModal(); afterOps(); toast((o?o.nome:'Operatore')+' uscito dall\'area'+(o?' dopo '+minsIn(o)+' min':'')); }
+function minsIn(o){ return Math.max(0,Math.round((Date.now()-new Date(o.tIn||o.t))/60000)); }
+function opOver(o){ return minsIn(o)>=(S.opLimit||40); }
+function setOpLimit(v){ S.opLimit=Math.max(5,Math.min(240,parseInt(v)||40)); renderOps(); drawPlanLive(); save(); }
+function opTick(){ (S.ops||[]).forEach(o=>{ if(opOver(o)&&!o.alerted){ o.alerted=1; toast(`⏱ ${o.nome} è in area da ${minsIn(o)} min`); } }); renderOps(); drawPlanLive(); }
 function focusOp(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; if(o.floor!==S.floor) setFloor(o.floor); setView('plan'); plan.cx=o.x; plan.cz=o.z; plan.s=Math.max(plan.s,20); drawPlanLive(); }
 // gestione elenco
 let _rFoto=null;
@@ -1880,7 +1948,7 @@ function openRoster(first){
     <div class="row" style="margin-top:6px"><label class="btn sm" style="flex:1"><i data-lucide="camera"></i><span id="rFotoTxt">Foto (facoltativa)</span><input type="file" accept="image/*" class="hidden" onchange="rFotoSel(this.files[0])"></label><button class="btn sm pri" onclick="rAdd()"><i data-lucide="user-plus"></i>Aggiungi</button></div>
     <div class="oplist" id="rList" style="margin-top:10px"></div>
     <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Importa molti nomi insieme (una riga per persona: Nome;Squadra;Ruolo)</summary><textarea id="rCsv" style="min-height:110px;margin-top:6px" placeholder="Mario Rossi;USAR-1;CS&#10;Luca Bianchi;USAR-1;VP"></textarea><button class="btn sm" style="margin-top:6px" onclick="rImport()"><i data-lucide="list-plus"></i>Importa</button></details>`,
-    `<button class="btn sm" onclick="rExport()"><i data-lucide="download"></i>Esporta</button><label class="btn sm"><i data-lucide="upload"></i>Carica<input type="file" accept=".json,application/json" class="hidden" onchange="rLoadFile(this.files[0]);this.value=''"></label>`);
+    `${LINK&&LINK.url?'<button class="btn sm amb" onclick="syncRoster(false)"><i data-lucide="refresh-cw"></i>Dal foglio</button>':''}<button class="btn sm" onclick="rExport()"><i data-lucide="download"></i>Esporta</button><label class="btn sm"><i data-lucide="upload"></i>Carica<input type="file" accept=".json,application/json" class="hidden" onchange="rLoadFile(this.files[0]);this.value=''"></label>`);
   rRender(); }
 function rRender(){ const el=$('#rList'); if(!el) return; $('#mTitle').textContent=`Elenco operatori (${roster.length})`;
   el.innerHTML=roster.map(r=>`<div class="oprow">${avatarHtml(r)}<div class="t"><div>${esc(r.nome)}</div><small>${esc(r.squadra||'—')}${r.ruolo?' · '+esc(r.ruolo):''}</small></div>
@@ -1906,6 +1974,7 @@ function rLoadFile(f){ if(!f) return; const fr=new FileReader(); fr.onload=()=>{
    CATASTO AUTOMATICO (Agenzia delle Entrate, servizio WMS INSPIRE)
    ===================================================================== */
 async function cadQuery(lat,lng){
+  if(LINK&&LINK.url){ try{ const j=await api('catasto',{lat:lat.toFixed(7),lng:lng.toFixed(7)},null,15000); return j; }catch(e){ if(/particella/.test(e.message)) throw e; } }
   const d=0.00005, base='https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&REQUEST=GetFeatureInfo&LAYERS=CP.CadastralParcel&QUERY_LAYERS=CP.CadastralParcel&STYLES=&WIDTH=11&HEIGHT=11&INFO_FORMAT=text/html&FORMAT=image/png';
   const tries=[`${base}&VERSION=1.3.0&CRS=EPSG:4258&BBOX=${lat-d},${lng-d},${lat+d},${lng+d}&I=5&J=5`,`${base}&VERSION=1.1.1&SRS=EPSG:4258&BBOX=${lng-d},${lat-d},${lng+d},${lat+d}&X=5&Y=5`];
   let err='nessuna risposta';
@@ -1913,7 +1982,7 @@ async function cadQuery(lat,lng){
       const m=txt.match(/([A-Z]\d{3})([A-Z_0-9])(\d{4})([0-9A-Z])([0-9A-Z])\.([0-9A-Za-z]+)/);
       if(m) return {codice:m[1],sezione:m[2]==='_'?'':m[2],foglio:String(parseInt(m[3],10)),allegato:m[4]==='0'?'':m[4],particella:m[6],raw:m[0]};
       err='nessuna particella trovata in quel punto';
-    }catch(e){ err=e.name==='AbortError'?'il servizio del catasto non risponde':'il servizio del catasto non permette la lettura automatica da questa app'; } }
+    }catch(e){ err=e.name==='AbortError'?'il servizio del catasto non risponde':(LINK&&LINK.url?'il catasto non risponde nemmeno tramite il foglio':'serve il collegamento al foglio USAR-TAC (passo 4)'); } }
   throw new Error(err);
 }
 function interiorPoint(b){ if(pointInPoly(b.c,b.pts)) return b.c; let best=null,bd=1e9; const xs=b.pts.map(p=>p.x), zs=b.pts.map(p=>p.z); const x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs);
@@ -1930,6 +1999,66 @@ async function cadLookupTarget(silent){
 }
 function renderCadAuto(){ const el=$('#cadAuto'); if(!el) return; el.style.color='#5ee69a';
   el.textContent=S.cad.auto&&S.cad.particella?`✓ Rilevato dal Catasto AdE (codice comune ${S.cad.codice||'—'}${S.cad.sezione?' sez. '+S.cad.sezione:''}) · verifica sul posto`:''; }
+
+/* =====================================================================
+   COLLEGAMENTO AL FOGLIO "USAR-TAC" (Apps Script): catasto, elenco, condivisione
+   ===================================================================== */
+let LINK=null, SHARE=null; try{ LINK=JSON.parse(localStorage.getItem(LS_KEY+'_link')); SHARE=JSON.parse(localStorage.getItem(LS_KEY+'_share')); }catch(e){}
+function saveLinkState(){ try{ localStorage.setItem(LS_KEY+'_link',JSON.stringify(LINK)); localStorage.setItem(LS_KEY+'_share',JSON.stringify(SHARE)); }catch(e){} }
+async function api(action,params={},body=null,ms=20000){
+  if(!LINK||!LINK.url) throw new Error('foglio non collegato');
+  const c=new AbortController(); const tm=setTimeout(()=>c.abort(),ms);
+  try{ let r;
+    if(body) r=await fetch(LINK.url,{method:'POST',body:JSON.stringify({action,key:LINK.key,...params,...body}),headers:{'Content-Type':'text/plain;charset=utf-8'},signal:c.signal});
+    else r=await fetch(LINK.url+(LINK.url.includes('?')?'&':'?')+new URLSearchParams({action,key:LINK.key,...params}),{signal:c.signal});
+    const j=await r.json(); if(!j.ok) throw new Error(j.err||'errore del foglio'); return j;
+  }catch(e){ throw new Error(e.name==='AbortError'?'il foglio non risponde':(/JSON|Unexpected/.test(e.message)?'risposta non valida (controlla indirizzo e pubblicazione)':e.message)); }
+  finally{ clearTimeout(tm); } }
+function renderLink(){ const b=$('#linkBody'); if(!b) return; const on=LINK&&LINK.url;
+  $('#linkState').textContent=on?'✓ collegato':'non collegato'; $('#linkState').style.color=on?'#5ee69a':'';
+  if(!on){ b.innerHTML=`<p class="hint">Collega il foglio Google <b>USAR-TAC</b> per: foglio e particella <b>automatici</b>, elenco operatori con foto dal foglio, stessa situazione su <b>più tablet</b>. Si fa una volta per dispositivo.</p>
+    <label class="lb">Indirizzo app web (…/exec)</label><input class="inp mono" id="lkUrl" placeholder="https://script.google.com/macros/s/…/exec">
+    <label class="lb">Codice collegamento</label><input class="inp mono" id="lkKey" placeholder="codice scelto nello script">
+    <button class="btn full pri" style="margin-top:10px" onclick="linkTest()"><i data-lucide="plug"></i>Collega e prova</button>`; icons(); return; }
+  const sh=SHARE&&SHARE.mode;
+  b.innerHTML=`${sh?`<div class="side1" style="background:${sh==='pub'?'#0f2a1a':'#102a4d'};border-color:${sh==='pub'?'#1f6b3a':'#2f80ed'}"><span class="n" style="background:${sh==='pub'?'#16a34a':'#2f80ed'};font-size:13px">${sh==='pub'?'📡':'👁'}</span><div><b>${sh==='pub'?'Stai condividendo':'Stai seguendo'}</b><br><small style="color:#cfd6e3">${esc(SHARE.name)}</small></div><button class="btn sm" onclick="stopShare()">Stop</button></div>`
+    :`<div class="grid2"><button class="btn sm amb" onclick="startPublish()"><i data-lucide="radio-tower"></i>Condividi scenario</button><button class="btn sm" onclick="chooseFollow()"><i data-lucide="eye"></i>Segui scenario</button></div>`}
+    <p class="hint" style="margin-top:8px"><b>Condividi</b>: questo tablet invia la situazione ogni volta che cambia. <b>Segui</b>: gli altri tablet (es. UCL) la vedono aggiornata ogni 15 secondi, in sola lettura.</p>
+    <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="syncRoster(false)"><i data-lucide="users"></i>Elenco dal foglio</button><button class="btn sm" onclick="linkOff()"><i data-lucide="unplug"></i>Scollega</button></div>`;
+  icons(); }
+async function linkTest(){ LINK={url:$('#lkUrl').value.trim(),key:$('#lkKey').value.trim()};
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(LINK.url)){ LINK=null; toast('Incolla l\'indirizzo della app web: https://script.google.com/…/exec'); return; }
+  $('#linkState').textContent='provo…'; try{ await api('ping'); saveLinkState(); toast('Foglio USAR-TAC collegato ✓'); renderLink(); syncRoster(true); if(target()) cadLookupTarget(true); }
+  catch(e){ const m=e.message; LINK=null; renderLink(); toast('Collegamento non riuscito: '+m); } }
+function linkOff(){ stopShare(); LINK=null; saveLinkState(); renderLink(); }
+async function syncRoster(silent){ try{ if(!silent) toast('Scarico l\'elenco dal foglio…'); const j=await api('roster',{},null,90000); let n=0;
+  (j.list||[]).forEach(r=>{ if(!r.nome) return; const ex=roster.find(x=>x.nome.toLowerCase()===r.nome.toLowerCase());
+    if(ex) Object.assign(ex,{squadra:r.squadra||ex.squadra,ruolo:r.ruolo||ex.ruolo,foto:r.foto||ex.foto}); else roster.push({id:'o'+Date.now()+n+Math.floor(Math.random()*999),nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',foto:r.foto||''}); n++; });
+  saveRoster(); roster.forEach(cacheOpImg); renderOps(); if($('#rList')) rRender(); try{ localStorage.setItem(LS_KEY+'_rsync',String(Date.now())); }catch(e){}
+  if(!silent) toast(n+' operatori aggiornati dal foglio'); }catch(e){ if(!silent) toast('Elenco dal foglio non riuscito: '+e.message); } }
+let followT=null, pushT=null, pushBusy=false;
+function shareAfterSave(){ if(!SHARE||SHARE.mode!=='pub'||!LINK) return; clearTimeout(pushT); pushT=setTimeout(pushShare,3000); }
+async function pushShare(){ if(!SHARE||SHARE.mode!=='pub') return; if(pushBusy){ shareAfterSave(); return; } pushBusy=true;
+  try{ const j=await api('scn_put',{id:SHARE.id},{name:SHARE.name,by:S.meta.op||S.meta.team||'',data:JSON.stringify(S)},45000); SHARE.ts=j.ts; SHARE.sent=Date.now(); SHARE.err=''; }
+  catch(e){ SHARE.err=e.message; } pushBusy=false; saveLinkState(); renderShareBar(); }
+function startPublish(){ const t=target(); SHARE={mode:'pub',id:'S'+Date.now().toString(36).toUpperCase(),name:(S.meta.evento||(t?t.name:S.label)||'Scenario').slice(0,60)};
+  saveLinkState(); pushShare(); renderLink(); renderShareBar(); toast('Scenario condiviso: gli altri tablet possono seguirlo'); }
+async function chooseFollow(){ try{ const j=await api('scn_list'); window._scnList=j.list||[];
+  openModal('Segui uno scenario condiviso',`<div class="oplist">${window._scnList.map((x,i)=>`<button class="oprow" style="width:100%;text-align:left" onclick="startFollow(${i})"><span class="av" style="background:#16a34a">📡</span><div class="t"><div>${esc(x.name)}</div><small>${esc(x.by||'')} · aggiornato ${new Date(x.ts).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small></div></button>`).join('')||'<div class="empty">Nessuno scenario condiviso negli ultimi 7 giorni</div>'}</div>`);
+  }catch(e){ toast('Elenco scenari non disponibile: '+e.message); } }
+function startFollow(i){ const x=window._scnList[i]; if(!x) return; closeModal(); SHARE={mode:'follow',id:x.id,name:x.name,ts:0}; saveLinkState(); renderLink(); renderShareBar(); toast('Scarico lo scenario…'); pollFollow(); }
+async function pollFollow(){ clearTimeout(followT); if(!SHARE||SHARE.mode!=='follow') return;
+  try{ const j=await api('scn_get',{id:SHARE.id,since:SHARE.ts||0},null,45000);
+    if(j.changed){ const d=typeof j.data==='string'?JSON.parse(j.data):j.data; const first=!SHARE.ts; const fl=S.floor;
+      S={...defaultState(),...d}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); if(!first) S.floor=fl; loadOvFromState(); fillInputs(); SHARE.ts=j.ts; refreshAll(first); if(first) toast('Scenario «'+SHARE.name+'» caricato'); }
+    SHARE.got=Date.now(); SHARE.err=''; }catch(e){ SHARE.err=e.message; }
+  saveLinkState(); renderShareBar(); followT=setTimeout(pollFollow,15000); }
+function stopShare(){ clearTimeout(followT); clearTimeout(pushT); SHARE=null; saveLinkState(); renderLink(); renderShareBar(); }
+function renderShareBar(){ const el=$('#shareBar'); if(!el) return; if(!SHARE||!SHARE.mode){ el.classList.add('hidden'); return; }
+  const pub=SHARE.mode==='pub', tt=pub?SHARE.sent:SHARE.got; const err=SHARE.err;
+  el.style.background=err?'#4a1512f0':(pub?'#0f2a1af0':'#102a4df0'); el.style.border='1px solid '+(err?'#dc2626':(pub?'#16a34a':'#2f80ed'));
+  el.innerHTML=`<span>${pub?'📡 CONDIVISO':'👁 SEGUI · sola lettura'} · ${esc(SHARE.name.slice(0,28))} · ${err?'⚠ '+esc(err.slice(0,40)):(tt?(pub?'inviato ':'agg. ')+new Date(tt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'…')}</span><button class="btn sm" style="height:24px" onclick="stopShare()">Stop</button>`;
+  el.classList.remove('hidden'); }
 
 /* ---------------- INFO E CREDITI ---------------- */
 function openInfo(){ openModal('USAR-TAC · Informazioni',`<div class="info">
@@ -1971,12 +2100,19 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Enter'&&ui.tool==='footprint') closeFootprint();
   else if(e.key==='1') setView('3d'); else if(e.key==='2') setView('plan'); else if(e.key==='3') setView('map');
 });
-setInterval(()=>{$('#clock').textContent=hhmm();},10000); $('#clock').textContent=hhmm();
+setInterval(()=>{$('#clock').textContent=hhmm();},10000);
+setInterval(opTick,30000); setInterval(()=>{ if(!document.hidden) loadWeather(false); },10*60000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ loadWeather(false); opTick(); } });
+// uso senza rete (service worker: solo sulla versione pubblicata)
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude/.test(location.hostname)){ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} } $('#clock').textContent=hhmm();
 try{ ui.theme=localStorage.getItem(LS_KEY+'_theme')||'plastico'; ui.base=localStorage.getItem(LS_KEY+'_base')||'plastico'; }catch(e){}
 $$('#baseSeg button').forEach(b=>{ b.onclick=()=>setBase(b.dataset.base); b.classList.toggle('on',b.dataset.base===ui.base); });
 renderTools(); icons(); init3D(); planResize();
 const restored=restore();
 fillInputs(); loadOvFromState(); loadLogos(); gateCheck(); loadRoster();
+renderLink(); renderShareBar();
+if(SHARE&&SHARE.mode==='follow') setTimeout(pollFollow,500);
+if(LINK&&LINK.url){ let last=0; try{ last=+localStorage.getItem(LS_KEY+'_rsync')||0; }catch(e){} if(Date.now()-last>12*3600000) setTimeout(()=>syncRoster(true),3000); }
 if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
 else { $('#q').value=PRESET.label.replace(' (esempio)',''); loadArea(); }
 setTool('select'); setView('3d');
