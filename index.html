@@ -291,6 +291,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 /* PRINT */
 .show-m{display:none}
 #printArea{display:none}
+@media (max-width:480px){ .hide-xs{display:none!important} .hdr-right{gap:5px} }
 @media print{
   @page{size:A4;margin:10mm}
   body{background:#fff;color:#000;overflow:visible;display:block;height:auto}
@@ -341,7 +342,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
   <div class="hdr-right">
     <span class="chip hide-m" id="wxChip" style="display:none;cursor:pointer" onclick="setStep(1)"></span>
     <span class="chip hide-m" id="netChip"><span class="led"></span><span id="netTxt">—</span></span>
-    <span class="chip"><i data-lucide="clock-3" style="width:13px;height:13px"></i><span id="clock">--:--</span></span>
+    <span class="chip hide-xs"><i data-lucide="clock-3" style="width:13px;height:13px"></i><span id="clock">--:--</span></span>
     <button class="chip" onclick="newScenario()" title="Nuovo intervento: pulisce tutto e torna alla partenza" style="cursor:pointer"><i data-lucide="house" style="width:14px;height:14px"></i><span class="hide-m">Nuovo</span></button>
     <button class="chip hide-m" onclick="openInfo()" title="Informazioni e crediti" style="cursor:pointer"><i data-lucide="info" style="width:14px;height:14px"></i></button>
   </div>
@@ -526,7 +527,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.12</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.13</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -603,7 +604,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.12</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.13</p>
     </div>
   </div>
 </div>
@@ -654,7 +655,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.12 · 22/11/2026'; const APP_V='v2.12';
+const APP_VER = '2.13 · 22/11/2026'; const APP_V='v2.13';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2094,7 +2095,7 @@ function rLoadFile(f){ if(!f) return; const fr=new FileReader(); fr.onload=()=>{
    CATASTO AUTOMATICO (Agenzia delle Entrate, servizio WMS INSPIRE)
    ===================================================================== */
 async function cadQuery(lat,lng){
-  if(LINK&&LINK.url){ try{ const j=await api('catasto',{lat:lat.toFixed(7),lng:lng.toFixed(7)},null,15000); return j; }catch(e){ if(/particella/.test(e.message)) throw e; } }
+  if(LINK&&LINK.url){ try{ const j=await api('catasto',{lat:lat.toFixed(7),lng:lng.toFixed(7)},null,15000); if(j&&j.foglio) return j; }catch(e){ if(/particella/.test(e.message)) throw e; } }
   const d=0.00005, base='https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&REQUEST=GetFeatureInfo&LAYERS=CP.CadastralParcel&QUERY_LAYERS=CP.CadastralParcel&STYLES=&WIDTH=11&HEIGHT=11&INFO_FORMAT=text/html&FORMAT=image/png';
   const tries=[`${base}&VERSION=1.3.0&CRS=EPSG:4258&BBOX=${lat-d},${lng-d},${lat+d},${lng+d}&I=5&J=5`,`${base}&VERSION=1.1.1&SRS=EPSG:4258&BBOX=${lng-d},${lat-d},${lng+d},${lat+d}&X=5&Y=5`];
   let err='nessuna risposta';
@@ -2144,6 +2145,7 @@ function renderLink(){ const b=$('#linkBody'); if(!b) return; const on=LINK&&LIN
   b.innerHTML=`${sh?`<div class="side1" style="background:${sh==='pub'?'#0f2a1a':'#102a4d'};border-color:${sh==='pub'?'#1f6b3a':'#2f80ed'}"><span class="n" style="background:${sh==='pub'?'#16a34a':'#2f80ed'};font-size:13px">${sh==='pub'?'📡':'👁'}</span><div><b>${sh==='pub'?'Stai condividendo':'Stai seguendo'}</b><br><small style="color:#cfd6e3">${esc(SHARE.name)}</small></div><button class="btn sm" onclick="stopShare()">Stop</button></div>`
     :`<div class="grid2"><button class="btn sm amb" onclick="startPublish()"><i data-lucide="radio-tower"></i>Condividi scenario</button><button class="btn sm" onclick="chooseFollow()"><i data-lucide="eye"></i>Segui scenario</button></div>`}
     <p class="hint" style="margin-top:8px"><b>Condividi</b>: questo tablet invia la situazione ogni volta che cambia. <b>Segui</b>: gli altri tablet (es. UCL) la vedono aggiornata ogni 15 secondi, in sola lettura.</p>
+    <div class="row" style="margin-top:8px;gap:8px;align-items:center"><span class="hint" style="flex:1">Utente di questo dispositivo: <b style="color:var(--text)">${WHO&&WHO.nome?esc(WHO.nome):'—'}</b></span><button class="btn sm" onclick="whoChange()">Cambia</button></div>
     <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="syncRoster(false)"><i data-lucide="users"></i>Elenco dal foglio</button><button class="btn sm" onclick="linkOff()"><i data-lucide="unplug"></i>Scollega</button></div>`;
   icons(); }
 async function linkTest(){ LINK={url:$('#lkUrl').value.trim(),key:$('#lkKey').value.trim()};
@@ -2198,16 +2200,43 @@ async function gKey(k){
   if(k==='C') gBuf=''; else if(k==='B') gBuf=gBuf.slice(0,-1); else if(gBuf.length<PIN_LEN) gBuf+=k;
   gDraw();
   if(gBuf.length===PIN_LEN){ const h=await sha('usartac|'+gBuf);
-    if(h===PIN_HASH){ const lk=(await sha('usartac-link|'+gBuf)||'').slice(0,20); if(!LINK||!LINK.url||LINK.url===LINK_URL){ LINK={url:LINK_URL,key:lk}; saveLinkState(); renderLink(); if(target()) setTimeout(()=>cadLookupTarget(true),800); } try{ if($('#gRem').checked) localStorage.setItem(LS_KEY+'_ok',PIN_HASH); else sessionStorage.setItem(LS_KEY+'_ok',PIN_HASH); }catch(e){} $('#gate').remove(); resize3D(); planResize(); }
+    if(h===PIN_HASH){ const lk=(await sha('usartac-link|'+gBuf)||'').slice(0,20); if(!LINK||!LINK.url||LINK.url===LINK_URL){ LINK={url:LINK_URL,key:lk}; saveLinkState(); renderLink(); if(target()) setTimeout(()=>cadLookupTarget(true),800); } try{ if($('#gRem').checked) localStorage.setItem(LS_KEY+'_ok',PIN_HASH); else sessionStorage.setItem(LS_KEY+'_ok',PIN_HASH); }catch(e){} $('#gate').remove(); resize3D(); planResize(); setTimeout(()=>whoCheck(true),400); }
     else { gBuf=''; gDraw(true); } }
 }
 function gateCheck(){
   let ok=false; try{ ok=localStorage.getItem(LS_KEY+'_ok')===PIN_HASH||sessionStorage.getItem(LS_KEY+'_ok')===PIN_HASH; }catch(e){}
-  if(ok){ $('#gate').remove(); return; }
+  if(ok){ $('#gate').remove(); setTimeout(()=>whoCheck(false),2500); return; }
   $('#gLogo1').src=LOGO_EMB[1]; $('#gLogo2').src=LOGO_EMB[2]; gDraw();
   document.addEventListener('keydown',e=>{ if(!$('#gate')) return; if(/^[0-9]$/.test(e.key)) gKey(e.key); else if(e.key==='Backspace') gKey('B'); });
 }
-function lockApp(){ try{ localStorage.removeItem(LS_KEY+'_ok'); sessionStorage.removeItem(LS_KEY+'_ok'); }catch(e){} location.reload(); }
+function lockApp(){ try{ localStorage.removeItem(LS_KEY+'_ok'); sessionStorage.removeItem(LS_KEY+'_ok'); localStorage.removeItem(LS_KEY+'_who'); }catch(e){} location.reload(); }
+/* ---------- CHI USA L'APP: nome al primo accesso + registro nel foglio ---------- */
+let WHO=null; try{ WHO=JSON.parse(localStorage.getItem(LS_KEY+'_who')); }catch(e){}
+function devId(){ let d=''; try{ d=localStorage.getItem(LS_KEY+'_dev'); if(!d){ d='D'+Math.random().toString(36).slice(2,8).toUpperCase(); localStorage.setItem(LS_KEY+'_dev',d); } }catch(e){} return d; }
+function devName(){ const u=navigator.userAgent; const os=/Android/.test(u)?'Android':/iPad|Macintosh.*Mobile|iPad/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'iPad':/iPhone/.test(u)?'iPhone':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':/Linux/.test(u)?'Linux':'altro';
+  const br=/Edg\//.test(u)?'Edge':/Chrome\//.test(u)?'Chrome':/Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':'browser'; const tipo=Math.min(screen.width,screen.height)<600?'telefono':(/Windows|Mac|Linux/.test(os)&&!(navigator.maxTouchPoints>1)?'PC':'tablet');
+  return `${tipo} · ${os} · ${br}`; }
+function whoCheck(fresh){ if(!WHO||!WHO.nome){ whoAsk(); return; } logAccess(fresh?'accesso con PIN':'apertura'); }
+async function logAccess(ev,force){ if(!LINK||!LINK.url||!WHO) return; let last=0; try{ last=+localStorage.getItem(LS_KEY+'_wlog')||0; }catch(e){}
+  if(!force&&ev==='apertura'&&Date.now()-last<3*3600000) return;
+  try{ await api('log',{},{nome:WHO.nome,inList:WHO.inList?'1':'0',ev,dev:devName(),ver:APP_V,id:devId()},15000); localStorage.setItem(LS_KEY+'_wlog',String(Date.now())); }catch(e){} }
+let _whoList=[];
+async function whoAsk(){
+  openModal('Chi sta usando l\'app?',`<p class="hint" style="margin-bottom:8px">Scegli il tuo nome: serve una volta sola su questo dispositivo e resta nel <b>registro accessi</b> del team.</p>
+    <input class="inp" id="whoQ" placeholder="Cerca il tuo nome o cognome…" oninput="whoFilter()"><div class="oplist" id="whoList" style="margin-top:8px;max-height:46vh;overflow:auto"><div class="empty">Carico l'elenco del team…</div></div>
+    <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Non sono nell'elenco</summary><div class="row" style="gap:6px;margin-top:6px"><input class="inp" id="whoFree" placeholder="Nome, cognome e comando/team"><button class="btn sm" onclick="whoOut()">Conferma</button></div>
+    <p class="hint" style="margin-top:4px">Verrà segnalato come <b>fuori elenco</b> al referente dell'app.</p></details>`,'');
+  _whoList=roster.map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||''}));
+  if(!_whoList.length&&LINK&&LINK.url){ try{ const j=await api('nomi',{},null,30000); _whoList=(j.list||[]).map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||''})); }catch(e){} }
+  if(!_whoList.length&&$('#whoList')) $('#whoList').innerHTML='<div class="empty">Elenco non disponibile (rete). Usa "Non sono nell\'elenco" o riprova più tardi.</div>';
+  else whoFilter(); setTimeout(()=>{ const i=$('#whoQ'); i&&window.innerWidth>960&&i.focus(); },60); }
+function whoFilter(){ const el=$('#whoList'); if(!el) return; const q=($('#whoQ').value||'').toLowerCase().trim();
+  const L=_whoList.map((r,i)=>({...r,i})).filter(r=>!q||(r.nome+' '+r.sq).toLowerCase().includes(q)).sort((a,b)=>a.nome.localeCompare(b.nome)).slice(0,60);
+  el.innerHTML=L.length?L.map(r=>`<button class="oprow" style="width:100%;text-align:left" onclick="whoPick(${r.i})"><span class="av">${esc(initials(r.nome))}</span><div class="t"><div>${esc(r.nome)}</div><small>${esc([r.ru,r.sq].filter(Boolean).join(' · '))}</small></div></button>`).join(''):'<div class="empty">Nessun nome trovato</div>'; }
+function whoSet(nome,inList){ WHO={nome,inList,t:Date.now()}; try{ localStorage.setItem(LS_KEY+'_who',JSON.stringify(WHO)); }catch(e){} closeModal(); renderLink(); logAccess('primo accesso',true); toast('Benvenuto/a '+nome); }
+function whoPick(i){ const r=_whoList[i]; if(r) whoSet(r.nome,true); }
+function whoOut(){ const v=($('#whoFree').value||'').trim(); if(v.length<4){ toast('Scrivi nome e cognome'); return; } whoSet(v,false); }
+function whoChange(){ try{ localStorage.removeItem(LS_KEY+'_who'); }catch(e){} WHO=null; whoAsk(); }
 
 /* ---------------- AVVIO ---------------- */
 $$('#viewSeg button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
