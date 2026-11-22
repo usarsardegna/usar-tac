@@ -342,6 +342,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
     <span class="chip hide-m" id="wxChip" style="display:none;cursor:pointer" onclick="setStep(1)"></span>
     <span class="chip hide-m" id="netChip"><span class="led"></span><span id="netTxt">—</span></span>
     <span class="chip"><i data-lucide="clock-3" style="width:13px;height:13px"></i><span id="clock">--:--</span></span>
+    <button class="chip" onclick="newScenario()" title="Nuovo intervento: pulisce tutto e torna alla partenza" style="cursor:pointer"><i data-lucide="house" style="width:14px;height:14px"></i><span class="hide-m">Nuovo</span></button>
     <button class="chip hide-m" onclick="openInfo()" title="Informazioni e crediti" style="cursor:pointer"><i data-lucide="info" style="width:14px;height:14px"></i></button>
   </div>
 </header>
@@ -521,11 +522,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
           <label class="btn sm"><i data-lucide="upload"></i>Importa<input type="file" accept=".json,application/json" class="hidden" onchange="importJSON(this.files[0]);this.value=''"></label>
         </div>
         <button class="btn sm full" style="margin-top:8px" onclick="lockApp()"><i data-lucide="lock"></i>Blocca app (richiede di nuovo il PIN)</button>
-        <button class="btn sm full" style="margin-top:8px;color:#ff8a80" onclick="newScenario()"><i data-lucide="file-plus-2"></i>Nuovo scenario (azzera)</button>
+        <button class="btn sm full" style="margin-top:8px;color:#ff8a80" onclick="newScenario()"><i data-lucide="house"></i>Nuovo intervento (pulisci tutto)</button>
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.11</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.12</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -602,7 +603,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.11</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.12</p>
     </div>
   </div>
 </div>
@@ -653,7 +654,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.11 · 22/11/2026'; const APP_V='v2.11';
+const APP_VER = '2.12 · 22/11/2026'; const APP_V='v2.12';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -1919,9 +1920,13 @@ function exportJSON(){
   dl(url,name);
 }
 function importJSON(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ const j=JSON.parse(r.result); if(j.v!==2) throw 0; pushUndo(); S={...defaultState(),...j}; S.buildings.forEach(finalizeBuilding); loadOvFromState(); fillInputs(); refreshAll(true); toast('Scenario importato'); }catch(e){ toast('File non valido'); } }; r.readAsText(file); }
-function newScenario(){ openModal('Nuovo scenario',`<p style="font-size:13px;line-height:1.5">Vuoi azzerare edificio, settori, marcature, muri e dati intervento? Esporta prima lo scenario se ti serve.</p>`,
-  `<button class="btn sm" onclick="exportJSON()"><i data-lucide="download"></i>Esporta prima</button><button class="btn pri sm" onclick="doNew()"><i data-lucide="trash-2"></i>Azzera</button>`); }
-function doNew(){ closeModal(); const rec=S.recent; S=defaultState(); S.recent=rec; ovImg=null; undoStack=[]; fillInputs(); syncOvCtl(); loadArea(); }
+function newScenario(){ const used=target()||(S.ops||[]).length||S.markers.length;
+  openModal('Nuovo intervento',`<p style="font-size:13px;line-height:1.55">Si pulisce tutto e si torna alla <b>partenza</b>: edificio, settori, marcature, muri, operatori in area e dati intervento.<br>Restano: <b>elenco operatori</b>, collegamento al foglio, indirizzi recenti.</p>${used?'<p class="hint" style="margin-top:8px">Se lo scenario attuale ti serve ancora, premi prima <b>Esporta</b> (o fai il Report).</p>':''}`,
+  `${used?'<button class="btn sm" onclick="exportJSON()"><i data-lucide="download"></i>Esporta prima</button>':''}<button class="btn pri sm" onclick="doNew()"><i data-lucide="house"></i>Nuovo intervento</button>`); }
+function doNew(){ closeModal(); if(SHARE) stopShare(); const rec=S.recent; S=defaultState(); S.recent=rec; S.source='none'; S.label='Nuovo intervento · scegli il luogo'; ovImg=null; undoStack=[]; ui.selPart=null;
+  fillInputs(); syncOvCtl(); try{ refreshAll(true); }catch(e){ console.error(e); } setStep(1); setView('map'); save();
+  const q=$('#q'); if(q){ q.value=''; setTimeout(()=>q.focus(),100); }
+  toast('Pronto: scrivi indirizzo o coordinate, oppure “Mia posizione”'); }
 function loadOvFromState(){ if(S.overlay&&S.overlay.src){ const i=new Image(); i.onload=()=>{ ovImg=i; drawPlanLive(); }; i.src=S.overlay.src; } else ovImg=null; syncOvCtl(); }
 
 /* =====================================================================
@@ -2231,9 +2236,11 @@ if(SHARE&&SHARE.mode==='follow') setTimeout(pollFollow,500);
 // elenco operatori sempre allineato all'app Accessi: all'avvio, quando torni sull'app e quando posizioni un operatore (al massimo una volta l'ora, in silenzio)
 function autoRoster(){ if(!LINK||!LINK.url||!navigator.onLine) return; let last=0; try{ last=+localStorage.getItem(LS_KEY+'_rsync')||0; }catch(e){} if(Date.now()-last>3600000){ try{ localStorage.setItem(LS_KEY+'_rsync',String(Date.now())); }catch(e){} syncRoster(true); } }
 setTimeout(autoRoster,3000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) autoRoster(); });
-if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
+const homeState=restored&&S.source==='none'&&!S.buildings.length;
+if(homeState){ try{ refreshAll(true); }catch(e){} }
+else if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
 else { $('#q').value=PRESET.label.replace(' (esempio)',''); loadArea(); }
-setTool('select'); setView('3d');
+setTool('select'); setView(homeState?'map':'3d'); if(homeState) setStep(1);
 </script>
 </body>
 </html>
