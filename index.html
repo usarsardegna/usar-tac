@@ -524,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.3</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.4</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -601,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.3</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.4</p>
     </div>
   </div>
 </div>
@@ -652,7 +652,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.3 · 22/11/2026'; const APP_V='v2.3';
+const APP_VER = '2.4 · 22/11/2026'; const APP_V='v2.4';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -746,13 +746,14 @@ function bHeight(b){ return b.levels*b.fh; }
 function partsOf(b){ if(b&&b.parts&&b.parts.length){ b.parts.forEach((p,i)=>{ if(!p.polys) p.polys=[p.pts]; if(!p.name) p.name=i?'Ala '+i:'Corpo principale'; }); return b.parts; } return [{id:'p0',name:'Edificio',polys:[b.pts],levels:b.levels}]; }
 function partArea(p){ return p.polys.reduce((s,q)=>s+polyArea(q),0); }
 const isFloors=p=>!p.kind||p.kind==='normal';
-function partLabel(p){ return p.kind==='canopy'?'Tettoia':p.kind==='void'?'Nessun fabbricato':p.levels+(p.levels===1?' piano':' piani'); }
+function floorsTxt(n){ return n===1?'solo piano terra':`${n} piani (PT + ${n-1})`; }
+function partLabel(p){ return p.kind==='canopy'?'Tettoia':p.kind==='void'?'Nessun fabbricato':floorsTxt(p.levels); }
 function syncLevels(b){ if(b.parts&&b.parts.length){ const n=b.parts.filter(isFloors).map(p=>p.levels); b.levels=n.length?Math.max(...n):1; } }
 function grossArea(b){ return partsOf(b).filter(isFloors).reduce((s,p)=>s+partArea(p)*p.levels,0)+b.area*(b.basement||0); }
 function volumeOf(b){ return partsOf(b).filter(isFloors).reduce((s,p)=>s+partArea(p)*p.levels*b.fh,0); }
 function levelPicker(title,intro,cb){ window._lpCb=cb;
   openModal(title,`<p class="hint" style="margin-bottom:10px">${intro}</p>
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">${Array.from({length:10},(_,i)=>`<button class="btn" style="height:56px;font-size:22px;font-family:var(--mono)" onclick="lpPick(${i+1})">${i+1}</button>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">${Array.from({length:10},(_,i)=>`<button class="btn" style="height:62px;flex-direction:column;gap:3px" onclick="lpPick(${i+1})"><b style="font-size:22px;font-family:var(--mono);line-height:1">${i+1}</b><span style="font-size:10px;color:var(--mute);font-weight:600">${i===0?'solo PT':i===1?'PT + 1°':'PT + '+i}</span></button>`).join('')}</div>
     <div class="row" style="margin-top:10px;gap:8px"><span class="hint" style="white-space:nowrap">Altro:</span><input class="inp mono" id="lpN" type="number" min="1" max="60" inputmode="numeric" placeholder="es. 14" style="font-size:18px;height:44px" onkeydown="if(event.key==='Enter')lpPick(+this.value)"><span class="hint">piani</span><button class="btn pri" style="height:44px" onclick="lpPick(+$('#lpN').value)">OK</button></div>
     <div class="grid2" style="margin-top:12px"><button class="btn" style="height:52px;flex-direction:column;gap:2px" onclick="lpPick('canopy')"><b>⌂ Tettoia / porticato</b><span class="hint">copertura su pilastri</span></button>
     <button class="btn" style="height:52px;flex-direction:column;gap:2px" onclick="lpPick('void')"><b>⬚ Nessun fabbricato</b><span class="hint">cortile, crollato, demolito</span></button></div>`,
@@ -760,7 +761,7 @@ function levelPicker(title,intro,cb){ window._lpCb=cb;
 function lpPick(v){ if(typeof v==='number'&&!(v>=1&&v<=60)){ toast('Scrivi un numero di piani da 1 a 60'); return; } closeModal(); const cb=window._lpCb; window._lpCb=null; if(cb) cb(v); }
 function specOf(v){ return v==='canopy'?{kind:'canopy',levels:1}:v==='void'?{kind:'void',levels:1}:{kind:'normal',levels:v}; }
 function editPart(i){ const t=target(); if(!t) return; const p=partsOf(t)[i]; ui.selPart=i; drawPlanLive();
-  levelPicker(`${p.name}: cosa c'è?`,`Ora: <b>${partLabel(p)}</b> · ${Math.round(partArea(p))} m². Piani fuori terra, piano terra compreso.`,v=>{ pushUndo(); if(!t.parts) t.parts=partsOf(t).map(x=>({...x})); Object.assign(t.parts[i],specOf(v)); syncLevels(t); t.est=false; if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); toast(`${t.parts[i].name}: ${partLabel(t.parts[i])}`); }); }
+  levelPicker(`${p.name}: cosa c'è?`,`Ora: <b>${partLabel(p)}</b> · ${Math.round(partArea(p))} m².<br>Conta <b>tutti</b> i piani fuori terra, <b>piano terra compreso</b>: piano terra + primo = <b>2</b>.`,v=>{ pushUndo(); if(!t.parts) t.parts=partsOf(t).map(x=>({...x})); Object.assign(t.parts[i],specOf(v)); syncLevels(t); t.est=false; if(S.floor>=t.levels) S.floor=t.levels-1; refreshAll(false); toast(`${t.parts[i].name}: ${partLabel(t.parts[i])}`); }); }
 function clipConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; let out=poly; for(let i=0;i<Rr.length;i++){ out=clipHalf(out,Rr[i],Rr[(i+1)%Rr.length],o); if(out.length<3) return []; } return out; }
 function diffConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; const pieces=[]; let cur=poly;
   for(let i=0;i<Rr.length;i++){ const a=Rr[i], b=Rr[(i+1)%Rr.length]; const outP=clipHalf(cur,a,b,-o); if(outP.length>=3&&polyArea(outP)>0.3) pieces.push(outP); cur=clipHalf(cur,a,b,o); if(cur.length<3) break; }
@@ -768,13 +769,16 @@ function diffConvex(poly,Rr){ const o=signedArea(Rr)>0?1:-1; const pieces=[]; le
 function wingRect(a,b){ const t=target(); const u=t&&t.obb?t.obb.u:{x:1,z:0}, v=t&&t.obb?t.obb.v:{x:0,z:1}; const dx=b.x-a.x, dz=b.z-a.z; const du=dx*u.x+dz*u.z, dv=dx*v.x+dz*v.z;
   return {du,dv,R:[{x:a.x,z:a.z},{x:a.x+u.x*du,z:a.z+u.z*du},{x:a.x+u.x*du+v.x*dv,z:a.z+u.z*du+v.z*dv},{x:a.x+v.x*dv,z:a.z+v.z*dv}]}; }
 function askWingLevels(Rr){ window._wingR=Rr; const t=target();
-  levelPicker('Cosa c\'è in quest\'ala?',`Piani fuori terra della zona riquadrata (piano terra compreso). Il resto dell'edificio non cambia.`,v=>addWing(v)); }
+  levelPicker('Cosa c\'è in quest\'ala?',`Conta <b>tutti</b> i piani fuori terra, <b>piano terra compreso</b>. Esempio: piano terra + primo piano = <b>2</b>. Il resto dell'edificio non cambia.`,v=>addWing(v)); }
 function addWing(v){ const spec=specOf(v); const levels=spec.levels; const t=target(); const Rr=window._wingR; if(!t||!Rr) return;
   const parts=partsOf(t).map(p=>({...p,polys:p.polys.map(q=>q.map(z=>({...z})))})); if(!t.parts||!t.parts.length) parts[0].name='Corpo principale';
   const inters=[]; parts.forEach(p=>{ const np=[]; p.polys.forEach(poly=>{ const I=clipConvex(poly,Rr); if(I.length>=3&&polyArea(I)>0.5) inters.push(I); diffConvex(poly,Rr).forEach(D=>np.push(D)); }); p.polys=np; });
   if(!inters.length){ toast('Il riquadro non tocca l\'edificio: trascinalo sopra l\'ala'); return; }
+  const thin=q=>{ const a=polyArea(q); return a<4||2*a/perimeter(q)<1.5; };
+  parts.forEach(p=>{ const keep=[]; p.polys.forEach(q=>{ if(thin(q)) inters.push(q); else keep.push(q); }); p.polys=keep; });
   pushUndo(); const left=parts.filter(p=>p.polys.length); const n=left.filter(p=>p.name.startsWith('Ala')).length+1;
   left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels,kind:spec.kind}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1;
+  if(left.length===1&&spec.kind==='normal'){ delete t.parts; t.levels=levels; ui.selPart=null; }
   setTool('select'); setStep(2); refreshAll(false); toast(`Ala ${n}: ${partLabel(left[left.length-1])}`); }
 function clipHalf(poly,a,b,keep){ const side=q=>((b.x-a.x)*(q.z-a.z)-(b.z-a.z)*(q.x-a.x))*keep; const out=[];
   for(let i=0;i<poly.length;i++){ const P=poly[i],Q=poly[(i+1)%poly.length]; const sp=side(P), sq=side(Q);
@@ -1061,7 +1065,7 @@ function renderTarget(){
       <div class="kpi"><span>Volume</span><b>${Math.round(volumeOf(t))} m³</b></div>
     </div>
     <div class="grid3" style="margin-top:6px">
-      <div><label class="lb">Piani f.t.${hasParts?' (max)':''}</label>${hasParts?`<div class="stepper"><span style="font-size:12px">${t.levels} · per corpo ↓</span></div>`:`<div class="stepper"><button onclick="adj('levels',-1)">−</button><span>${t.levels}</span><button onclick="adj('levels',1)">+</button></div>`}</div>
+      <div><label class="lb" title="Piani fuori terra, piano terra compreso">Piani (PT compreso)</label>${hasParts?`<div class="stepper"><span style="font-size:12px">max ${t.levels} · vedi corpi ↓</span></div>`:`<div class="stepper"><button onclick="adj('levels',-1)">−</button><span>${t.levels}</span><button onclick="adj('levels',1)">+</button></div>`}</div>
       <div><label class="lb">Interrati</label><div class="stepper"><button onclick="adj('basement',-1)">−</button><span>${t.basement||0}</span><button onclick="adj('basement',1)">+</button></div></div>
       <div><label class="lb">Interpiano</label><div class="stepper"><button onclick="adj('fh',-0.1)">−</button><span>${t.fh.toFixed(1)}</span><button onclick="adj('fh',0.1)">+</button></div></div>
     </div>
@@ -1538,6 +1542,10 @@ function sprite(txt,bg,fg='#fff',size=2.6,ring='#fff'){
     tex=new THREE.CanvasTexture(c); tex.userData.cached=true; spriteCache.set(key,tex); }
   const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true})); s.scale.set(size,size,1); s.renderOrder=20; return s;
 }
+const _hatch={};
+function hatchTex(cross){ const k=cross?'c':'s'; if(_hatch[k]) return _hatch[k]; const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
+  g.fillStyle=cross?'#e2e8f0':'#cbd5e1'; g.fillRect(0,0,64,64); g.strokeStyle=cross?'#475569':'#64748b'; g.lineWidth=3; g.beginPath(); g.moveTo(-8,72); g.lineTo(72,-8); if(cross){ g.moveTo(-8,-8); g.lineTo(72,72); } g.stroke();
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(0.45,0.45); t.userData.cached=true; _hatch[k]=t; return t; }
 function floorBase(t,f){ return f*t.fh + (ui.exploded? f*Math.max(3,t.fh*0.9):0); }
 function build3D(){
   if(!world) return; disposeGroup(world); clickables=[]; const C=TC(); const t=target();
@@ -1572,11 +1580,11 @@ function build3D(){
         const selp=t.parts&&ui.selPart===p.i;
         const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:selp?0xf59e0b:eCol})); e.position.y=y; world.add(e); });
     });
-    // tettoie (copertura su pilastri) e aree senza fabbricato
+    // tettoie (copertura su pilastri) e aree senza fabbricato, con lo stesso tratteggio della pianta
     if(t.parts) partsOf(t).forEach((p,i)=>{ if(isFloors(p)) return; const sel=ui.selPart===i;
-      p.polys.forEach(pp=>{ if(p.kind==='void'){ const g0=extrude(pp,0.06); const m=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({color:0x94a3b8,roughness:1,transparent:true,opacity:0.55})); m.position.y=floorBase(t,0)+0.02; m.userData={bid:t.id,floor:0,target:true,part:i}; world.add(m); clickables.push(m);
+      p.polys.forEach(pp=>{ if(p.kind==='void'){ const g0=extrude(pp,0.06); const m=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(false),roughness:1,transparent:true,opacity:0.8})); m.position.y=floorBase(t,0)+0.02; m.userData={bid:t.id,floor:0,target:true,part:i}; world.add(m); clickables.push(m);
           const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x64748b})); e.position.y=m.position.y; world.add(e); return; }
-        const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({color:0xcbd5e1,roughness:0.8,transparent:true,opacity:ui.xray?0.3:0.9})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
+        const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(true),roughness:0.8,transparent:true,opacity:ui.xray?0.35:0.95,side:THREE.DoubleSide})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
         const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x475569})); e.position.y=roof.position.y; world.add(e);
         const pm=new THREE.MeshStandardMaterial({color:0x94a3b8}); pp.forEach(q=>{ const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
     // assi settori e lettere sul piano attivo
