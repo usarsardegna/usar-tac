@@ -524,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.5</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.6</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -601,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.5</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.6</p>
     </div>
   </div>
 </div>
@@ -652,7 +652,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.5 · 22/11/2026'; const APP_V='v2.5';
+const APP_VER = '2.6 · 22/11/2026'; const APP_V='v2.6';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -1551,7 +1551,7 @@ function sprite(txt,bg,fg='#fff',size=2.6,ring='#fff'){
 }
 const _hatch={};
 function hatchTex(cross){ const k=cross?'c':'s'; if(_hatch[k]) return _hatch[k]; const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d');
-  g.fillStyle=cross?'#e2e8f0':'#cbd5e1'; g.fillRect(0,0,64,64); g.strokeStyle=cross?'#475569':'#64748b'; g.lineWidth=3; g.beginPath(); g.moveTo(-8,72); g.lineTo(72,-8); if(cross){ g.moveTo(-8,-8); g.lineTo(72,72); } g.stroke();
+  g.fillStyle=cross?'#9aa5b4':'#b4bcc8'; g.fillRect(0,0,64,64); g.strokeStyle=cross?'#1e293b':'#334155'; g.lineWidth=cross?5:4; g.beginPath(); g.moveTo(-8,72); g.lineTo(72,-8); if(cross){ g.moveTo(-8,-8); g.lineTo(72,72); } g.stroke();
   const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(0.45,0.45); keepTex.add(t); _hatch[k]=t; return t; }
 function floorBase(t,f){ return f*t.fh + (ui.exploded? f*Math.max(3,t.fh*0.9):0); }
 function build3D(){
@@ -1561,11 +1561,25 @@ function build3D(){
   ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; ground.userData.ground=true; world.add(ground); clickables.push(ground);
   // sfondo satellite / stradale
   if(ui.base!=='plastico') addTiles3D(); else {
-  // strade come nastri
-  const roadMat=new THREE.MeshStandardMaterial({color:C.road3,roughness:1});
-  S.roads.forEach(r=>{ const w={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2}[r.kind]||6;
-    for(let i=0;i<r.pts.length-1;i++){ const a=r.pts[i],b=r.pts[i+1]; const L=Math.hypot(b.x-a.x,b.z-a.z); if(L<0.1) continue;
-      const m=new THREE.Mesh(new THREE.PlaneGeometry(L+w*0.5,w),roadMat); m.rotation.x=-Math.PI/2; m.rotation.z=-Math.atan2(b.z-a.z,b.x-a.x); m.position.set((a.x+b.x)/2,0.02,(a.z+b.z)/2); m.receiveShadow=true; world.add(m); } }); }
+  // strade: marciapiede + asfalto + giunti arrotondati + mezzeria tratteggiata (vista più realistica)
+  const lt=ui.theme==='plastico';
+  const curbM=new THREE.MeshStandardMaterial({color:lt?0xcfd4db:0x1d2739,roughness:1,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
+  const asphM=new THREE.MeshStandardMaterial({color:lt?0x8d96a2:0x2a3550,roughness:0.95,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+  const footM=new THREE.MeshStandardMaterial({color:lt?0xc2b8a3:0x2b3347,roughness:1,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+  const dashM=new THREE.LineDashedMaterial({color:lt?0xffffff:0x94a3b8,dashSize:3,gapSize:3,transparent:true,opacity:0.9});
+  const FOOT={footway:1,path:1,pedestrian:1,steps:1,cycleway:1,track:1};
+  // tutte le strade in 3 sole geometrie (marciapiede, asfalto, pedonali): veloce anche su tablet
+  const acc=new Map(); const put=(mat,arr)=>{ if(!acc.has(mat)) acc.set(mat,[]); const A=acc.get(mat); for(const v of arr) A.push(v); };
+  const strip=(a,b,w,y,mat)=>{ const L=Math.hypot(b.x-a.x,b.z-a.z); if(L<0.1) return; const nx=-(b.z-a.z)/L*w/2, nz=(b.x-a.x)/L*w/2;
+    const p1=[a.x+nx,y,a.z+nz],p2=[a.x-nx,y,a.z-nz],p3=[b.x-nx,y,b.z-nz],p4=[b.x+nx,y,b.z+nz]; put(mat,[...p1,...p3,...p2,...p1,...p4,...p3]); };
+  const joint=(p,w,y,mat)=>{ const n=14, r=w/2, out=[]; for(let k=0;k<n;k++){ const a0=k/n*Math.PI*2, a1=(k+1)/n*Math.PI*2; out.push(p.x,y,p.z, p.x+Math.cos(a1)*r,y,p.z+Math.sin(a1)*r, p.x+Math.cos(a0)*r,y,p.z+Math.sin(a0)*r); } put(mat,out); };
+  const W={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,living_street:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2,cycleway:2,track:3};
+  // prima tutti i marciapiedi, poi l'asfalto sopra: gli incroci restano puliti
+  S.roads.forEach(r=>{ if(FOOT[r.kind]) return; const w=(W[r.kind]||6)+3; r.pts.forEach((p,i)=>{ joint(p,w,0.04,curbM); if(i) strip(r.pts[i-1],p,w,0.04,curbM); }); });
+  S.roads.forEach(r=>{ const f=FOOT[r.kind]; const w=W[r.kind]||6, y=f?0.07:0.09, mat=f?footM:asphM; r.pts.forEach((p,i)=>{ joint(p,w,y,mat); if(i) strip(r.pts[i-1],p,w,y,mat); });
+    if(!f&&w>=6&&r.pts.length>1){ const g=new THREE.BufferGeometry().setFromPoints(r.pts.map(p=>new THREE.Vector3(p.x,0.13,p.z))); const l=new THREE.Line(g,dashM); l.computeLineDistances(); world.add(l); } });
+  acc.forEach((arr,mat)=>{ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(arr,3)); const nn=new Float32Array(arr.length); for(let i=1;i<nn.length;i+=3) nn[i]=1; g.setAttribute('normal',new THREE.BufferAttribute(nn,3));
+    const m=new THREE.Mesh(g,mat); m.receiveShadow=true; world.add(m); }); }
   // contesto
   const onImg=ui.base!=='plastico';
   const bMat=new THREE.MeshStandardMaterial({color:onImg?0xffffff:C.b3,roughness:0.85,metalness:0,transparent:onImg,opacity:onImg?0.38:1,depthWrite:!onImg}); const eMat=new THREE.LineBasicMaterial({color:onImg?0xffffff:C.edge3,transparent:true,opacity:onImg?0.9:0.75});
@@ -1593,10 +1607,10 @@ function build3DTarget(t){ const C=TC(); {
     // tettoie (copertura su pilastri) e aree senza fabbricato, con lo stesso tratteggio della pianta
     if(t.parts) partsOf(t).forEach((p,i)=>{ if(isFloors(p)) return; const sel=ui.selPart===i;
       p.polys.forEach(pp=>{ if(p.kind==='void'){ const g0=extrude(pp,0.06); const m=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(false),roughness:1,transparent:true,opacity:0.8})); m.position.y=floorBase(t,0)+0.02; m.userData={bid:t.id,floor:0,target:true,part:i}; world.add(m); clickables.push(m);
-          const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x64748b})); e.position.y=m.position.y; world.add(e); return; }
-        const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(true),roughness:0.8,transparent:true,opacity:ui.xray?0.35:0.95,side:THREE.DoubleSide})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
-        const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x475569})); e.position.y=roof.position.y; world.add(e);
-        const pm=new THREE.MeshStandardMaterial({color:0x94a3b8}); pp.forEach(q=>{ const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
+          const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x1e293b})); e.position.y=m.position.y; world.add(e); return; }
+        const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(true),roughness:0.8,transparent:true,opacity:ui.xray?0.35:0.95,side:THREE.DoubleSide})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.receiveShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
+        const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x0f172a})); e.position.y=roof.position.y; world.add(e);
+        const pm=new THREE.MeshStandardMaterial({color:0x475569}); pp.forEach(q=>{ const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
     // assi settori e lettere sul piano attivo
     const ya=floorBase(t,S.floor)+(ui.cut?t.fh+0.05:0.08)+(ui.cut?0:0); const yl=ui.cut?ya+0.4:floorBase(t,S.floor)+t.fh+0.4;
     const o=Q.o; const ax=new THREE.LineBasicMaterial({color:0xe1251b,depthTest:false});
