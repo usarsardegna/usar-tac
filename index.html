@@ -524,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.7</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.8</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -601,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.7</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.8</p>
     </div>
   </div>
 </div>
@@ -652,7 +652,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.7 · 22/11/2026'; const APP_V='v2.7';
+const APP_VER = '2.8 · 22/11/2026'; const APP_V='v2.8';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -747,12 +747,34 @@ function bHeight(b){ return b.levels*b.fh; }
 // striscia sottile = meno di 4 m² o larga meno di 2 m: è un avanzo di taglio, non un corpo vero
 function thinPoly(q){ const a=polyArea(q); return a<4||2*a/perimeter(q)<2; }
 // ripulisce gli avanzi: ogni striscia sottile passa al corpo vicino (quello che tocca), i corpi vuoti spariscono
-function cleanParts(b){ const P=partsOf(b); if(P.length<2) return false; let ch=false;
-  const dist=(q,p2)=>{ let d=1e9; q.forEach(v=>p2.polys.forEach(pp=>{ for(let i=0;i<pp.length;i++) d=Math.min(d,distSeg(v,pp[i],pp[(i+1)%pp.length])); })); return d; };
-  const moves=[]; // prima decide, poi sposta (così una striscia non rimbalza tra due corpi)
-  P.forEach((p,i)=>{ p.polys=p.polys.filter(q=>{ if(!thinPoly(q)) return true; let best=-1,bd=1e9;
-      P.forEach((o,k)=>{ if(k===i||!o.polys.some(x=>!thinPoly(x))) return; const d=dist(q,o); if(d<bd){bd=d;best=k;} });
-      if(best<0) return true; moves.push([best,q]); ch=true; return false; }); });
+// pulizia geometrica: toglie vertici doppi/allineati
+function simplePoly(q){ let p=q.map(v=>({x:v.x,z:v.z})), ch=true;
+  while(ch&&p.length>3){ ch=false; for(let i=0;i<p.length;i++){ const A=p[(i-1+p.length)%p.length],B=p[i],C=p[(i+1)%p.length];
+      const ux=B.x-A.x,uz=B.z-A.z,vx=C.x-B.x,vz=C.z-B.z; const lu=Math.hypot(ux,uz), lv=Math.hypot(vx,vz);
+      if(lu<0.02||lv<0.02||Math.abs(ux*vz-uz*vx)<0.002*lu*lv){ p.splice(i,1); ch=true; break; } } }
+  return p; }
+// spezza un poligono concavo in pezzi convessi (tagli lungo i lati che fanno angolo rientrante)
+function convexParts(q,d=0){ q=simplePoly(q); const n=q.length; if(n<4||d>14) return [q]; const sg=Math.sign(signedArea(q))||1; const A0=polyArea(q);
+  let best=null; // tra i tagli possibili sceglie quello che lascia intero il pezzo più grande
+  for(let i=0;i<n;i++){ const A=q[(i-1+n)%n],B=q[i],C=q[(i+1)%n]; if(((B.x-A.x)*(C.z-B.z)-(B.z-A.z)*(C.x-B.x))*sg>=-1e-6) continue;
+    for(const [a,b] of [[A,B],[B,C]]){ const L=clipHalf(q,a,b,1), R=clipHalf(q,a,b,-1); const aL=L.length>=3?polyArea(L):0, aR=R.length>=3?polyArea(R):0;
+      if(aL>0.01&&aR>0.01&&Math.abs(aL+aR-A0)<0.05*A0+0.1){ const sc=Math.max(aL,aR); if(!best||sc>best.sc) best={sc,L,R,aL,aR}; } } }
+  if(!best) return [q];
+  return [...(best.aL>0.05?convexParts(best.L,d+1):[]),...(best.aR>0.05?convexParts(best.R,d+1):[])]; }
+// quanta parte del contorno del pezzo q corre lungo il corpo o (0..1)
+function touchFrac(q,o){ let tot=0,hit=0; for(let i=0;i<q.length;i++){ const a=q[i],b=q[(i+1)%q.length]; const L=Math.hypot(b.x-a.x,b.z-a.z), n=Math.max(1,Math.ceil(L/0.5));
+    for(let k=0;k<n;k++){ const t=(k+0.5)/n, v={x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t}; let d=1e9; o.polys.forEach(pp=>{ for(let j=0;j<pp.length;j++) d=Math.min(d,distSeg(v,pp[j],pp[(j+1)%pp.length])); }); tot+=L/n; if(d<0.4) hit+=L/n; } }
+  return tot?hit/tot:0; }
+// ripulisce gli avanzi di taglio: ogni striscia sottile (anche se attaccata a un pezzo grande) passa al corpo lungo cui corre
+function cleanParts(b){ const P=partsOf(b); if(P.length<2) return false; let ch=false; const moves=[];
+  const bestFor=(q,i)=>{ let best=-1,bf=0; P.forEach((o,k)=>{ if(k===i||!o.polys.length) return; const f=touchFrac(q,o); if(f>bf){bf=f;best=k;} }); return bf>=0.3?best:-1; };
+  P.forEach((p,i)=>{ const keep=[]; p.polys.forEach(q=>{
+      if(thinPoly(q)){ const k=bestFor(q,i); if(k>=0){ moves.push([k,q]); ch=true; } else keep.push(q); return; }
+      const pcs=convexParts(q); if(pcs.length<2){ keep.push(q); return; }
+      const out=[]; let rest=[]; pcs.forEach(c=>{ const k=thinPoly(c)?bestFor(c,i):-1; if(k>=0) out.push([k,c]); else rest.push(c); });
+      if(!out.length||!rest.length){ keep.push(q); return; }
+      out.forEach(m=>moves.push(m)); keep.push(...rest); ch=true; });
+    p.polys=keep; });
   moves.forEach(([k,q])=>P[k].polys.push(q));
   if(!ch) return false;
   b.parts=P.filter(p=>p.polys.length);
@@ -792,7 +814,7 @@ function addWing(v){ const spec=specOf(v); const levels=spec.levels; const t=tar
   const thin=thinPoly;
   parts.forEach(p=>{ const keep=[]; p.polys.forEach(q=>{ if(thin(q)) inters.push(q); else keep.push(q); }); p.polys=keep; });
   pushUndo(); const left=parts.filter(p=>p.polys.length); const n=left.filter(p=>p.name.startsWith('Ala')).length+1;
-  left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels,kind:spec.kind}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1;
+  left.push({id:'p'+Date.now(),name:'Ala '+n,polys:inters,levels,kind:spec.kind}); t.parts=left; syncLevels(t); t.est=false; ui.selPart=left.length-1; cleanParts(t); if(t.parts) ui.selPart=Math.min(ui.selPart,t.parts.length-1);
   if(left.length===1&&spec.kind==='normal'){ delete t.parts; t.levels=levels; ui.selPart=null; }
   setTool('select'); setStep(2); refreshAll(false); toast(`Ala ${n}: ${partLabel(left[left.length-1])}`); }
 function clipHalf(poly,a,b,keep){ const side=q=>((b.x-a.x)*(q.z-a.z)-(b.z-a.z)*(q.x-a.x))*keep; const out=[];
@@ -1620,12 +1642,13 @@ function build3DTarget(t){ const C=TC(); {
         const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:selp?0xf59e0b:eCol})); e.position.y=y; world.add(e); });
     });
     // tettoie (copertura su pilastri) e aree senza fabbricato, con lo stesso tratteggio della pianta
+    const posts=[];
     if(t.parts) partsOf(t).forEach((p,i)=>{ if(isFloors(p)) return; const sel=ui.selPart===i;
       p.polys.forEach(pp=>{ if(p.kind==='void'){ const g0=extrude(pp,0.06); const m=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(false),roughness:1,transparent:true,opacity:0.8})); m.position.y=floorBase(t,0)+0.02; m.userData={bid:t.id,floor:0,target:true,part:i}; world.add(m); clickables.push(m);
           const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x1e293b})); e.position.y=m.position.y; world.add(e); return; }
         const hR=t.fh, slab=0.22; const g0=extrude(pp,slab); const roof=new THREE.Mesh(g0,new THREE.MeshStandardMaterial({map:hatchTex(true),roughness:0.8,transparent:true,opacity:ui.xray?0.35:0.95,side:THREE.DoubleSide})); roof.position.y=floorBase(t,0)+hR-slab; roof.castShadow=true; roof.receiveShadow=true; roof.userData={bid:t.id,floor:0,target:true,part:i}; world.add(roof); clickables.push(roof);
         const e=new THREE.LineSegments(new THREE.EdgesGeometry(g0),new THREE.LineBasicMaterial({color:sel?0xf59e0b:0x0f172a})); e.position.y=roof.position.y; world.add(e);
-        const pm=new THREE.MeshStandardMaterial({color:0x475569}); pp.forEach(q=>{ const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
+        const pm=new THREE.MeshStandardMaterial({color:0x475569}); pp.forEach(q=>{ if(posts.some(o=>Math.hypot(o.x-q.x,o.z-q.z)<1.2)) return; posts.push(q); const post=new THREE.Mesh(new THREE.BoxGeometry(0.3,hR-slab,0.3),pm); post.position.set(q.x,floorBase(t,0)+(hR-slab)/2,q.z); post.castShadow=true; world.add(post); }); }); });
     // assi settori e lettere sul piano attivo
     const ya=floorBase(t,S.floor)+(ui.cut?t.fh+0.05:0.08)+(ui.cut?0:0); const yl=ui.cut?ya+0.4:floorBase(t,S.floor)+t.fh+0.4;
     const o=Q.o; const ax=new THREE.LineDashedMaterial({color:0xe1251b,depthTest:false,dashSize:1.2,gapSize:0.8,transparent:true,opacity:0.6});
