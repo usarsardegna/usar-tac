@@ -524,7 +524,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.8</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.9</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -601,7 +601,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.8</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.9</p>
     </div>
   </div>
 </div>
@@ -652,7 +652,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.8 · 22/11/2026'; const APP_V='v2.8';
+const APP_VER = '2.9 · 22/11/2026'; const APP_V='v2.9';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2127,7 +2127,7 @@ async function syncRoster(silent){ try{ if(!silent) toast('Scarico l\'elenco dal
   (j.list||[]).forEach(r=>{ if(!r.nome) return; const ex=roster.find(x=>x.nome.toLowerCase()===r.nome.toLowerCase());
     if(ex) Object.assign(ex,{squadra:r.squadra||ex.squadra,ruolo:r.ruolo||ex.ruolo,foto:r.foto||ex.foto}); else roster.push({id:'o'+Date.now()+n+Math.floor(Math.random()*999),nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',foto:r.foto||''}); n++; });
   saveRoster(); roster.forEach(cacheOpImg); renderOps(); if($('#rList')) rRender(); try{ localStorage.setItem(LS_KEY+'_rsync',String(Date.now())); }catch(e){}
-  if(!silent) toast(n+' operatori aggiornati dal foglio'); }catch(e){ if(!silent) toast('Elenco dal foglio non riuscito: '+e.message); } }
+  if(j.errAccessi) toast('Foglio accessi non letto: '+j.errAccessi); else if(!silent) toast(n+' operatori dal foglio'+(j.conFoto!=null?' · '+j.conFoto+' con foto':'')); }catch(e){ if(!silent) toast('Elenco dal foglio non riuscito: '+e.message); } }
 let followT=null, pushT=null, pushBusy=false;
 function shareAfterSave(){ if(!SHARE||SHARE.mode!=='pub'||!LINK) return; clearTimeout(pushT); pushT=setTimeout(pushShare,3000); }
 async function pushShare(){ if(!SHARE||SHARE.mode!=='pub') return; if(pushBusy){ shareAfterSave(); return; } pushBusy=true;
