@@ -590,7 +590,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.10</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.11</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -672,7 +672,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.10</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.11</p>
     </div>
   </div>
 </div>
@@ -723,7 +723,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','ovpt','split','wing'];
-const APP_VER = '3.10 · 25/11/2026'; const APP_V='v3.10';
+const APP_VER = '3.11 · 25/11/2026'; const APP_V='v3.11';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2553,16 +2553,18 @@ function traccarSetup(){ const base=liveBase(); if(!WHO){ whoAsk(); return; }
   const code=myCode(); const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1), isAnd=/Android/.test(navigator.userAgent);
   if(!base){ openModal('📶 La mia posizione',`<p style="font-size:13px;line-height:1.5">Il <b>server delle posizioni</b> non è ancora configurato in questa versione dell'app. Avvisa il referente di USAR-TAC.</p>`,''); return; }
   if(!code){ openModal('📶 La mia posizione',`<p style="font-size:13px;line-height:1.5">Non trovo il tuo <b>codice tessera</b> (es. VF0012). Scrivilo qui:</p><div class="row" style="gap:6px;margin-top:8px"><input class="inp" id="trcCode" placeholder="VF0000" style="text-transform:uppercase"><button class="btn sm pri" onclick="const v=($('#trcCode').value||'').trim().toUpperCase(); if(v.length<3) return; WHO.codici=[v]; try{localStorage.setItem(LS_KEY+'_who',JSON.stringify(WHO));}catch(e){} traccarSetup()">Avanti</button></div>`,''); return; }
-  const P=new URLSearchParams({url:base+'/t/'+LINK.key,id:code,interval:'10',accuracy:'highest',distance:'0'}).toString();
+  if(!traccarSetup.kt){ sha('usartac-traccar|'+((LINK&&LINK.key)||'')).then(h=>{ traccarSetup.kt=(h||'').slice(0,16); if(traccarSetup.kt) traccarSetup(); }); return; }
+  const P=new URLSearchParams({url:base+'/t/'+traccarSetup.kt,id:code,interval:'10',accuracy:'highest',distance:'0'}).toString();
   const play='https://play.google.com/store/apps/details?id=org.traccar.client', store='https://apps.apple.com/app/traccar-client/id843156974';
   const cfg=isIOS?'org.traccar.client://config?'+P:`intent://config?${P}#Intent;scheme=org.traccar.client;package=org.traccar.client;S.browser_fallback_url=${encodeURIComponent(play)};end`;
+  const act=x=>isIOS?'org.traccar.client://action/'+x:`intent://action/${x}#Intent;scheme=org.traccar.client;package=org.traccar.client;S.browser_fallback_url=${encodeURIComponent(play)};end`;
   const openApp=isIOS?'org.traccar.client://':`intent://#Intent;scheme=org.traccar.client;package=org.traccar.client;S.browser_fallback_url=${encodeURIComponent(play)};end`;
   const step=(n,t,b)=>`<div style="display:flex;gap:10px;margin:10px 0"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#a6101e;color:#fff;font-weight:800;display:grid;place-items:center">${n}</span><div style="flex:1;font-size:13px;line-height:1.45"><b>${t}</b><br>${b}</div></div>`;
   openModal('📶 La mia posizione in tempo reale',`<div class="row" style="gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--panel2,#141c2c);border:1px solid var(--line,#26324a)"><span class="trc-av">${esc(initials(WHO.nome))}</span><div><div style="font-weight:800">${esc(WHO.nome)}</div><div class="hint">codice tessera <b style="font-family:var(--mono)">${esc(code)}</b></div></div><div id="trcStatus" style="margin-left:auto;text-align:right;font-size:12px"></div></div>
     ${step(1,'Installa Traccar Client (gratis, una volta sola)',`<a class="btn sm" href="${isIOS?store:play}" target="_blank" rel="noopener" style="margin-top:6px">${isIOS?'App Store':'Google Play'}</a>${!isIOS&&!isAnd?' <a class="btn sm" href="'+store+'" target="_blank" rel="noopener">App Store</a>':''}`)}
     ${step(2,'Configura con un tocco',`<a class="btn sm pri" href="${cfg}" style="margin-top:6px">⚙️ Configura Traccar</a><br><span class="hint">Si apre Traccar già impostato con il server di USAR-TAC e il tuo codice.</span>`)}
     ${step(3,'Permessi (importante)',`Posizione: <b>Consenti sempre</b> · Batteria: <b>nessuna restrizione</b> per Traccar (altrimenti il telefono la spegne in tasca).`)}
-    ${step(4,'In intervento: avvia il servizio',`In Traccar accendi l'interruttore <b>Servizio / Tracciamento</b>. A fine intervento spegnilo.<br><a class="btn sm" href="${openApp}" style="margin-top:6px">Apri Traccar</a>`)}
+    ${step(4,'In intervento: attiva / disattiva',`<a class="btn sm" href="${act('start')}" style="margin-top:6px;background:#15803d;border-color:#22c55e;color:#fff">▶ ATTIVA</a> <a class="btn sm" href="${act('stop')}" style="margin-top:6px;background:#991b1b;border-color:#ef4444;color:#fff">■ DISATTIVA</a> <a class="btn sm" href="${openApp}" style="margin-top:6px">Apri Traccar</a><br><span class="hint">Traccar si apre un attimo ed esegue il comando: torna pure qui.</span>`)}
     <details style="margin-top:6px"><summary class="hint" style="cursor:pointer">Il tasto "Configura" non funziona? Impostazione manuale</summary><div style="font-size:12px;margin-top:6px;line-height:1.6">In Traccar → Impostazioni:<br>• <b>Identificativo dispositivo</b>: <code>${esc(code)}</code><br>• <b>URL del server</b>: <code style="word-break:break-all">${esc(base+'/t/'+LINK.key)}</code> <button class="btn sm" style="height:24px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${base}/t/${LINK.key}');toast('Indirizzo copiato')">Copia</button><br>• <b>Frequenza</b>: 10 secondi · <b>Precisione</b>: alta</div></details>
     <p class="hint" style="margin-top:8px">La posizione si usa solo durante interventi ed esercitazioni e si cancella a fine intervento.</p>`,'');
   trcStatus(); livePoll(); }
