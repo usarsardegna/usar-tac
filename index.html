@@ -578,7 +578,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.6</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.7</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -624,7 +624,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       </div>
       <div class="ov mapctl hidden" id="mapCtl">
         <div class="seg"><button data-b="osm" class="on">Stradale</button><button data-b="sat">Satellite</button></div>
-        <button class="ibtn on" id="bCat" onclick="toggleCatasto()"><i data-lucide="landmark"></i>Catasto</button>
+        <button class="ibtn" id="bCat" onclick="toggleCatasto()" title="Mostra i confini catastali (più lento)"><i data-lucide="landmark"></i>Catasto</button>
       </div>
       <div class="ov mapnote hidden" id="meteoNote">Il widget Windy non si apre in questa anteprima. Funziona nella versione installata · <a id="meteoNoteLnk" target="_blank" rel="noopener" style="color:#ffc35c">apri Windy</a></div>
       <div class="ov mapnote hidden" id="mapNote">Le mappe non si caricano in questa anteprima (rete bloccata). Funzionano nella versione installata.</div>
@@ -633,6 +633,11 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <div class="prow"><button id="bPan" class="wide" onclick="togglePan()" title="Trascinare per spostare invece che ruotare"><i data-lucide="hand"></i><span>Sposta</span></button></div>
         <div class="prow"><button onclick="rot3(-1)" title="Ruota a sinistra"><i data-lucide="rotate-ccw"></i></button><button onclick="zoom3(0.75)" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="rot3(1)" title="Ruota a destra"><i data-lucide="rotate-cw"></i></button></div>
         <div class="prow"><button id="bTop" onclick="topView()" title="Vista dall'alto"><i data-lucide="arrow-down-to-dot"></i></button><button onclick="zoom3(1.33)" title="Allontana"><i data-lucide="minus"></i></button><button onclick="flyToTarget()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
+      </div>
+      <div class="ov pad3d hidden" id="padMap">
+        <div class="prow"><button class="wide" onclick="mapFitZone()" title="Mostra tutta la zona caricata"><i data-lucide="maximize"></i><span>Zona</span></button></div>
+        <div class="prow"><button onclick="mapPan(-1,0)" title="Sposta a sinistra"><i data-lucide="arrow-left"></i></button><button onclick="map&&map.zoomIn()" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="mapPan(1,0)" title="Sposta a destra"><i data-lucide="arrow-right"></i></button></div>
+        <div class="prow"><button onclick="mapPan(0,1)" title="Sposta in basso"><i data-lucide="arrow-down"></i></button><button onclick="map&&map.zoomOut()" title="Allontana"><i data-lucide="minus"></i></button><button onclick="mapCenter()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
       </div>
       <div class="ov pad3d hidden" id="pad2d">
         <div class="prow"><button class="wide" onclick="planOrient()" title="Ruota la pianta con il Lato 1 (ingresso) in basso"><i data-lucide="flag"></i><span>Lato 1 giù</span></button></div>
@@ -655,7 +660,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.6</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.7</p>
     </div>
   </div>
 </div>
@@ -706,7 +711,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '3.6 · 25/11/2026'; const APP_V='v3.6';
+const APP_VER = '3.7 · 25/11/2026'; const APP_V='v3.7';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -954,7 +959,7 @@ function gpsStop(){ if(gpsW!=null) navigator.geolocation.clearWatch(gpsW); gpsW=
 function gpsUse(){ if(!gpsBest) return; const g=gpsBest; gpsStop(); closeModal(); S.gpsAcc=Math.round(g.accuracy); goTo(g.lat,g.lng,`GPS ±${Math.round(g.accuracy)} m`,true); }
 async function goTo(lat,lng,label,fromGPS){
   pushUndo(); if(!fromGPS) S.gpsAcc=0;
-  S.center={lat,lng}; S.label=label; S.markers=[]; S.walls=[]; S.sectors={}; S.overlay=null; ovImg=null;
+  S.center={lat,lng}; S.label=label; S.markers=[]; S.walls=[]; S.sectors={}; S.overlay=null; ovImg=null; S.cad={...S.cad,comune:'',foglio:'',particella:'',sub:'',codice:'',sezione:'',auto:false}; fillInputs();
   S.recent=[{label,lat,lng},...S.recent.filter(r=>r.label!==label)].slice(0,6);
   $('#q').value=label.startsWith('Coord')?`${lat.toFixed(6)}, ${lng.toFixed(6)}`:label;
   await loadArea();
@@ -963,7 +968,7 @@ const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.priv
 let osmErrors=[];
 async function loadArea(){
   const {lat,lng}=S.center, R=S.radius;
-  const query=`[out:json][timeout:15];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng});nwr["name"]["amenity"](around:${R},${lat},${lng});nwr["name"]["office"](around:${R},${lat},${lng});nwr["name"]["emergency"](around:${R},${lat},${lng});nwr["name"]["shop"](around:${R},${lat},${lng});nwr["name"]["tourism"](around:${R},${lat},${lng});nwr["name"]["healthcare"](around:${R},${lat},${lng}););out body geom;`;
+  const query=`[out:json][timeout:15];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng});node["name"](around:${Math.min(R,200)},${lat},${lng});way["name"]["amenity"](around:${Math.min(R,200)},${lat},${lng}););out body geom;`;
   loading(true,`Estrazione edifici reali entro ${R} m…`);
   osmErrors=[]; loadCtl=new AbortController(); const sig=loadCtl.signal;
   $('#loadCancel').classList.remove('hidden');
@@ -986,7 +991,7 @@ async function reverseLabel(){
   try{ const t=target(); if(!t||t.addr) return;
     const ll=toLatLng(t.c.x,t.c.z); const r=await fetchJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&accept-language=it&lat=${ll.lat}&lon=${ll.lng}`,{},8000);
     if(r&&r.address){ const a=r.address; t.addr=[a.road||a.pedestrian||a.square,a.house_number].filter(Boolean).join(' ')+(a.city||a.town||a.village?', '+(a.city||a.town||a.village):'');
-      if(!S.cad.comune) { S.cad.comune=a.city||a.town||a.village||''; fillInputs(); }
+      if(!S.cad.comune||S.cad.auto) { S.cad.comune=a.city||a.town||a.village||''; fillInputs(); renderHeader(); }
       if(t.name.startsWith('Edificio OSM')&&!t.nameManual) t.name=(r.name&&r.name!==a.road?r.name+' – ':'')+(t.addr||t.name); renderAll(); save(); }
   }catch(e){}
 }
@@ -1322,7 +1327,7 @@ function setView(v){
   $('#three').classList.toggle('hidden',v!=='3d'); $('#plan').classList.toggle('hidden',v!=='plan'); $('#mapview').classList.toggle('hidden',v!=='map'); $('#meteoview').classList.toggle('hidden',v!=='meteo');
   $('#mapCtl').classList.toggle('hidden',v!=='map'); $('#compass').classList.toggle('hidden',v==='map'||v==='meteo'); $('#windChip').classList.toggle('hidden',v==='map'||v==='meteo'||!S.wx);
   $('#meteoNote').classList.add('hidden'); if(v==='meteo') showWindy();
-  $('#pad3d').classList.toggle('hidden',v!=='3d'); $('#pad2d').classList.toggle('hidden',v!=='plan');
+  $('#pad3d').classList.toggle('hidden',v!=='3d'); $('#pad2d').classList.toggle('hidden',v!=='plan'); $('#padMap').classList.toggle('hidden',v!=='map');
   if(v!=='map'){ $('#mapPick').classList.add('hidden'); $('#mapNote').classList.add('hidden'); }
   if(v==='3d'){ resize3D(); needs3D=true; }
   if(v==='plan'){ planResize(); }
@@ -1846,10 +1851,10 @@ function addTiles3D(){
   if(!mosaic||mosaic.key!==key){
     if(mosaic&&mosaic.tex) mosaic.tex.dispose();
     const cv=document.createElement('canvas'); cv.width=cv.height=SZ; const g=cv.getContext('2d'); g.fillStyle='#8f97a3'; g.fillRect(0,0,SZ,SZ);
-    const tex=new THREE.CanvasTexture(cv); keepTex.add(tex); tex.generateMipmaps=false; tex.minFilter=THREE.LinearFilter; tex.magFilter=THREE.LinearFilter;
+    const tex=new THREE.CanvasTexture(cv); keepTex.add(tex); tex.generateMipmaps=true; tex.minFilter=THREE.LinearMipmapLinearFilter; tex.magFilter=THREE.LinearFilter; try{ tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy()); }catch(e){}
     mosaic={key,cv,g,tex,tainted:false};
     tl.forEach(t=>getTile(ui.base,t,e=>{ if(!mosaic||mosaic.key!==key) return;
-      try{ mosaic.g.drawImage(e.img,(t.x-tx0)/nx*SZ,(t.y-ty0)/ny*SZ,SZ/nx+1,SZ/ny+1); mosaic.tex.needsUpdate=true; needs3D=true; }catch(err){} }));
+      try{ mosaic.g.drawImage(e.img,(t.x-tx0)/nx*SZ,(t.y-ty0)/ny*SZ,SZ/nx+1,SZ/ny+1); const M=mosaic; clearTimeout(M.tm); M.tm=setTimeout(()=>{ M.tex.needsUpdate=true; needs3D=true; },120); }catch(err){} }));
   }
   const a=tl.find(t=>t.x===tx0&&t.y===ty0), b=tl.find(t=>t.x===tx0+nx-1&&t.y===ty0+ny-1);
   const X0=a.x0, Z0=a.z0, X1=b.x1, Z1=b.z1;
@@ -1865,16 +1870,15 @@ function setBase(b){ const ch=ui.base!==b; ui.base=b; if(ch&&SHARE&&SHARE.mode==
 /* =====================================================================
    MAPPA (Leaflet) + CATASTO AdE (WMS)
    ===================================================================== */
-let map=null, mapL={}, mapGroup=null, mapPickLL=null, tileErr=0, tileOk=0, catOn=true;
+let map=null, mapL={}, mapGroup=null, mapPickLL=null, tileErr=0, tileOk=0, catOn=false;
 function initMap(){
   if(map) return; if(!window.L){ $('#mapNote').classList.remove('hidden'); $('#mapNote').textContent='Libreria mappe non caricata: serve connessione.'; return; }
-  map=L.map('mapview',{zoomControl:true,maxZoom:21,attributionControl:true}).setView([S.center.lat,S.center.lng],18);
-  map.zoomControl.setPosition('topleft');
+  map=L.map('mapview',{zoomControl:false,maxZoom:21,attributionControl:true,zoomSnap:0.5}).setView([S.center.lat,S.center.lng],18);
   mapL.osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:21,maxNativeZoom:19,attribution:'© OpenStreetMap'});
   mapL.sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:21,maxNativeZoom:19,attribution:'Esri World Imagery'});
   mapL.cat=L.tileLayer.wms('https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php',{layers:'CP.CadastralParcel,fabbricati,vestizioni',format:'image/png',transparent:true,version:'1.3.0',crs:L.CRS.EPSG4326,maxZoom:21,minZoom:15,opacity:0.95,attribution:'Catasto © Agenzia Entrate'});
   [mapL.osm,mapL.sat].forEach(l=>{ l.on('tileerror',()=>{tileErr++; checkTiles();}); l.on('tileload',()=>{tileOk++;}); });
-  mapL.osm.addTo(map); mapL.cat.addTo(map);
+  mapL.osm.addTo(map); if(catOn) mapL.cat.addTo(map);
   mapGroup=L.layerGroup().addTo(map);
   map.on('click',e=>{ mapPickLL=e.latlng; $('#mapPick').classList.remove('hidden'); $('#mapPickTxt').textContent=`${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
     if(catOn) cadQuery(e.latlng.lat,e.latlng.lng).then(c=>{ if(mapPickLL===e.latlng) $('#mapPickTxt').textContent+=` · F.${c.foglio} P.${c.particella}`; }).catch(()=>{});
@@ -1891,6 +1895,9 @@ function updateMap(fit){
     if(fit) map.fitBounds(L.polygon(t.pts.map(ll)).getBounds(),{maxZoom:19,padding:[60,60]}); }
   else if(fit) map.setView([S.center.lat,S.center.lng],18);
 }
+function mapPan(dx,dy){ if(map) map.panBy([dx*180,dy*180]); }
+function mapCenter(){ if(!map) return; const t=target(); if(t) updateMap(true); else map.setView([S.center.lat,S.center.lng],18); }
+function mapFitZone(){ if(!map) return; const d=S.radius/111320, e=S.radius/(111320*Math.cos(S.center.lat*Math.PI/180)); map.fitBounds([[S.center.lat-d,S.center.lng-e],[S.center.lat+d,S.center.lng+e]]); }
 function analyzePick(){ if(!mapPickLL) return; $('#mapPick').classList.add('hidden'); goTo(mapPickLL.lat,mapPickLL.lng,`Punto mappa ${mapPickLL.lat.toFixed(5)}, ${mapPickLL.lng.toFixed(5)}`); }
 
 /* =====================================================================
@@ -2431,7 +2438,7 @@ function visTick(){ const c=$('#visClock'); if(c) c.textContent=new Date().toLoc
 function visTags(){ if(!VIS.on) return; const hold=VIS.holdUntil?` · <b style="color:#fbbf24">✋ ${Math.max(0,Math.ceil((VIS.holdUntil-Date.now())/1000))}s → DIRETTA</b>`:(VIS.pubFloor===S.floor&&SHARE&&SHARE.mode==='follow'?' · <b style="color:#f87171">● DIRETTA</b>':''); const fl=`<i>${floorLabel(S.floor)}</i>`+hold; const a=$('#visTag3d'), b=$('#visTagPlan');
   if(VIS.mode==='split'){ a&&(a.innerHTML='🧊 VISTA 3D · '+fl); b&&(b.innerHTML='📐 PIANTA · '+fl); return; }
   const e=a||b; if(e){ e.id=ui.view==='3d'?'visTag3d':'visTagPlan'; e.innerHTML=(ui.view==='3d'?'🧊 VISTA 3D · ':'📐 PIANTA · ')+fl; }
-  $('#pad3d').classList.toggle('hidden',ui.view!=='3d'); $('#pad2d').classList.toggle('hidden',ui.view!=='plan'); }
+  $('#pad3d').classList.toggle('hidden',ui.view!=='3d'); $('#pad2d').classList.toggle('hidden',ui.view!=='plan'); $('#padMap').classList.toggle('hidden',ui.view!=='map'); }
 function visStart(){ VIS.on=true; if(innerWidth<900){ try{ const v=JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'); if(!v.mode||v.mode==='split') localStorage.setItem(LS_KEY+'_vis',JSON.stringify({...v,mode:'plan'})); }catch(e){} } document.body.classList.add('vis'); if(renderer){ renderer.setPixelRatio(1); renderer.shadowMap.enabled=false; } if(typeof dirLight!=='undefined'&&dirLight) dirLight.castShadow=false; try{ Object.assign(VIS,JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'),{on:true}); }catch(e){}
   if(!$('#visPanel')){ const d=document.createElement('aside'); d.id='visPanel'; $('main').appendChild(d); const c=document.createElement('div'); c.id='visCtl'; c.className='ov'; $('#stage').appendChild(c); }
   window.__VIS=1; VIS.pubFloor=S.floor; visLayout(); renderVis(); setInterval(visTick,1000); setInterval(renderVis,15000);

@@ -1,6 +1,6 @@
 /* USAR-TAC · uso senza rete (service worker)
    Ideata e realizzata da Alessio Corvino */
-const VER = 'usartac-v3.6';
+const VER = 'usartac-v3.7';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-apple.png'];
 const LIBS = [
   'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
