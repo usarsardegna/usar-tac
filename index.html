@@ -292,6 +292,38 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 /* PRINT */
 .show-m{display:none}
 #printArea{display:none}
+
+/* ---------- VISORE (?visore) ---------- */
+body.vis header, body.vis main>aside:not(#visPanel), body.vis .vbar, body.vis #tools, body.vis #toolHint, body.vis #pad3d, body.vis #pad2d, body.vis #shareBar, body.vis .tools{display:none!important}
+body.vis main{grid-template-columns:1fr 400px!important;display:grid!important}
+body.vis main>section{grid-column:1;grid-row:1;min-height:0;display:flex;flex-direction:column}
+body.vis .stage{flex:1}
+#visPanel{grid-column:2;grid-row:1;background:#0a101c;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px;padding:12px;overflow:auto;min-height:0}
+.stage.vsplit #three{right:50%}.stage.vsplit #plan{left:50%;width:50%!important;border-left:2px solid #1e293b}
+.vhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,#a6101e,#7d0a16)}
+.vhead img{width:38px;height:38px;object-fit:contain}.vhead b{display:block;color:#fff;font-size:13px;letter-spacing:.06em}.vhead small{color:#ffd9d6;font-size:10.5px;letter-spacing:.06em}
+.vclock{margin-left:auto;font-family:var(--mono);font-weight:800;font-size:22px;color:#fff}
+.vbox{background:#111a2b;border:1px solid #1f2b42;border-radius:12px;padding:10px 12px}.vgrow{flex:1}
+.vev{font-size:18px;font-weight:800}.vsub{font-size:12px;color:var(--mute);margin-top:2px}
+.vwind{display:flex;align-items:center;gap:10px}.vwind b{display:block;font-size:14px}.vwind small{font-size:11.5px;color:var(--mute)}
+.vh{display:flex;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#93a3bf;margin-bottom:8px}.vh span{color:#e5e7eb}
+.vsec{width:100%;border-collapse:collapse}.vsec th{font-family:var(--mono);font-size:12px;text-align:left;width:34px;color:#93a3bf}.vsec th.cur{color:#f59e0b}
+.vsec td{text-align:center;padding:2px}.vsec td small{display:block;font-size:9px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px}
+.vchip{display:inline-grid;place-items:center;width:34px;height:26px;border-radius:7px;color:#fff;font-weight:800;font-size:13px}
+.vleg{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:10px;color:var(--mute)}.vleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.vmk{display:inline-flex;align-items:center;gap:4px;margin:0 10px 4px 0;font-weight:800;font-size:15px}.vmk b{display:inline-grid;place-items:center;min-width:28px;height:22px;padding:0 4px;border-radius:6px;color:#fff;font-size:11px}
+a.btn{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.trc-av{width:40px;height:40px;border-radius:50%;background:#2563eb;display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.vop .av{display:grid;place-items:center;border-radius:50%;background:#2563eb;color:#fff;font-weight:800;object-fit:cover;flex:none}
+.vop{display:flex;align-items:center;gap:9px;padding:6px 4px;border-bottom:1px solid #1a2438}.vop .av{width:36px;height:36px;font-size:12px}.vop .t{flex:1;min-width:0}.vop .t b{display:block;font-size:13.5px}.vop .t small{font-size:11px;color:var(--mute)}
+.vop .r{text-align:right}.vop .r b{display:block;font-family:var(--mono);font-size:18px}.vop .r b.red{color:#f87171}.vop .r small{font-size:11px;color:var(--mute)}
+.vop.over{background:#2a0f0d;border-radius:8px}.vop.arr{opacity:.75;border-bottom-style:dashed}
+.vfoot{font-size:10.5px;color:#64748b;text-align:center;line-height:1.5}
+#visCtl{left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+body.vis-ui #visCtl{opacity:1;pointer-events:auto}
+.vseg{display:flex;background:#0b1220e8;border:1px solid #26324a;border-radius:10px;overflow:hidden}.vseg button{background:none;border:0;color:#cbd5e1;padding:8px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
+.vseg button.on{background:#a6101e;color:#fff}.vseg button:hover{background:#1e293b}
+@media (max-width:900px){ body.vis main{grid-template-columns:1fr!important;grid-template-rows:60vh auto} #visPanel{grid-column:1;grid-row:2} body.vis main>section{grid-row:1} }
 @media (max-width:480px){ .hide-xs{display:none!important} .hdr-right{gap:5px} }
 @media print{
   @page{size:A4;margin:10mm}
@@ -528,7 +560,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v2.15</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.0</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -605,7 +637,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v2.15</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.0</p>
     </div>
   </div>
 </div>
@@ -656,7 +688,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '2.15 · 22/11/2026'; const APP_V='v2.15';
+const APP_VER = '3.0 · 25/11/2026'; const APP_V='v3.0';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -1277,7 +1309,7 @@ function TC(theme=ui.theme){
 const plan = { cv:$('#plan'), cx:0, cz:0, s:8, w:0, h:0, ptr:new Map(), drag:null, pinch:null, fp:[], measure:[], wallPrev:null, hover:null };
 const pctx = plan.cv.getContext('2d');
 function planResize(){
-  const r=$('#stage').getBoundingClientRect(); const dpr=Math.min(window.devicePixelRatio||1,2);
+  const r=(visSplit()?$('#plan'):$('#stage')).getBoundingClientRect(); const dpr=Math.min(window.devicePixelRatio||1,2);
   plan.w=r.width; plan.h=r.height; plan.cv.width=Math.round(r.width*dpr); plan.cv.height=Math.round(r.height*dpr); plan.dpr=dpr; drawPlanLive();
 }
 function fitView(W,H,margin=1.75){
@@ -1297,7 +1329,7 @@ function scr2w(V,W,H,px,py){ const r=V.rot||0, c=Math.cos(r), s=Math.sin(r); con
 function s2w(px,py){ return scr2w(plan,plan.w,plan.h,px,py); }
 function dScr2w(dx,dy){ const r=plan.rot||0, c=Math.cos(r), s=Math.sin(r); return {x:(dx*c+dy*s)/plan.s, z:(-dx*s+dy*c)/plan.s}; }
 function anchorPlan(w,px,py){ const d=dScr2w(px-plan.w/2,py-plan.h/2); plan.cx=w.x-d.x; plan.cz=w.z-d.z; }
-function drawPlanLive(){ if(ui.view!=='plan'||!plan.w) return; pctx.setTransform(plan.dpr,0,0,plan.dpr,0,0); drawPlan(pctx,plan.w,plan.h,plan,{live:true}); }
+function drawPlanLive(){ if((ui.view!=='plan'&&!visSplit())||!plan.w) return; pctx.setTransform(plan.dpr,0,0,plan.dpr,0,0); drawPlan(pctx,plan.w,plan.h,plan,{live:true}); }
 function pathPoly(g,pts,T){ g.beginPath(); pts.forEach((p,i)=>{ const [x,y]=T(p.x,p.z); i?g.lineTo(x,y):g.moveTo(x,y); }); g.closePath(); }
 function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; }
 
@@ -1393,13 +1425,17 @@ function drawPlan(g,W,H,V,opt={}){
     if(m.foto){ g.beginPath(); g.arc(x+w/2,y-12,6,0,7); g.fillStyle='#0f172a'; g.fill(); g.lineWidth=1.5; g.strokeStyle='#fff'; g.stroke(); g.fillStyle='#fff'; g.fillRect(x+w/2-3,y-14,6,4); }
     if(m.note&&V.s>8){ g.font='600 10px Inter'; g.fillStyle=C.ink; g.fillText(m.note.slice(0,24),x,y+27); } });
   // operatori
-  (S.ops||[]).forEach(o=>{ const [x,y]=T(o.x,o.z); const img=opImg.get(o.opId);
-    if(o.floor!==f){ g.beginPath(); g.arc(x,y,6,0,7); g.fillStyle='rgba(37,99,235,.35)'; g.fill(); return; }
+  (LIVE.arr||[]).forEach(a=>{ const [x,y]=T(a.x,a.z); g.save(); g.setLineDash([3,3]); g.beginPath(); g.arc(x,y,11,0,7); g.fillStyle='rgba(22,163,74,.15)'; g.fill(); g.lineWidth=2; g.strokeStyle=a._stale?'#9ca3af':'#16a34a'; g.stroke(); g.restore();
+    g.fillStyle=a._stale?'#6b7280':'#15803d'; g.font='800 9px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(a.nome),x,y+1); if(V.s>3){ g.font='600 9px Inter,sans-serif'; g.fillText(a.nome.split(' ').slice(-1)[0]+' '+srcIcon(a.src),x,y+20); } });
+  (S.ops||[]).forEach(o=>{ const [x,y]=T(o.x,o.z); const img=opImg.get(o.opId); const lv=opLive(o);
+    if(o.floor!==f&&!opOut(o)){ g.beginPath(); g.arc(x,y,6,0,7); g.fillStyle='rgba(37,99,235,.35)'; g.fill(); return; }
+    if(lv&&lv.stale) g.globalAlpha=0.55;
     const R0=15; g.save(); g.shadowColor='rgba(0,0,0,.45)'; g.shadowBlur=7; g.beginPath(); g.arc(x,y,R0+3,0,7); g.fillStyle='#fff'; g.fill(); g.restore();
     g.save(); g.beginPath(); g.arc(x,y,R0,0,7); g.clip();
     if(opLab.foto&&img&&img.complete&&img.naturalWidth) g.drawImage(img,x-R0,y-R0,R0*2,R0*2); else { g.fillStyle='#2563eb'; g.fillRect(x-R0,y-R0,R0*2,R0*2); g.fillStyle='#fff'; g.font='800 12px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(o.nome),x,y+1); }
-    g.restore(); g.beginPath(); g.arc(x,y,R0+3,0,7); g.lineWidth=3; g.strokeStyle=ui.movingOp===o.opId?'#f59e0b':(opOver(o)?'#dc2626':'#2563eb'); g.stroke();
-    if(V.s>3) opLines(o).forEach((t0,k)=>{ const lab=t0.length>26?t0.slice(0,25)+'…':t0; g.font=(k?'600 9.5px':'700 10.5px')+' Inter,sans-serif'; const w=g.measureText(lab).width+10, yy=y+R0+6+k*17; g.fillStyle=k?'#1e3a8a':'#2563eb'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,yy,w,16,5):g.rect(x-w/2,yy,w,16); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,yy+8); }); });
+    g.restore(); g.beginPath(); g.arc(x,y,R0+3,0,7); g.lineWidth=3; g.strokeStyle=ui.movingOp===o.opId?'#f59e0b':(opOver(o)?'#dc2626':(lv?(lv.stale?'#9ca3af':'#16a34a'):'#2563eb')); g.stroke();
+    if(lv){ const tx=lv.stale?liveAgeTxt(lv.age):'LIVE'; g.font='800 9px Inter,sans-serif'; const tw=g.measureText(tx).width+16; g.fillStyle=lv.stale?'#6b7280':'#16a34a'; g.beginPath(); g.roundRect?g.roundRect(x-tw/2,y-R0-17,tw,13,6):g.rect(x-tw/2,y-R0-17,tw,13); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(srcIcon(o.src)+' '+tx,x,y-R0-10); }
+    if(V.s>3) opLines(o).forEach((t0,k)=>{ const lab=t0.length>26?t0.slice(0,25)+'…':t0; g.font=(k?'600 9.5px':'700 10.5px')+' Inter,sans-serif'; const w=g.measureText(lab).width+10, yy=y+R0+6+k*17; g.fillStyle=k?'#1e3a8a':'#2563eb'; g.beginPath(); g.roundRect?g.roundRect(x-w/2,yy,w,16,5):g.rect(x-w/2,yy,w,16); g.fill(); g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(lab,x,yy+8); }); g.globalAlpha=1; });
   // anteprime strumenti
   if(opt.live){
     if(plan.wallPrev){ const w=plan.wallPrev; const [a,b]=[T(w.x1,w.z1),T(w.x2,w.z2)]; g.setLineDash([6,4]); g.lineWidth=3; g.strokeStyle='#a78bfa'; g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); g.setLineDash([]);
@@ -1560,14 +1596,15 @@ function init3D(){
   world=new THREE.Group(); scene.add(world);
   bind3D(renderer.domElement); resize3D(); loop();
 }
-function resize3D(){ if(!renderer) return; const r=$('#stage').getBoundingClientRect(); if(!r.width) return; renderer.setSize(r.width,r.height); camera.aspect=r.width/r.height; camera.updateProjectionMatrix(); needs3D=true; }
+function resize3D(){ if(!renderer) return; const r=(visSplit()?$('#three'):$('#stage')).getBoundingClientRect(); if(!r.width) return; renderer.setSize(r.width,r.height); camera.aspect=r.width/r.height; camera.updateProjectionMatrix(); needs3D=true; }
 function updCam(){ if(!camera) return; const {r,th,ph,t}=cam; camera.position.set(t.x+r*Math.sin(ph)*Math.cos(th), t.y+r*Math.cos(ph), t.z+r*Math.sin(ph)*Math.sin(th)); camera.lookAt(t); needs3D=true; updateCompass(); }
 function updateCompass(){ const g=$('#compRot'); if(!g) return; const a=ui.view==='3d'?-(Math.atan2(-Math.cos(cam.th),Math.sin(cam.th))*180/Math.PI):((plan.rot||0)*180/Math.PI); g.setAttribute('transform',`rotate(${a} 20 20)`);
   const w=$('#windRot'); if(S.wx&&S.wx.cur){ w.style.display=''; w.setAttribute('transform',`rotate(${a+S.wx.cur.dir+180} 20 20)`); } else w.style.display='none'; }
 function loop(){ requestAnimationFrame(loop);
   if(cam.anim){ const a=cam.anim; let k=Math.min(1,(performance.now()-a.t0)/550); const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
     cam.r=a.r0+(a.r1-a.r0)*e; cam.th=a.th0+(a.th1-a.th0)*e; cam.ph=a.ph0+(a.ph1-a.ph0)*e; cam.t.lerpVectors(a.t0v,a.t1v,e); updCam(); if(k>=1) cam.anim=null; }
-  if(needs3D&&ui.view==='3d'&&renderer){ renderer.render(scene,camera); needs3D=false; } }
+  if(VIS.on&&VIS.rot&&!cam.anim&&(ui.view==='3d'||visSplit())&&!(plan.drag)){ cam.th+=0.0012; updCam(); }
+  if(needs3D&&(ui.view==='3d'||visSplit())&&renderer){ renderer.render(scene,camera); needs3D=false; } }
 function animCam(to){ if(!camera) return; const th1=to.th??cam.th; let dth=th1-cam.th; dth=Math.atan2(Math.sin(dth),Math.cos(dth));
   cam.anim={t0:performance.now(),r0:cam.r,r1:to.r??cam.r,th0:cam.th,th1:cam.th+dth,ph0:cam.ph,ph1:to.ph??cam.ph,t0v:cam.t.clone(),t1v:to.t?to.t.clone():cam.t.clone()}; }
 function targetView(){ const t=target(); const size=t?Math.max(t.obb.hu,t.obb.hv)*2:60; const H=t?bHeight(t)+(ui.exploded?t.levels*3:0):10;
@@ -1591,13 +1628,13 @@ function sprite(txt,bg,fg='#fff',size=2.6,ring='#fff'){
   const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true})); s.scale.set(size,size,1); s.renderOrder=20; return s;
 }
 // operatore nel 3D: tondo con foto (o iniziali) + righe di testo scelte in "Mostra"
-function opSprite(o,sz){ const lines=opLines(o), img=opImg.get(o.opId), ph=opLab.foto&&img&&img.complete&&img.naturalWidth;
-  const key='op|'+o.opId+'|'+lines.join('/')+'|'+(ph?1:0); let tex=spriteCache.get(key);
+function opSprite(o,sz){ const lines=opLines(o), img=opImg.get(o.opId), ph=opLab.foto&&img&&img.complete&&img.naturalWidth; const lv=opLive(o), st=lv?(lv.stale?'s':'l'):'', ov=opOver(o)?1:0;
+  const key='op|'+o.opId+'|'+lines.join('/')+'|'+(ph?1:0)+st+ov+(o._arr?'a':''); let tex=spriteCache.get(key);
   const W=256, H=128+lines.length*44;
   if(!tex){ const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d');
     g.save(); g.beginPath(); g.arc(W/2,64,56,0,7); g.fillStyle='#2563eb'; g.fill(); g.clip();
     if(ph) g.drawImage(img,W/2-56,8,112,112); else { g.fillStyle='#fff'; g.font='800 48px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(initials(o.nome),W/2,68); }
-    g.restore(); g.beginPath(); g.arc(W/2,64,56,0,7); g.lineWidth=8; g.strokeStyle=opOver(o)?'#dc2626':'#fff'; g.stroke();
+    g.restore(); g.beginPath(); g.arc(W/2,64,56,0,7); g.lineWidth=8; g.strokeStyle=ov?'#dc2626':(st==='l'?'#22c55e':(st==='s'?'#9ca3af':'#fff')); g.stroke(); if(st){ g.beginPath(); g.arc(W/2+44,22,17,0,7); g.fillStyle=st==='l'?'#16a34a':'#6b7280'; g.fill(); g.lineWidth=4; g.strokeStyle='#fff'; g.stroke(); g.fillStyle='#fff'; g.font='800 15px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(srcIcon(o.src),W/2+44,23); }
     lines.forEach((t0,k)=>{ g.font=(k?'600 24px':'800 28px')+' Inter,sans-serif'; let t=t0; while(g.measureText(t).width>W-16&&t.length>3) t=t.slice(0,-2); if(t!==t0) t+='…';
       const w=Math.min(W,g.measureText(t).width+20), y0=130+k*44; g.fillStyle=k?'#1e3a8a':'#2563eb'; g.beginPath(); g.roundRect?g.roundRect(W/2-w/2,y0,w,38,10):g.rect(W/2-w/2,y0,w,38); g.fill();
       g.fillStyle='#fff'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(t,W/2,y0+20); });
@@ -1679,8 +1716,9 @@ function build3DTarget(t){ const C=TC(); {
     S.walls.forEach(w=>{ if(ui.cut&&w.floor>S.floor) return; if(w.floor<-(t.basement||0)||w.floor>=t.levels) return; const L=Math.hypot(w.x2-w.x1,w.z2-w.z1); const h=t.fh*0.9;
       const m=new THREE.Mesh(new THREE.BoxGeometry(L,h,0.25),wMat); m.position.set((w.x1+w.x2)/2,floorBase(t,w.floor)+h/2,(w.z1+w.z2)/2); m.rotation.y=-Math.atan2(w.z2-w.z1,w.x2-w.x1); m.castShadow=true; world.add(m); });
     // marcature
-    (S.ops||[]).forEach(o=>{ if(ui.cut&&o.floor>S.floor) return; const y=floorBase(t,Math.max(-(t.basement||0),Math.min(t.levels-1,o.floor)));
-      const sp=opSprite(o,sz); sp.position.set(o.x,y+1.6+sz*0.3,o.z); if(o.floor!==S.floor) sp.material.opacity=0.45; sp.userData.op=o.opId; world.add(sp); });
+    (S.ops||[]).forEach(o=>{ const out=opOut(o); if(ui.cut&&o.floor>S.floor&&!out) return; const y=out?0:floorBase(t,Math.max(-(t.basement||0),Math.min(t.levels-1,o.floor)));
+      const sp=opSprite(o,sz); sp.position.set(o.x,y+1.6+sz*0.3,o.z); const lv=opLive(o); if((o.floor!==S.floor&&!out)||(lv&&lv.stale)) sp.material.opacity=0.5; sp.userData.op=o.opId; world.add(sp); });
+    (LIVE.arr||[]).forEach(a=>{ const sp=opSprite(a,sz*0.8); sp.position.set(a.x,1.6+sz*0.25,a.z); sp.material.opacity=0.6; world.add(sp); });
     S.markers.forEach(mk=>{ if(ui.cut&&mk.floor>S.floor) return; const M=MT[mk.type]; const y=floorBase(t,Math.max(-(t.basement||0),Math.min(t.levels-1,mk.floor)));
       const col=new THREE.Color(M.color); const pin=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,2.4,8),new THREE.MeshBasicMaterial({color:col})); pin.position.set(mk.x,y+1.2,mk.z); world.add(pin);
       const sp=sprite(M.code+mk.n,M.color,'#fff',sz*0.85); sp.position.set(mk.x,y+2.4+sz*0.4,mk.z); if(mk.floor!==S.floor) sp.material.opacity=0.45; world.add(sp); });
@@ -2045,13 +2083,14 @@ function opPlace(id){ const r=rosterOf(id), p=window._opXZ; if(!r||!p) return; p
 function afterOps(){ renderOps(); build3D(); drawPlanLive(); save(); }
 function renderOps(){ renderOpLab(); const el=$('#opList'); if(!el) return; const ops=(S.ops||[]).slice().sort((a,b)=>b.floor-a.floor);
   $('#opCount').textContent=ops.length?ops.length+' in area':'';
-  el.innerHTML=ops.length?ops.map(o=>{ const r=rosterOf(o.opId)||o; const ov=opOver(o); return `<div class="oprow" style="${ov?'border-color:#dc2626;background:#2a0f0d':''}">${avatarHtml(r)}<div class="t"><div>${esc(o.nome)}</div><small>${esc(o.squadra||'')} · ${floorLabel(o.floor)} · <b style="color:${ov?'#ff8a80':'var(--text)'}">⏱ ${minsIn(o)} min</b></small></div>
+  el.innerHTML=ops.length?ops.map(o=>{ const r=rosterOf(o.opId)||o; const ov=opOver(o); return `<div class="oprow" style="${ov?'border-color:#dc2626;background:#2a0f0d':''}">${avatarHtml(r)}<div class="t"><div>${esc(o.nome)}</div><small>${esc(o.squadra||'')} · ${floorLabel(o.floor)} · <b style="color:${ov?'#ff8a80':'var(--text)'}">⏱ ${minsIn(o)} min</b>${liveBadge(o)}</small></div>
     <button class="ib" title="Mostra" onclick="focusOp('${o.opId}')"><i data-lucide="crosshair"></i></button><button class="ib" title="Esce dall'area" onclick="opRemove('${o.opId}')"><i data-lucide="log-out"></i></button></div>`; }).join('')
     :`<div class="empty">Nessun operatore posizionato.<br>${roster.length?'Premi <b>Posiziona</b> e tocca la pianta o il 3D.':'Prima crea l\'<b>Elenco operatori</b> (una volta sola).'}</div>`;
+  const A=LIVE.arr||[]; if(A.length) el.innerHTML+=`<div class="hint" style="margin:10px 0 4px">📶 <b>Trasmettono la posizione</b> ma non sono in area (${A.length})</div>`+A.map(a=>`<div class="oprow" style="border-style:dashed">${avatarHtml(rosterOf(a.opId)||a)}<div class="t"><div>${esc(a.nome)}</div><small>${srcIcon(a.src)} ${a._stale?'ultima posizione '+liveAgeTxt(a._age):'LIVE'} · ${Math.round(a._dist)} m dall'obiettivo</small></div><button class="btn sm" onclick="liveEnter('${a.opId}')"><i data-lucide="log-in"></i>In area</button></div>`).join('');
   icons(); }
-function opCard(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; const r=rosterOf(id)||o;
+function opCard(id){ const o=S.ops.find(o=>o.opId===id); if(!o) return; const r=rosterOf(id)||o; const lv=opLive(o);
   openModal(o.nome,`<div class="opbig">${avatarHtml(r,'av')}<div><div style="font-size:18px;font-weight:800">${esc(o.nome)}</div><div class="hint">${esc(o.squadra||'')}${o.ruolo?' · '+esc(o.ruolo):''}</div>
-    <div style="margin-top:10px;font-family:var(--mono);font-size:13px">${floorLong(o.floor)}<br><b style="color:${opOver(o)?'#ff8a80':'#5ee69a'}">in area da ${minsIn(o)} min</b> (entrato alle ${new Date(o.tIn||o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})})<br>posizione aggiornata alle ${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} (${minsAgo(o.t)})</div></div></div>`,
+    <div style="margin-top:10px;font-family:var(--mono);font-size:13px">${floorLong(o.floor)}<br><b style="color:${opOver(o)?'#ff8a80':'#5ee69a'}">in area da ${minsIn(o)} min</b> (entrato alle ${new Date(o.tIn||o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})})<br>${lv?`<b style="color:${lv.stale?'#cbd5e1':'#5ee69a'}">${srcIcon(o.src)} ${lv.stale?'segnale perso · ultima posizione '+liveAgeTxt(lv.age):'posizione in tempo reale ('+srcName(o.src)+')'}</b>${lv.p&&lv.p.acc?' · ±'+Math.round(lv.p.acc)+' m':''}${lv.p&&lv.p.batt!=null?' · 🔋'+Math.round(lv.p.batt)+'%':''}`:`posizione inserita a mano alle ${new Date(o.t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})} (${minsAgo(o.t)})${liveFor(r)?' · arriverà la prossima posizione in tempo reale':''}`}</div></div></div>`,
     `<button class="btn sm amb" onclick="opMove('${id}')"><i data-lucide="move"></i>Sposta</button><button class="btn sm" onclick="opRemove('${id}')"><i data-lucide="log-out"></i>Esce dall'area</button>`); }
 function opMove(id){ closeModal(); setTool('oper'); ui.movingOp=id; drawPlanLive(); toast('Tocca il nuovo punto (cambia piano prima, se serve)'); }
 function opRemove(id){ const o=S.ops.find(o=>o.opId===id); pushUndo(); if(o){ S.opLog=S.opLog||[]; S.opLog.push({nome:o.nome,squadra:o.squadra||'',tIn:o.tIn||o.t,tOut:new Date().toISOString()}); }
@@ -2146,9 +2185,12 @@ function renderLink(){ const b=$('#linkBody'); if(!b) return; const on=LINK&&LIN
   b.innerHTML=`${sh?`<div class="side1" style="background:${sh==='pub'?'#0f2a1a':'#102a4d'};border-color:${sh==='pub'?'#1f6b3a':'#2f80ed'}"><span class="n" style="background:${sh==='pub'?'#16a34a':'#2f80ed'};font-size:13px">${sh==='pub'?'📡':'👁'}</span><div><b>${sh==='pub'?'Stai condividendo':'Stai seguendo'}</b><br><small style="color:#cfd6e3">${esc(SHARE.name)}</small></div><button class="btn sm" onclick="stopShare()">Stop</button></div>`
     :`<div class="grid2"><button class="btn sm amb" onclick="startPublish()"><i data-lucide="radio-tower"></i>Condividi scenario</button><button class="btn sm" onclick="chooseFollow()"><i data-lucide="eye"></i>Segui scenario</button></div>`}
     <p class="hint" style="margin-top:8px"><b>Condividi</b>: questo tablet invia la situazione ogni volta che cambia. <b>Segui</b>: gli altri tablet (es. UCL) la vedono aggiornata ogni 15 secondi, in sola lettura.</p>
+    <div class="row" id="liveRow" style="margin-top:8px;gap:8px;align-items:center"></div>
+    <div class="grid2" style="margin-top:6px"><button class="btn sm" onclick="traccarSetup()">📶 Il mio telefono (Traccar)</button><button class="btn sm" onclick="liveClear()" ${liveBase()?'':'disabled'}>🧹 Cancella posizioni</button></div>
+    <div class="grid2" style="margin-top:6px"><button class="btn sm" onclick="window.open(location.pathname+'?visore','_blank')">🖥 Apri il VISORE</button><button class="btn sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname+'?visore');toast('Link del visore copiato')">Copia link visore</button></div>
     <div class="row" style="margin-top:8px;gap:8px;align-items:center"><span class="hint" style="flex:1">Utente di questo dispositivo: <b style="color:var(--text)">${WHO&&WHO.nome?esc(WHO.nome):'—'}</b></span><button class="btn sm" onclick="whoChange()">Cambia</button></div>
     <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="syncRoster(false)"><i data-lucide="users"></i>Elenco dal foglio</button><button class="btn sm" onclick="linkOff()"><i data-lucide="unplug"></i>Scollega</button></div>`;
-  icons(); }
+  renderLiveRow(); icons(); }
 async function linkTest(){ LINK={url:$('#lkUrl').value.trim(),key:$('#lkKey').value.trim()};
   if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(LINK.url)){ LINK=null; toast('Incolla l\'indirizzo della app web: https://script.google.com/…/exec'); return; }
   $('#linkState').textContent='provo…'; try{ await api('ping'); saveLinkState(); toast('Foglio USAR-TAC collegato ✓'); renderLink(); syncRoster(true); if(target()) cadLookupTarget(true); }
@@ -2156,7 +2198,7 @@ async function linkTest(){ LINK={url:$('#lkUrl').value.trim(),key:$('#lkKey').va
 function linkOff(){ stopShare(); LINK=null; saveLinkState(); renderLink(); }
 async function syncRoster(silent){ try{ if(!silent) toast('Scarico l\'elenco dal foglio…'); const j=await api('roster',{},null,90000); let n=0;
   (j.list||[]).forEach(r=>{ if(!r.nome) return; const ex=roster.find(x=>x.nome.toLowerCase()===r.nome.toLowerCase());
-    if(ex) Object.assign(ex,{squadra:r.squadra||ex.squadra,ruolo:r.ruolo||ex.ruolo,foto:r.foto||ex.foto,nm:r.nm||ex.nm,cog:r.cog||ex.cog}); else roster.push({id:'o'+Date.now()+n+Math.floor(Math.random()*999),nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',foto:r.foto||'',nm:r.nm||'',cog:r.cog||''}); n++; });
+    if(ex) Object.assign(ex,{squadra:r.squadra||ex.squadra,ruolo:r.ruolo||ex.ruolo,foto:r.foto||ex.foto,nm:r.nm||ex.nm,cog:r.cog||ex.cog,codici:(r.codici&&r.codici.length)?r.codici:(ex.codici||[])}); else roster.push({id:'o'+Date.now()+n+Math.floor(Math.random()*999),nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',foto:r.foto||'',nm:r.nm||'',cog:r.cog||'',codici:r.codici||[]}); n++; });
   saveRoster(); roster.forEach(cacheOpImg); renderOps(); if($('#rList')) rRender(); try{ localStorage.setItem(LS_KEY+'_rsync',String(Date.now())); }catch(e){}
   if(j.errAccessi) toast('Foglio accessi non letto: '+j.errAccessi); else if(!silent) toast(n+' operatori dal foglio'+(j.conFoto!=null?' · '+j.conFoto+' con foto':'')); }catch(e){ if(!silent) toast('Elenco dal foglio non riuscito: '+e.message); } }
 let followT=null, pushT=null, pushBusy=false;
@@ -2173,7 +2215,7 @@ function startFollow(i){ const x=window._scnList[i]; if(!x) return; closeModal()
 async function pollFollow(){ clearTimeout(followT); if(!SHARE||SHARE.mode!=='follow') return;
   try{ const j=await api('scn_get',{id:SHARE.id,since:SHARE.ts||0},null,45000);
     if(j.changed){ const d=typeof j.data==='string'?JSON.parse(j.data):j.data; const first=!SHARE.ts; const fl=S.floor;
-      S={...defaultState(),...d}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); if(!first) S.floor=fl; loadOvFromState(); fillInputs(); SHARE.ts=j.ts; refreshAll(first); if(first) toast('Scenario «'+SHARE.name+'» caricato'); }
+      S={...defaultState(),...d}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); if(!first) S.floor=fl; loadOvFromState(); fillInputs(); SHARE.ts=j.ts; applyLive(); refreshAll(first); if(first) toast('Scenario «'+SHARE.name+'» caricato'); if(VIS.on){ renderVis(); if(first) visLayout(); } }
     SHARE.got=Date.now(); SHARE.err=''; }catch(e){ SHARE.err=e.message; }
   saveLinkState(); renderShareBar(); followT=setTimeout(pollFollow,15000); }
 function stopShare(){ clearTimeout(followT); clearTimeout(pushT); SHARE=null; saveLinkState(); renderLink(); renderShareBar(); }
@@ -2194,6 +2236,9 @@ function openInfo(){ openModal('USAR-TAC · Informazioni',`<div class="info">
 /* ---------------- PIN D'ACCESSO ---------------- */
 // Per cambiare PIN: sostituire PIN_HASH con lo SHA-256 di "usartac|NUOVOPIN"
 const PIN_HASH='64366b6391d52475c875d5c38ce5353ef57d76d1df9737e8980760b705790813', PIN_LEN=6;
+// ▼▼ SERVER POSIZIONI IN TEMPO REALE (Cloudflare): incolla qui l'indirizzo del Worker, es. 'https://usar-live.tuonome.workers.dev'
+const LIVE_URL_DEF='';
+// ▲▲
 const LINK_URL='https://script.google.com/macros/s/AKfycbwNqNMdwSlh5QowlfHBNAHonHe3y4mC5jnaNet8vSaLsmoaM1wVv2kfipE4IXh_LORY/exec'; let gBuf='';
 async function sha(t){ try{ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return null; } }
 function gDraw(err){ const d=$('#gDots'); d.innerHTML=Array.from({length:PIN_LEN},(_,i)=>`<i class="${i<gBuf.length?'on':''}"></i>`).join(''); d.classList.toggle('err',!!err); }
@@ -2217,7 +2262,7 @@ function devId(){ let d=''; try{ d=localStorage.getItem(LS_KEY+'_dev'); if(!d){ 
 function devName(){ const u=navigator.userAgent; const os=/Android/.test(u)?'Android':/iPad|Macintosh.*Mobile|iPad/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'iPad':/iPhone/.test(u)?'iPhone':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':/Linux/.test(u)?'Linux':'altro';
   const br=/Edg\//.test(u)?'Edge':/Chrome\//.test(u)?'Chrome':/Firefox\//.test(u)?'Firefox':/Safari\//.test(u)?'Safari':'browser'; const tipo=Math.min(screen.width,screen.height)<600?'telefono':(/Windows|Mac|Linux/.test(os)&&!(navigator.maxTouchPoints>1)?'PC':'tablet');
   return `${tipo} · ${os} · ${br}`; }
-function whoCheck(fresh){ if(!WHO||!WHO.nome){ whoAsk(); return; } logAccess(fresh?'accesso con PIN':'apertura'); }
+function whoCheck(fresh){ if(!WHO||!WHO.nome){ whoAsk(); return; } logAccess(fresh?'accesso con PIN':'apertura'); postWho(); }
 async function logAccess(ev,force){ if(!LINK||!LINK.url||!WHO) return; let last=0; try{ last=+localStorage.getItem(LS_KEY+'_wlog')||0; }catch(e){}
   if(!force&&ev==='apertura'&&Date.now()-last<3*3600000) return;
   try{ await api('log',{},{nome:WHO.nome,inList:WHO.inList?'1':'0',ev,dev:devName(),ver:APP_V,id:devId()},15000); localStorage.setItem(LS_KEY+'_wlog',String(Date.now())); }catch(e){} }
@@ -2232,17 +2277,134 @@ async function whoAsk(){
     <input class="inp" id="whoQ" placeholder="Cerca il tuo nome o cognome…" oninput="whoFilter()"><div class="oplist" id="whoList" style="margin-top:8px;max-height:46vh;overflow:auto"><div class="empty">Carico l'elenco del team…</div></div>
     <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">Non sono nell'elenco</summary><div class="row" style="gap:6px;margin-top:6px"><input class="inp" id="whoFree" placeholder="Nome, cognome e comando/team"><button class="btn sm" onclick="whoOut()">Conferma</button></div>
     <p class="hint" style="margin-top:4px">Verrà segnalato come <b>fuori elenco</b> al referente dell'app.</p></details>`,'');
-  _whoList=roster.map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||''}));
-  if(!_whoList.length&&LINK&&LINK.url){ try{ const j=await api('nomi',{},null,30000); _whoList=(j.list||[]).map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||''})); }catch(e){} }
+  _whoList=roster.map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||'',codici:r.codici||[]}));
+  if(!_whoList.length&&LINK&&LINK.url){ try{ const j=await api('nomi',{},null,30000); _whoList=(j.list||[]).map(r=>({nome:r.nome,sq:r.squadra||'',ru:r.ruolo||'',codici:r.codici||[]})); }catch(e){} }
   if(!_whoList.length&&$('#whoList')) $('#whoList').innerHTML='<div class="empty">Elenco non disponibile (rete). Usa "Non sono nell\'elenco" o riprova più tardi.</div>';
   else whoFilter(); setTimeout(()=>{ const i=$('#whoQ'); i&&window.innerWidth>960&&i.focus(); },60); }
 function whoFilter(){ const el=$('#whoList'); if(!el) return; const q=($('#whoQ').value||'').toLowerCase().trim();
   const L=_whoList.map((r,i)=>({...r,i})).filter(r=>!q||(r.nome+' '+r.sq).toLowerCase().includes(q)).sort((a,b)=>a.nome.localeCompare(b.nome)).slice(0,60);
   el.innerHTML=L.length?L.map(r=>`<button class="oprow" style="width:100%;text-align:left" onclick="whoPick(${r.i})"><span class="av">${esc(initials(r.nome))}</span><div class="t"><div>${esc(r.nome)}</div><small>${esc([r.ru,r.sq].filter(Boolean).join(' · '))}</small></div></button>`).join(''):'<div class="empty">Nessun nome trovato</div>'; }
-function whoSet(nome,inList){ WHO={nome,inList,t:Date.now()}; try{ localStorage.setItem(LS_KEY+'_who',JSON.stringify(WHO)); }catch(e){} closeModal(); renderLink(); logAccess('primo accesso',true); toast('Benvenuto/a '+nome); }
-function whoPick(i){ const r=_whoList[i]; if(r) whoSet(r.nome,true); }
+function whoSet(nome,inList,codici){ WHO={nome,inList,codici:codici||[],t:Date.now()}; try{ localStorage.setItem(LS_KEY+'_who',JSON.stringify(WHO)); }catch(e){} closeModal(); renderLink(); logAccess('primo accesso',true); toast('Benvenuto/a '+nome); setTimeout(postWho,500); }
+function whoPick(i){ const r=_whoList[i]; if(r) whoSet(r.nome,true,r.codici); }
 function whoOut(){ const v=($('#whoFree').value||'').trim(); if(v.length<4){ toast('Scrivi nome e cognome'); return; } whoSet(v,false); }
 function whoChange(){ try{ localStorage.removeItem(LS_KEY+'_who'); }catch(e){} WHO=null; whoAsk(); }
+
+
+/* =====================================================================
+   POSIZIONI IN TEMPO REALE · 📶 Traccar · 📡 Meshtastic · 📻 radio
+   Il server (Cloudflare) tiene solo l'ultima posizione di ogni codice tessera.
+   Regola: vale la posizione più recente; una correzione a mano vale finché non arriva una posizione nuova.
+   ===================================================================== */
+const QP=new URLSearchParams(location.search);
+const LIVE={list:[],byId:new Map(),arr:[],t:0,err:'',skew:0};
+const LIVE_STALE=120000;                       // dopo 2 minuti senza aggiornamenti: "segnale perso"
+function liveBase(){ let u=''; try{ u=localStorage.getItem(LS_KEY+'_live')||''; }catch(e){} return (u||LIVE_URL_DEF||'').replace(/\/+$/,''); }
+const srcIcon=s=>({traccar:'📶',mesh:'📡',radio:'📻'})[s]||'📍';
+const srcName=s=>({traccar:'telefono',mesh:'Meshtastic',radio:'radio'})[s]||'GPS';
+function liveAgeTxt(ms){ const s=Math.round(ms/1000); return s<60?s+' s':s<3600?Math.round(s/60)+' min':Math.round(s/3600)+' h'; }
+function codesOf(r){ return ((r&&r.codici)||[]).map(c=>String(c).toUpperCase()); }
+function liveFor(r){ for(const c of codesOf(r)){ const p=LIVE.byId.get(c); if(p) return p; } return null; }
+function liveAge(ts){ return Math.max(0,Date.now()-LIVE.skew-ts); }
+function opLive(o){ if(!o||!o.lt||o._arr&&!o.lt) return null; if(Date.parse(o.t)>o.lt) return null; const r=rosterOf(o.opId); const p=liveFor(r); const age=liveAge(o.lt); return {age,stale:age>LIVE_STALE,p}; }
+function opOut(o){ const lv=opLive(o); if(!lv||lv.age>5*60000) return false; const t=target(); return !t||!pointInPoly({x:o.x,z:o.z},t.pts); }
+function liveBadge(o){ const lv=opLive(o); if(!lv) return liveFor(rosterOf(o.opId))?' · <span style="color:#93c5fd">✋ a mano</span>':''; return ` · <b style="color:${lv.stale?'#cbd5e1':'#4ade80'}">${srcIcon(o.src)} ${lv.stale?'ult. '+liveAgeTxt(lv.age):'LIVE'}</b>`; }
+function applyLive(){
+  if(!S.center) return false; let ch=false; const inOps=new Set((S.ops||[]).map(o=>o.opId));
+  (S.ops||[]).forEach(o=>{ const p=liveFor(rosterOf(o.opId)); if(!p) return; if(p.ts<=Date.parse(o.t)) return; if(o.lt===p.ts&&o.src===p.src) return;
+    const L=toLocal(p.lat,p.lon); o.x=L.x; o.z=L.z; o.lt=p.ts; o.src=p.src; ch=true; });
+  const t=target(), c=t?t.c:{x:0,z:0}, maxD=Math.max(600,S.radius*5);
+  const arr=roster.filter(r=>!inOps.has(r.id)).map(r=>{ const p=liveFor(r); if(!p) return null; const L=toLocal(p.lat,p.lon); const d=Math.hypot(L.x-c.x,L.z-c.z); if(d>maxD) return null;
+    const age=liveAge(p.ts); return {opId:r.id,nome:r.nome,squadra:r.squadra,ruolo:r.ruolo,x:L.x,z:L.z,src:p.src,floor:0,t:new Date(p.ts).toISOString(),_arr:1,_age:age,_stale:age>LIVE_STALE,_dist:d,_ts:p.ts}; }).filter(Boolean);
+  const sig=a=>a.map(x=>x.opId+'@'+x._ts+(x._stale?'s':'')).join(',');
+  if(sig(arr)!==sig(LIVE.arr)) ch=true; LIVE.arr=arr;
+  return ch; }
+let _liveSig='';
+async function livePoll(){ clearTimeout(livePoll.t); const base=liveBase();
+  if(!base||!LINK||!LINK.key){ livePoll.t=setTimeout(livePoll,30000); return; }
+  if(document.hidden&&!VIS.on){ livePoll.t=setTimeout(livePoll,20000); return; }
+  try{ const c=new AbortController(), tm=setTimeout(()=>c.abort(),9000); const r=await fetch(base+'/live/'+LINK.key,{cache:'no-store',signal:c.signal}); clearTimeout(tm);
+    const j=await r.json(); if(!j.ok) throw new Error(j.err||'errore'); LIVE.list=j.list||[]; LIVE.byId=new Map(LIVE.list.map(p=>[String(p.id).toUpperCase(),p])); LIVE.skew=Date.now()-j.ora; LIVE.t=Date.now(); LIVE.err='';
+    const ch=applyLive(); const st=(S.ops||[]).map(o=>{ const lv=opLive(o); return lv?(lv.stale?'s':'l'):'m'; }).join('');
+    if(ch||st!==_liveSig){ _liveSig=st; renderOps(); drawPlanLive(); build3D(); }
+    if(VIS.on) renderVis(); if($('#trcStatus')) trcStatus(); }
+  catch(e){ LIVE.err=e.name==='AbortError'?'nessuna risposta':e.message; }
+  renderLiveRow();
+  const busy=(S.ops||[]).length||VIS.on||LIVE.list.length||$('#trcStatus'); livePoll.t=setTimeout(livePoll,busy?4000:20000); }
+function liveEnter(id){ const a=(LIVE.arr||[]).find(x=>x.opId===id), r=rosterOf(id); if(!a||!r) return; pushUndo(); S.ops=S.ops||[];
+  const now=new Date().toISOString(); S.ops.push({opId:id,nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',floor:S.floor,x:a.x,z:a.z,t:new Date(a._ts-1).toISOString(),tIn:now,lt:a._ts,src:a.src});
+  LIVE.arr=LIVE.arr.filter(x=>x.opId!==id); afterOps(); toast(r.nome+' in area ('+srcName(a.src)+')'); }
+function renderLiveRow(){ const el=$('#liveRow'); if(!el) return; const b=liveBase();
+  el.innerHTML=!b?'<span class="hint">📶 Posizioni in tempo reale: <b>server non configurato</b></span>':
+    `<span class="hint" style="flex:1">📶 Posizioni in tempo reale: ${LIVE.err?'<b style="color:#ff8a80">⚠ '+esc(LIVE.err)+'</b>':LIVE.t?'<b style="color:#4ade80">✓ attivo</b> · '+LIVE.list.length+' dispositivi':'…'}</span>`; }
+async function liveClear(){ if(!confirm('Fine intervento: cancellare dal server TUTTE le posizioni in tempo reale?')) return;
+  try{ const r=await fetch(liveBase()+'/clear/'+LINK.key,{method:'POST'}); const j=await r.json(); if(!j.ok) throw new Error(j.err); LIVE.list=[]; LIVE.byId=new Map(); LIVE.arr=[]; toast('Posizioni cancellate dal server'); livePoll(); }
+  catch(e){ toast('Cancellazione non riuscita: '+e.message); } }
+
+/* ---------- 📶 Il mio telefono: configurazione automatica di Traccar Client ---------- */
+function myCode(){ if(WHO&&WHO.codici&&WHO.codici.length) return String(WHO.codici[0]).toUpperCase(); const r=WHO&&roster.find(x=>x.nome.toLowerCase()===String(WHO.nome).toLowerCase()); return r&&codesOf(r)[0]||''; }
+function traccarSetup(){ const base=liveBase(); if(!WHO){ whoAsk(); return; }
+  const code=myCode(); const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1), isAnd=/Android/.test(navigator.userAgent);
+  if(!base){ openModal('📶 La mia posizione',`<p style="font-size:13px;line-height:1.5">Il <b>server delle posizioni</b> non è ancora configurato in questa versione dell'app. Avvisa il referente di USAR-TAC.</p>`,''); return; }
+  if(!code){ openModal('📶 La mia posizione',`<p style="font-size:13px;line-height:1.5">Non trovo il tuo <b>codice tessera</b> (es. VF0012). Scrivilo qui:</p><div class="row" style="gap:6px;margin-top:8px"><input class="inp" id="trcCode" placeholder="VF0000" style="text-transform:uppercase"><button class="btn sm pri" onclick="const v=($('#trcCode').value||'').trim().toUpperCase(); if(v.length<3) return; WHO.codici=[v]; try{localStorage.setItem(LS_KEY+'_who',JSON.stringify(WHO));}catch(e){} traccarSetup()">Avanti</button></div>`,''); return; }
+  const P=new URLSearchParams({url:base+'/t/'+LINK.key,id:code,interval:'10',accuracy:'highest',distance:'0'}).toString();
+  const play='https://play.google.com/store/apps/details?id=org.traccar.client', store='https://apps.apple.com/app/traccar-client/id843156974';
+  const cfg=isIOS?'org.traccar.client://config?'+P:`intent://config?${P}#Intent;scheme=org.traccar.client;package=org.traccar.client;S.browser_fallback_url=${encodeURIComponent(play)};end`;
+  const openApp=isIOS?'org.traccar.client://':`intent://#Intent;scheme=org.traccar.client;package=org.traccar.client;S.browser_fallback_url=${encodeURIComponent(play)};end`;
+  const step=(n,t,b)=>`<div style="display:flex;gap:10px;margin:10px 0"><span style="flex:none;width:26px;height:26px;border-radius:50%;background:#a6101e;color:#fff;font-weight:800;display:grid;place-items:center">${n}</span><div style="flex:1;font-size:13px;line-height:1.45"><b>${t}</b><br>${b}</div></div>`;
+  openModal('📶 La mia posizione in tempo reale',`<div class="row" style="gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--panel2,#141c2c);border:1px solid var(--line,#26324a)"><span class="trc-av">${esc(initials(WHO.nome))}</span><div><div style="font-weight:800">${esc(WHO.nome)}</div><div class="hint">codice tessera <b style="font-family:var(--mono)">${esc(code)}</b></div></div><div id="trcStatus" style="margin-left:auto;text-align:right;font-size:12px"></div></div>
+    ${step(1,'Installa Traccar Client (gratis, una volta sola)',`<a class="btn sm" href="${isIOS?store:play}" target="_blank" rel="noopener" style="margin-top:6px">${isIOS?'App Store':'Google Play'}</a>${!isIOS&&!isAnd?' <a class="btn sm" href="'+store+'" target="_blank" rel="noopener">App Store</a>':''}`)}
+    ${step(2,'Configura con un tocco',`<a class="btn sm pri" href="${cfg}" style="margin-top:6px">⚙️ Configura Traccar</a><br><span class="hint">Si apre Traccar già impostato con il server di USAR-TAC e il tuo codice.</span>`)}
+    ${step(3,'Permessi (importante)',`Posizione: <b>Consenti sempre</b> · Batteria: <b>nessuna restrizione</b> per Traccar (altrimenti il telefono la spegne in tasca).`)}
+    ${step(4,'In intervento: avvia il servizio',`In Traccar accendi l'interruttore <b>Servizio / Tracciamento</b>. A fine intervento spegnilo.<br><a class="btn sm" href="${openApp}" style="margin-top:6px">Apri Traccar</a>`)}
+    <details style="margin-top:6px"><summary class="hint" style="cursor:pointer">Il tasto "Configura" non funziona? Impostazione manuale</summary><div style="font-size:12px;margin-top:6px;line-height:1.6">In Traccar → Impostazioni:<br>• <b>Identificativo dispositivo</b>: <code>${esc(code)}</code><br>• <b>URL del server</b>: <code style="word-break:break-all">${esc(base+'/t/'+LINK.key)}</code> <button class="btn sm" style="height:24px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${base}/t/${LINK.key}');toast('Indirizzo copiato')">Copia</button><br>• <b>Frequenza</b>: 10 secondi · <b>Precisione</b>: alta</div></details>
+    <p class="hint" style="margin-top:8px">La posizione si usa solo durante interventi ed esercitazioni e si cancella a fine intervento.</p>`,'');
+  trcStatus(); livePoll(); }
+function trcStatus(){ const el=$('#trcStatus'); if(!el) return; const p=LIVE.byId.get(myCode()); el.innerHTML=p?`<b style="color:${liveAge(p.ts)>LIVE_STALE?'#cbd5e1':'#4ade80'}">${srcIcon(p.src)} ${liveAge(p.ts)>LIVE_STALE?'ultima '+liveAgeTxt(liveAge(p.ts)):'ricevo la tua posizione'}</b><br><span class="hint">${liveAgeTxt(liveAge(p.ts))} fa${p.acc?' · ±'+Math.round(p.acc)+' m':''}</span>`:'<span class="hint">in attesa della<br>prima posizione…</span>'; }
+
+/* =====================================================================
+   VISORE · schermo intero per il PC del posto di comando (?visore)
+   ===================================================================== */
+const VIS={on:false,mode:'split',rot:true,altT:null};
+function visSplit(){ return VIS.on&&VIS.mode==='split'; }
+function visStart(){ VIS.on=true; document.body.classList.add('vis'); try{ Object.assign(VIS,JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'),{on:true}); }catch(e){}
+  if(!$('#visPanel')){ const d=document.createElement('aside'); d.id='visPanel'; $('main').appendChild(d); const c=document.createElement('div'); c.id='visCtl'; c.className='ov'; $('#stage').appendChild(c); }
+  visLayout(); renderVis(); setInterval(()=>{ const c=$('#visClock'); if(c) c.textContent=new Date().toLocaleTimeString('it-IT'); },1000); setInterval(renderVis,15000);
+  document.addEventListener('mousemove',visWake); document.addEventListener('touchstart',visWake); visWake(); livePoll(); }
+function visWake(){ document.body.classList.add('vis-ui'); clearTimeout(visWake.t); visWake.t=setTimeout(()=>document.body.classList.remove('vis-ui'),5000); }
+function visSave(){ try{ localStorage.setItem(LS_KEY+'_vis',JSON.stringify({mode:VIS.mode,rot:VIS.rot})); }catch(e){} }
+function visSet(k,v){ VIS[k]=v; visSave(); visLayout(); renderVis(); }
+function visLayout(){ clearInterval(VIS.altT); const st=$('#stage'); st.classList.toggle('vsplit',VIS.mode==='split');
+  if(VIS.mode==='split'){ ui.view='3d'; $('#three').classList.remove('hidden'); $('#plan').classList.remove('hidden'); $('#mapview').classList.add('hidden'); $('#meteoview').classList.add('hidden'); }
+  else if(VIS.mode==='alt'){ setView('3d'); VIS.altT=setInterval(()=>setView(ui.view==='3d'?'plan':'3d'),20000); }
+  else setView(VIS.mode);
+  setTimeout(()=>{ resize3D(); planResize(); planCenter(); fit3D&&fit3D(); needs3D=true; drawPlanLive(); },60); renderVisCtl(); }
+function renderVisCtl(){ const c=$('#visCtl'); if(!c) return; const b=(k,v,l)=>`<button class="${VIS[k]===v?'on':''}" onclick="visSet('${k}',${typeof v==='string'?`'${v}'`:v})">${l}</button>`;
+  const t=target(); const fl=t?floorsOf(t).slice().reverse():[0];
+  c.innerHTML=`<div class="vseg">${b('mode','split','3D + Pianta')}${b('mode','alt','Alterna')}${b('mode','3d','Solo 3D')}${b('mode','plan','Solo pianta')}</div>
+    <div class="vseg">${fl.map(f=>`<button class="${S.floor===f?'on':''}" onclick="setFloor(${f});renderVisCtl();renderVis()">${floorLabel(f)}</button>`).join('')}</div>
+    <div class="vseg">${b('rot',!VIS.rot,VIS.rot?'⟳ Rotazione: sì':'⟳ Rotazione: no')}<button onclick="visPickScn()">📡 Scenario</button><button onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶ Schermo intero</button><button onclick="location.href=location.pathname">✕ Esci</button></div>`; }
+function visPickScn(){ if(LINK&&LINK.url) chooseFollow(); else toast('Collega prima il foglio (PIN)'); }
+function renderVis(){ const el=$('#visPanel'); if(!el||!VIS.on) return; const t=target(); const C=S.cad||{};
+  const fl=t?floorsOf(t).slice().reverse():[];
+  const secRows=fl.map(f=>`<tr><th class="${f===S.floor?'cur':''}">${floorLabel(f)}</th>${QUADS.map(q=>{ const x=sec(f,q); return `<td><span class="vchip" style="background:${ST[x.st].color}" title="${ST[x.st].full}">${q}</span>${x.sq?`<small>${esc(x.sq)}</small>`:''}</td>`; }).join('')}</tr>`).join('');
+  const all=fl.length*5, done=fl.reduce((n,f)=>n+QUADS.filter(q=>sec(f,q).st==='clear').length,0);
+  const mk={}; S.markers.forEach(m=>mk[m.type]=(mk[m.type]||0)+1);
+  const mkHtml=Object.keys(MT).filter(k=>mk[k]).map(k=>`<span class="vmk"><b style="background:${MT[k].color}">${MT[k].code}</b>${mk[k]}</span>`).join('')||'<span class="hint">nessuna</span>';
+  const ops=(S.ops||[]).slice().sort((a,b)=>minsIn(b)-minsIn(a));
+  const opRow=o=>{ const r=rosterOf(o.opId)||o, lv=opLive(o), ov=opOver(o); return `<div class="vop ${ov?'over':''}">${avatarHtml(r)}<div class="t"><b>${esc(o.nome)}</b><small>${esc(o.ruolo||'')}${o.squadra?' · '+esc(o.squadra):''}</small></div><div class="r"><b class="${ov?'red':''}">${minsIn(o)}′</b><small>${opOut(o)?'fuori':floorLabel(o.floor)} ${lv?`<span style="color:${lv.stale?'#9ca3af':'#4ade80'}">${srcIcon(o.src)}${lv.stale?' '+liveAgeTxt(lv.age):''}</span>`:'✋'}</small></div></div>`; };
+  const w=S.wx&&S.wx.cur;
+  el.innerHTML=`<div class="vhead"><img src="${logoSrc(1)}" alt=""><img src="${logoSrc(2)}" alt=""><div><b>VIGILI DEL FUOCO</b><small>USAR M SARDEGNA · USAR-TAC</small></div><div class="vclock" id="visClock">${new Date().toLocaleTimeString('it-IT')}</div></div>
+    <div class="vbox"><div class="vev">${esc(S.meta.evento||'Intervento')}</div><div class="vsub">${esc(t?t.name:(S.label||''))}${C.foglio?' · F.'+esc(C.foglio)+' P.'+esc(C.particella||''):''}</div>
+      <div class="vsub">${S.meta.op?'Capo squadra: '+esc(S.meta.op)+' · ':''}${t?(t.levels+' piani'+(t.basement?' + '+t.basement+' int.':'')):''}${S.asr?' · ASR '+esc(String(S.asr)):''}</div></div>
+    ${w?`<div class="vbox vwind"><svg viewBox="0 0 40 40" width="46" height="46"><circle cx="20" cy="20" r="18" fill="none" stroke="#334155" stroke-width="2"/><g transform="rotate(${w.dir+180} 20 20)"><path d="M20 5 L26 22 L20 18 L14 22 Z" fill="#60a5fa"/></g></svg><div><b>Vento da ${card16(w.dir)} · ${Math.round(w.ws)} km/h</b><small>raffiche ${Math.round(w.wg)} km/h · ${Math.round(w.t)}°C${upwindSide()?' · '+upwindSide():''}</small></div></div>`:''}
+    <div class="vbox"><div class="vh">Settori <span>${done}/${all} bonificati</span></div><table class="vsec">${secRows}</table>
+      <div class="vleg">${Object.values(ST).map(x=>`<span><i style="background:${x.color}"></i>${x.label}</span>`).join('')}</div></div>
+    <div class="vbox"><div class="vh">Marcature <span>${S.markers.length}</span></div><div>${mkHtml}</div></div>
+    <div class="vbox vgrow"><div class="vh">Operatori in area <span>${ops.length}${LIVE.arr&&LIVE.arr.length?' · '+LIVE.arr.length+' in arrivo':''}</span></div>${ops.map(opRow).join('')||'<div class="hint">nessuno in area</div>'}
+      ${(LIVE.arr||[]).map(a=>`<div class="vop arr">${avatarHtml(rosterOf(a.opId)||a)}<div class="t"><b>${esc(a.nome)}</b><small>${srcIcon(a.src)} ${a._stale?'ult. '+liveAgeTxt(a._age):'in arrivo'} · ${Math.round(a._dist)} m</small></div></div>`).join('')}</div>
+    <div class="vfoot">${SHARE&&SHARE.mode==='follow'?'📡 '+esc(SHARE.name)+' · agg. '+(SHARE.got?new Date(SHARE.got).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'…'):'Scenario di questo dispositivo'}${liveBase()?' · 📶 '+(LIVE.err?'⚠':'✓'):''}<br>Ideata e realizzata da Alessio Corvino · ${APP_V}</div>`;
+  renderVisCtl(); }
+function postWho(){ if(QP.has('traccar')&&!postWho.done){ postWho.done=1; setTimeout(traccarSetup,300); } else if(QP.has('visore')&&!postWho.vdone){ postWho.vdone=1; if(!(SHARE&&SHARE.mode==='follow')&&LINK&&LINK.url) setTimeout(chooseFollow,600); } }
 
 /* ---------------- AVVIO ---------------- */
 $$('#viewSeg button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -2270,12 +2432,13 @@ renderLink(); renderShareBar();
 if(SHARE&&SHARE.mode==='follow') setTimeout(pollFollow,500);
 // elenco operatori sempre allineato all'app Accessi: all'avvio, quando torni sull'app e quando posizioni un operatore (al massimo una volta l'ora, in silenzio)
 function autoRoster(){ if(!LINK||!LINK.url||!navigator.onLine) return; let last=0; try{ last=+localStorage.getItem(LS_KEY+'_rsync')||0; }catch(e){} if(Date.now()-last>3600000){ try{ localStorage.setItem(LS_KEY+'_rsync',String(Date.now())); }catch(e){} syncRoster(true); } }
-setTimeout(autoRoster,3000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) autoRoster(); });
+setTimeout(autoRoster,3000); setTimeout(livePoll,2500); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) autoRoster(); });
 const homeState=restored&&S.source==='none'&&!S.buildings.length;
 if(homeState){ try{ refreshAll(true); }catch(e){} }
 else if(restored&&S.buildings.length&&S.source!=='demo'){ refreshAll(true); toast('Scenario ripristinato'); loadWeather(false); }
 else { $('#q').value=PRESET.label.replace(' (esempio)',''); loadArea(); }
 setTool('select'); setView(homeState?'map':'3d'); if(homeState) setStep(1);
+if(QP.has('visore')) setTimeout(visStart,50);
 </script>
 </body>
 </html>
