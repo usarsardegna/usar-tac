@@ -420,7 +420,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <div class="row" style="margin-top:8px">
           <button class="btn" style="flex:1" onclick="useGPS()"><i data-lucide="locate-fixed"></i>Mia posizione</button>
           <div class="seg" id="radSeg">
-            <button data-r="60">60 m</button><button data-r="120">120 m</button><button data-r="200">200 m</button>
+            <button data-r="60">60 m</button><button data-r="120">120 m</button><button data-r="200">200 m</button><button data-r="400" title="Zona ampia: più lento da caricare">400 m</button>
           </div>
         </div>
         <div class="georesults" id="geoRes"></div>
@@ -578,7 +578,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.5</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.6</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -655,7 +655,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.5</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.6</p>
     </div>
   </div>
 </div>
@@ -706,7 +706,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '3.5 · 25/11/2026'; const APP_V='v3.5';
+const APP_VER = '3.6 · 25/11/2026'; const APP_V='v3.6';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -933,14 +933,27 @@ async function doSearch(){
 }
 function pickGeo(i){ const x=window._geo[i]; $('#geoRes').innerHTML=''; goTo(+x.lat,+x.lon,shortName(x.display_name)); }
 function shortName(s){ return s.split(',').slice(0,3).join(',').trim(); }
+// GPS: legge per alcuni secondi e tiene la posizione più precisa (il primo dato è spesso approssimato)
+let gpsW=null, gpsBest=null, gpsT=null, gpsT0=0;
 function useGPS(){
   if(!navigator.geolocation){ toast('GPS non disponibile su questo dispositivo'); return; }
-  loading(true,'Acquisizione posizione GPS…');
-  navigator.geolocation.getCurrentPosition(p=>{ loading(false); goTo(p.coords.latitude,p.coords.longitude,`GPS ±${Math.round(p.coords.accuracy)} m`); },
-    ()=>{ loading(false); toast('Posizione non disponibile: autorizza il GPS o inserisci le coordinate'); }, {enableHighAccuracy:true,timeout:12000});
+  gpsStop(); gpsBest=null; gpsT0=Date.now();
+  openModal('📍 Mia posizione',`<div style="text-align:center"><div id="gpsAcc" style="font:800 30px var(--mono);margin:6px 0">…</div><div id="gpsTxt" class="hint">Cerco il segnale GPS. All'aperto e lontano dai muri è più preciso.</div>
+    <div style="height:8px;border-radius:6px;background:#1f2b42;margin:12px 0;overflow:hidden"><div id="gpsBar" style="height:100%;width:0;background:#16a34a;transition:width .3s"></div></div>
+    <p class="hint">Su PC la posizione arriva dalla rete (±100-200 m): meglio scrivere l'indirizzo.</p></div>`,
+    `<button class="btn sm" onclick="gpsStop();closeModal()">Annulla</button><button class="btn sm pri" id="gpsUse" disabled onclick="gpsUse()">Usa questa posizione</button>`);
+  gpsW=navigator.geolocation.watchPosition(p=>{ const c=p.coords; if(!gpsBest||c.accuracy<gpsBest.accuracy) gpsBest={lat:c.latitude,lng:c.longitude,accuracy:c.accuracy};
+      const a=Math.round(gpsBest.accuracy), el=$('#gpsAcc'); if(!el) return; el.textContent='±'+a+' m'; el.style.color=a<=15?'#4ade80':a<=40?'#fbbf24':'#f87171';
+      $('#gpsTxt').textContent=a<=15?'Precisione ottima':a<=40?'Precisione discreta: attendo qualche secondo…':'Precisione bassa: attendo che migliori…';
+      $('#gpsUse').disabled=false; if(a<=12) setTimeout(gpsUse,700); },
+    e=>{ if(!gpsBest){ gpsStop(); closeModal(); toast(e.code===1?'Permesso negato: autorizza la posizione nel browser':'Posizione non disponibile: scrivi l\'indirizzo'); } },
+    {enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  gpsT=setInterval(()=>{ const k=(Date.now()-gpsT0)/15000, b=$('#gpsBar'); if(b) b.style.width=Math.min(100,k*100)+'%'; if(k>=1&&gpsBest) gpsUse(); if(k>=1.6&&!gpsBest){ gpsStop(); closeModal(); toast('Nessun segnale GPS: scrivi l\'indirizzo'); } },300);
 }
-async function goTo(lat,lng,label){
-  pushUndo();
+function gpsStop(){ if(gpsW!=null) navigator.geolocation.clearWatch(gpsW); gpsW=null; clearInterval(gpsT); }
+function gpsUse(){ if(!gpsBest) return; const g=gpsBest; gpsStop(); closeModal(); S.gpsAcc=Math.round(g.accuracy); goTo(g.lat,g.lng,`GPS ±${Math.round(g.accuracy)} m`,true); }
+async function goTo(lat,lng,label,fromGPS){
+  pushUndo(); if(!fromGPS) S.gpsAcc=0;
   S.center={lat,lng}; S.label=label; S.markers=[]; S.walls=[]; S.sectors={}; S.overlay=null; ovImg=null;
   S.recent=[{label,lat,lng},...S.recent.filter(r=>r.label!==label)].slice(0,6);
   $('#q').value=label.startsWith('Coord')?`${lat.toFixed(6)}, ${lng.toFixed(6)}`:label;
@@ -950,7 +963,7 @@ const OVERPASS=['https://overpass-api.de/api/interpreter','https://overpass.priv
 let osmErrors=[];
 async function loadArea(){
   const {lat,lng}=S.center, R=S.radius;
-  const query=`[out:json][timeout:15];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng}););out body geom;`;
+  const query=`[out:json][timeout:15];(way["building"](around:${R},${lat},${lng});relation["building"]["type"="multipolygon"](around:${R},${lat},${lng});way["highway"](around:${R+40},${lat},${lng});nwr["name"]["amenity"](around:${R},${lat},${lng});nwr["name"]["office"](around:${R},${lat},${lng});nwr["name"]["emergency"](around:${R},${lat},${lng});nwr["name"]["shop"](around:${R},${lat},${lng});nwr["name"]["tourism"](around:${R},${lat},${lng});nwr["name"]["healthcare"](around:${R},${lat},${lng}););out body geom;`;
   loading(true,`Estrazione edifici reali entro ${R} m…`);
   osmErrors=[]; loadCtl=new AbortController(); const sig=loadCtl.signal;
   $('#loadCancel').classList.remove('hidden');
@@ -1005,13 +1018,27 @@ function parseOSM(data){
       if(best) add('r'+el.id,best,t);
     }
   }
+  // edifici senza nome: prendono il nome del punto di interesse che contengono (o dell'area in cui stanno)
+  const P=[], A=[];
+  for(const el of data.elements||[]){ const t=el.tags||{}; if(!t.name||t.building) continue; const imp=/fire_station|police|hospital|townhall|school|university|clinic|ambulance_station|courthouse/.test(t.amenity||t.emergency||'')?2:1;
+    if(el.type==='node'&&el.lat!=null) P.push({p:toLocal(el.lat,el.lon),name:t.name,imp});
+    else if(el.type==='way'&&el.geometry&&!t.highway) A.push({pts:el.geometry.map(g=>toLocal(g.lat,g.lon)),name:t.name,imp}); }
+  B.forEach(b=>{ if(!/^Edificio OSM/.test(b.name)&&b.name!==b.addr) return;
+    const inP=P.filter(x=>pointInPoly(x.p,b.pts)).sort((a,c)=>c.imp-a.imp)[0]; const inA=A.filter(x=>x.pts.length>2&&pointInPoly(b.c,x.pts)).sort((a,c)=>c.imp-a.imp||polyArea(a.pts)-polyArea(c.pts))[0];
+    const n=(inP&&inA)?(inA.imp>inP.imp?inA:inP):(inP||inA); if(n){ b.name=n.name+(b.addr?' – '+b.addr:''); b.poiName=1; } });
   S.buildings=B; S.roads=Rd;
 }
+function bDist(b){ const o={x:0,z:0}; if(pointInPoly(o,b.pts)) return 0; let d=1e9; for(let i=0;i<b.pts.length;i++) d=Math.min(d,distSeg(o,b.pts[i],b.pts[(i+1)%b.pts.length])); return d; }
 function chooseTarget(){
-  const o={x:0,z:0}; let t=S.buildings.find(b=>pointInPoly(o,b.pts));
-  if(!t){ let bd=1e9; S.buildings.forEach(b=>{ const d=Math.hypot(b.c.x,b.c.z); if(d<bd){bd=d;t=b;} }); }
-  if(t) setTarget(t.id,true);
+  const L=S.buildings.map(b=>({b,d:bDist(b)})).sort((a,c)=>a.d-c.d); if(!L.length) return;
+  setTarget(L[0].b.id,true);
+  const acc=S.gpsAcc||0; const near=L.filter(x=>x.d<=Math.max(15,acc)).slice(0,6);
+  if(acc>15&&near.length>1) setTimeout(()=>pickNear(near,acc),400);
 }
+function pickNear(near,acc){ window._near=near.map(x=>x.b.id);
+  openModal('Quale edificio?',`<p class="hint" style="margin-bottom:8px">Il GPS ha una precisione di <b>±${acc} m</b>: in quel raggio ci sono <b>${near.length} edifici</b>. Tocca quello giusto (o toccalo nella pianta/3D).</p>
+    <div class="oplist">${near.map((x,i)=>`<button class="oprow" style="width:100%;text-align:left" onclick="setTarget(window._near[${i}]);closeModal()"><span class="av" style="background:${i?'#334155':'#e1251b'}">${i+1}</span><div class="t"><div>${esc(x.b.name)}</div><small>${x.d<1?'qui':Math.round(x.d)+' m'} · ${Math.round(x.b.area)} m² · ${x.b.levels} piani${x.b.addr&&x.b.addr!==x.b.name?' · '+esc(x.b.addr):''}</small></div></button>`).join('')}</div>`,
+    `<button class="btn sm" onclick="closeModal()">Va bene il primo</button>`); }
 function setTarget(id,silent){
   S.targetId=id; const t=target(); if(!t) return;
   if(t.side1==null) t.side1=autoSide1(t);
@@ -1382,6 +1409,7 @@ function drawPlan(g,W,H,V,opt={}){
   }
   if(t){
     const Q=quadGeom(t);
+    if(S.gpsAcc>8&&S.center&&!opt.print){ const [gx,gy]=T(0,0); g.save(); g.beginPath(); g.arc(gx,gy,S.gpsAcc*V.s,0,7); g.fillStyle='rgba(37,99,235,.08)'; g.fill(); g.setLineDash([5,4]); g.lineWidth=1.5; g.strokeStyle='#2563eb'; g.stroke(); g.restore(); g.beginPath(); g.arc(gx,gy,5,0,7); g.fillStyle='#2563eb'; g.fill(); g.lineWidth=2; g.strokeStyle='#fff'; g.stroke(); }
     // sagoma obiettivo + stato settori
     if(!onImg){ pathPoly(g,t.pts,T); g.fillStyle=C.tFill; g.fill(); }
     g.save(); pathPoly(g,t.pts,T); g.clip();
