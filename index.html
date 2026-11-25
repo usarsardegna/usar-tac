@@ -300,8 +300,8 @@ body.vis main>section{grid-column:1;grid-row:1;min-height:0;display:flex;flex-di
 body.vis .stage{flex:1}
 #visPanel{grid-column:2;grid-row:1;background:#0a101c;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px;padding:12px;overflow:auto;min-height:0}
 .stage.vsplit #three{right:50%}
-body.vis .pad3d{bottom:120px} .stage.vsplit #pad3d{right:calc(50% + 10px)!important} .stage.vsplit #pad3d.hidden,.stage.vsplit #pad2d.hidden{display:flex!important}
-.vtag{position:absolute;top:10px;z-index:6;padding:6px 12px;border-radius:8px;background:#0b1220e8;border:1px solid #26324a;color:#fff;font:800 12px var(--mono);letter-spacing:.08em;pointer-events:none}
+body.vis .pad3d{bottom:170px} .stage.vsplit #pad3d{right:calc(50% + 10px)!important} .stage.vsplit #pad3d.hidden,.stage.vsplit #pad2d.hidden{display:flex!important}
+.vtag{position:absolute;top:10px;max-width:calc(50% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:6;padding:6px 12px;border-radius:8px;background:#0b1220e8;border:1px solid #26324a;color:#fff;font:800 12px var(--mono);letter-spacing:.08em;pointer-events:none}
 .vtag i{font-style:normal;color:#f59e0b}
 body.vis #vLabel{display:none}.stage.vsplit #plan{left:50%;width:50%!important;border-left:2px solid #1e293b}
 .vhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,#a6101e,#7d0a16)}
@@ -327,7 +327,7 @@ a.btn{color:inherit;text-decoration:none;display:inline-flex;align-items:center;
 #visCtl{left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
 body.vis-ui #visCtl{opacity:1;pointer-events:auto}
 .vseg{display:flex;background:#0b1220e8;border:1px solid #26324a;border-radius:10px;overflow:hidden}.vseg button{background:none;border:0;color:#cbd5e1;padding:8px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
-.vseg button.on{background:#a6101e;color:#fff}.vseg button:hover{background:#1e293b}
+.vseg button.on{background:#a6101e;color:#fff}.vseg button.hold{background:#f59e0b;color:#1a1205;font-weight:800}.vseg button:hover{background:#1e293b}
 @media (max-width:900px){ body.vis main{grid-template-columns:1fr!important;grid-template-rows:60vh auto} #visPanel{grid-column:1;grid-row:2} body.vis main>section{grid-row:1} }
 @media (max-width:480px){ .hide-xs{display:none!important} .hdr-right{gap:5px} }
 @media print{
@@ -565,7 +565,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.2</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.3</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -642,7 +642,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.2</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.3</p>
     </div>
   </div>
 </div>
@@ -693,7 +693,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '3.2 · 25/11/2026'; const APP_V='v3.2';
+const APP_VER = '3.3 · 25/11/2026'; const APP_V='v3.3';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -1070,7 +1070,7 @@ function osmFail(){
 
 /* ---------------- SALVATAGGIO / UNDO ---------------- */
 let saveT=null;
-function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{
+function save(){ if(window.__VIS) return; clearTimeout(saveT); saveT=setTimeout(()=>{
   try{ const o={...S, overlay:S.overlay}; localStorage.setItem(LS_KEY,JSON.stringify(o)); $('#saveState').textContent='salvato '+hhmm(); }
   catch(e){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null})); $('#saveState').textContent='salvato (senza immagine ricalco)'; }
     catch(_){ try{ localStorage.setItem(LS_KEY,JSON.stringify({...S,overlay:null,markers:S.markers.map(m=>({...m,foto:''}))})); $('#saveState').textContent='salvato SENZA foto: esporta lo scenario'; if(!save._warn){ save._warn=1; toast('Memoria piena: le foto restano finché non chiudi. Esporta lo scenario per conservarle'); } }
@@ -1370,14 +1370,15 @@ function drawPlan(g,W,H,V,opt={}){
   if(t){
     const Q=quadGeom(t);
     // sagoma obiettivo + stato settori
-    pathPoly(g,t.pts,T); g.fillStyle=onImg?'rgba(225,37,27,.18)':C.tFill; g.fill();
+    if(!onImg){ pathPoly(g,t.pts,T); g.fillStyle=C.tFill; g.fill(); }
     g.save(); pathPoly(g,t.pts,T); g.clip();
-    Q.quads.forEach(q=>{ const s=sec(f,q.q); if(s.st!=='todo'||(opt.live&&q.q===ui.selQ&&ui.step===3)){ pathPoly(g,q.poly,T); g.fillStyle=hexA(ST[s.st].color,s.st==='todo'?0.10:0.30); g.fill(); } });
+    Q.quads.forEach(q=>{ const s=sec(f,q.q); if(s.st!=='todo'||(opt.live&&q.q===ui.selQ&&ui.step===3)){ pathPoly(g,q.poly,T); g.fillStyle=hexA(ST[s.st].color,s.st==='todo'?(onImg?0.16:0.10):(onImg?0.45:0.30)); g.fill(); } });
     g.restore();
-    if(opt.live&&ui.step===3){ const q=Q.quads.find(q=>q.q===ui.selQ); if(q){ g.save(); g.setLineDash([4,3]); g.lineWidth=2; g.strokeStyle=C.ink; pathPoly(g,q.poly,T); g.stroke(); g.restore(); } }
+    if(opt.live&&ui.step===3){ const q=Q.quads.find(q=>q.q===ui.selQ); if(q){ g.save(); g.setLineDash([4,3]); g.lineWidth=onImg?3:2; g.strokeStyle=onImg?'#fbbf24':C.ink; pathPoly(g,q.poly,T); g.stroke(); g.restore(); } }
     // muri ricalcati (piano attivo + fantasma piano sotto)
     S.walls.forEach(w=>{ if(w.floor!==f&&w.floor!==f-1) return; const [a,b]=[T(w.x1,w.z1),T(w.x2,w.z2)];
       g.lineCap='butt'; g.lineWidth=Math.max(2.5,0.25*V.s); g.strokeStyle=w.floor===f?'#7c3aed':hexA('#7c3aed',0.18); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b[0],b[1]); g.stroke(); });
+    if(onImg){ pathPoly(g,t.pts,T); g.lineWidth=7; g.strokeStyle='rgba(255,255,255,.85)'; g.lineJoin='miter'; g.stroke(); }
     pathPoly(g,t.pts,T); g.lineWidth=3; g.strokeStyle=C.tStroke; g.lineJoin='miter'; g.stroke();
     // corpi con piani diversi
     if(t.parts&&t.parts.length){ g.save();
@@ -1417,7 +1418,7 @@ function drawPlan(g,W,H,V,opt={}){
     Q.sides.forEach(sd=>{ const off=Math.max(4,26/V.s); const [x,y]=T(sd.mid.x+sd.nx*(off+Math.min(o.hu,o.hv)*0.0),sd.mid.z+sd.nz*off); const r=sd.n===1?14:11;
       g.beginPath(); g.arc(x,y,r,0,7); g.fillStyle=sd.n===1?'#e1251b':(ui.theme==='plastico'||opt.print?'#0f172a':'#e8edf5'); g.fill();
       g.fillStyle=sd.n===1?'#fff':(ui.theme==='plastico'||opt.print?'#fff':'#0b1220'); g.font=`800 ${sd.n===1?14:12}px Inter`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(sd.n,x,y+1);
-      if(sd.n===1){ const r0=V.rot||0, snx=sd.nx*Math.cos(r0)-sd.nz*Math.sin(r0), sny=sd.nx*Math.sin(r0)+sd.nz*Math.cos(r0); g.font='800 10px "JetBrains Mono",monospace'; g.fillStyle='#e1251b'; g.fillText('FRONTE',x+snx*44,y+sny*26); } });
+      if(sd.n===1){ const r0=V.rot||0, snx=sd.nx*Math.cos(r0)-sd.nz*Math.sin(r0), sny=sd.nx*Math.sin(r0)+sd.nz*Math.cos(r0); g.font='800 10px "JetBrains Mono",monospace'; if(onImg){ g.lineWidth=3; g.strokeStyle='#fff'; g.strokeText('FRONTE',x+snx*44,y+sny*26); } g.fillStyle='#e1251b'; g.fillText('FRONTE',x+snx*44,y+sny*26); } });
   }
   // marcature
   S.markers.forEach(m=>{ const [x,y]=T(m.x,m.z); const M=MT[m.type];
@@ -1818,7 +1819,7 @@ function drawTiles2D(g,T,V){
   g.save(); tileList().forEach(t=>{ const e=getTile(ui.base,t); if(!e.ok) return; const a=T(t.x0,t.z0); g.save(); g.translate(a[0],a[1]); g.rotate(V.rot||0); g.drawImage(e.img,0,0,(t.x1-t.x0)*V.s+0.6,(t.z1-t.z0)*V.s+0.6); g.restore(); });
   g.fillStyle='rgba(0,0,0,.12)'; g.fillRect(-5,-5,1e5,1e5); g.restore();
 }
-function setBase(b){ const ch=ui.base!==b; ui.base=b; if(ch&&SHARE&&SHARE.mode==='pub') shareAfterSave(); tileFail=0; try{localStorage.setItem(LS_KEY+'_base',b);}catch(e){} $$('#baseSeg button').forEach(x=>x.classList.toggle('on',x.dataset.base===b)); build3D(); drawPlanLive(); if(map){ $$('#mapCtl [data-b]').forEach(x=>{ if(x.dataset.b===(b==='sat'?'sat':'osm')) x.click(); }); } }
+function setBase(b){ const ch=ui.base!==b; ui.base=b; if(ch&&SHARE&&SHARE.mode==='pub') shareAfterSave(); tileFail=0; try{ if(!window.__VIS) localStorage.setItem(LS_KEY+'_base',b);}catch(e){} $$('#baseSeg button').forEach(x=>x.classList.toggle('on',x.dataset.base===b)); build3D(); drawPlanLive(); if(map){ $$('#mapCtl [data-b]').forEach(x=>{ if(x.dataset.b===(b==='sat'?'sat':'osm')) x.click(); }); } }
 
 /* =====================================================================
    MAPPA (Leaflet) + CATASTO AdE (WMS)
@@ -2169,8 +2170,9 @@ function renderCadAuto(){ const el=$('#cadAuto'); if(!el) return; el.style.color
 /* =====================================================================
    COLLEGAMENTO AL FOGLIO "USAR-TAC" (Apps Script): catasto, elenco, condivisione
    ===================================================================== */
-let LINK=null, SHARE=null; try{ LINK=JSON.parse(localStorage.getItem(LS_KEY+'_link')); SHARE=JSON.parse(localStorage.getItem(LS_KEY+'_share')); }catch(e){}
-function saveLinkState(){ try{ localStorage.setItem(LS_KEY+'_link',JSON.stringify(LINK)); localStorage.setItem(LS_KEY+'_share',JSON.stringify(SHARE)); }catch(e){} }
+const SH_KEY=/[?&](quadro|visore)\b/.test(location.search)?'_share_q':'_share';   // il quadro operativo non tocca la condivisione dell'app sullo stesso PC
+let LINK=null, SHARE=null; try{ LINK=JSON.parse(localStorage.getItem(LS_KEY+'_link')); SHARE=JSON.parse(localStorage.getItem(LS_KEY+SH_KEY)); }catch(e){}
+function saveLinkState(){ try{ localStorage.setItem(LS_KEY+'_link',JSON.stringify(LINK)); localStorage.setItem(LS_KEY+SH_KEY,JSON.stringify(SHARE)); }catch(e){} }
 async function api(action,params={},body=null,ms=20000){
   if(!LINK||!LINK.url) throw new Error('foglio non collegato');
   const c=new AbortController(); const tm=setTimeout(()=>c.abort(),ms);
@@ -2220,7 +2222,7 @@ function startFollow(i){ const x=window._scnList[i]; if(!x) return; closeModal()
 async function pollFollow(){ clearTimeout(followT); if(!SHARE||SHARE.mode!=='follow') return;
   try{ const j=await api('scn_get',{id:SHARE.id,since:SHARE.ts||0},null,45000);
     if(j.changed){ const d=typeof j.data==='string'?JSON.parse(j.data):j.data; const first=!SHARE.ts; const fl=S.floor;
-      S={...defaultState(),...d}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); if(!first) S.floor=fl; loadOvFromState(); fillInputs(); SHARE.ts=j.ts; applyLive(); if(d.viewBase&&d.viewBase!==ui.base) setBase(d.viewBase); refreshAll(first); if(first) toast('Scenario «'+SHARE.name+'» caricato'); if(VIS.on){ renderVis(); if(first) visLayout(); } }
+      const oldMk=new Set(S.markers.map(m=>m.id)); S={...defaultState(),...d}; S.ops=S.ops||[]; S.buildings.forEach(finalizeBuilding); if(VIS.on){ visFloorIn(d.floor,fl,first); if(!first) S.markers.filter(m=>!oldMk.has(m.id)).forEach(m=>toast('📍 Nuova marcatura '+MT[m.type].code+m.n+' · '+floorLabel(m.floor))); } else if(!first) S.floor=fl; loadOvFromState(); fillInputs(); SHARE.ts=j.ts; applyLive(); if(d.viewBase&&d.viewBase!==ui.base) setBase(d.viewBase); refreshAll(first); if(first) toast('Scenario «'+SHARE.name+'» caricato'); if(VIS.on){ renderVis(); if(first) visLayout(); } }
     SHARE.got=Date.now(); SHARE.err=''; }catch(e){ SHARE.err=e.message; }
   saveLinkState(); renderShareBar(); if(VIS.on) renderVis(); followT=setTimeout(pollFollow,15000); }
 function stopShare(){ clearTimeout(followT); clearTimeout(pushT); SHARE=null; saveLinkState(); renderLink(); renderShareBar(); }
@@ -2371,13 +2373,19 @@ function trcStatus(){ const el=$('#trcStatus'); if(!el) return; const p=LIVE.byI
    ===================================================================== */
 const VIS={on:false,mode:'split',rot:false,altT:null};
 function visSplit(){ return VIS.on&&VIS.mode==='split'; }
-function visTags(){ if(!VIS.on) return; const fl=`<i>${floorLabel(S.floor)}</i>`; const a=$('#visTag3d'), b=$('#visTagPlan');
+const VIS_HOLD=120000;   // dopo una scelta a mano del piano, il quadro torna al piano del funzionario dopo 2 minuti
+function visFloorIn(pub,cur,first){ VIS.pubFloor=pub; if(first||!VIS.holdUntil||Date.now()>VIS.holdUntil){ S.floor=pub; VIS.holdUntil=0; } else S.floor=cur; }
+function visPickFloor(f){ if(VIS.pubFloor==null) VIS.pubFloor=S.floor; VIS.holdUntil=f===VIS.pubFloor?0:Date.now()+VIS_HOLD; setFloor(f); renderVisCtl(); renderVis(); visTags(); }
+function visBack(){ VIS.holdUntil=0; if(VIS.pubFloor!=null) setFloor(VIS.pubFloor); renderVisCtl(); renderVis(); visTags(); }
+function visTick(){ const c=$('#visClock'); if(c) c.textContent=new Date().toLocaleTimeString('it-IT');
+  if(VIS.holdUntil){ const left=VIS.holdUntil-Date.now(); if(left<=0){ visBack(); toast('Quadro: torno al piano del funzionario ('+floorLabel(S.floor)+')'); return; } visTags(); const h=$('#visHold'); if(h) h.textContent=Math.ceil(left/1000)+' s'; } }
+function visTags(){ if(!VIS.on) return; const hold=VIS.holdUntil?` · <b style="color:#fbbf24">✋ ${Math.max(0,Math.ceil((VIS.holdUntil-Date.now())/1000))}s → ${floorLabel(VIS.pubFloor)}</b>`:(VIS.pubFloor===S.floor?' · 👷':''); const fl=`<i>${floorLabel(S.floor)}</i>`+hold; const a=$('#visTag3d'), b=$('#visTagPlan');
   if(VIS.mode==='split'){ a&&(a.innerHTML='🧊 VISTA 3D · '+fl); b&&(b.innerHTML='📐 PIANTA · '+fl); return; }
   const e=a||b; if(e){ e.id=ui.view==='3d'?'visTag3d':'visTagPlan'; e.innerHTML=(ui.view==='3d'?'🧊 VISTA 3D · ':'📐 PIANTA · ')+fl; }
   $('#pad3d').classList.toggle('hidden',ui.view!=='3d'); $('#pad2d').classList.toggle('hidden',ui.view!=='plan'); }
 function visStart(){ VIS.on=true; document.body.classList.add('vis'); if(renderer){ renderer.setPixelRatio(1); renderer.shadowMap.enabled=false; } if(typeof dirLight!=='undefined'&&dirLight) dirLight.castShadow=false; try{ Object.assign(VIS,JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'),{on:true}); }catch(e){}
   if(!$('#visPanel')){ const d=document.createElement('aside'); d.id='visPanel'; $('main').appendChild(d); const c=document.createElement('div'); c.id='visCtl'; c.className='ov'; $('#stage').appendChild(c); }
-  visLayout(); renderVis(); setInterval(()=>{ const c=$('#visClock'); if(c) c.textContent=new Date().toLocaleTimeString('it-IT'); },1000); setInterval(renderVis,15000);
+  window.__VIS=1; VIS.pubFloor=S.floor; visLayout(); renderVis(); setInterval(visTick,1000); setInterval(renderVis,15000);
   document.addEventListener('mousemove',visWake); document.addEventListener('touchstart',visWake); visWake(); livePoll(); visAuto(); setInterval(visAuto,60000); }
 // segue da solo lo scenario TRASMESSO più recente (quello su cui sta lavorando il funzionario); se ne arriva uno nuovo, passa a quello
 async function visAuto(){ if(!VIS.on||VIS.manual||!LINK||!LINK.url) return; try{ const j=await api('scn_list'); const L=(j.list||[]).slice().sort((a,b)=>b.ts-a.ts); const x=L[0]; VIS.nScn=L.length;
@@ -2394,15 +2402,15 @@ function visLayout(){ clearInterval(VIS.altT); const st=$('#stage'); st.classLis
   else if(VIS.mode==='alt'){ setView('3d'); VIS.altT=setInterval(()=>{ setView(ui.view==='3d'?'plan':'3d'); visTags(); },20000); }
   else setView(VIS.mode);
   ['#visTag3d','#visTagPlan'].forEach(x=>{ const e=$(x); e&&e.remove(); }); const t3=document.createElement('div'), tp=document.createElement('div'); t3.id='visTag3d'; tp.id='visTagPlan'; t3.className=tp.className='vtag';
-  const fl=`<i>${floorLabel(S.floor)}</i>`; t3.innerHTML='🧊 VISTA 3D · '+fl; tp.innerHTML='📐 PIANTA · '+fl;
+  t3.innerHTML='🧊 VISTA 3D'; tp.innerHTML='📐 PIANTA';
   if(VIS.mode==='split'){ t3.style.left='10px'; tp.style.left='calc(50% + 12px)'; st.appendChild(t3); st.appendChild(tp); }
   else { (ui.view==='3d'?t3:tp).style.left='10px'; st.appendChild(ui.view==='3d'?t3:tp); }
-  $('#pad3d').classList.toggle('hidden',!(VIS.mode==='split'||ui.view==='3d')); $('#pad2d').classList.toggle('hidden',!(VIS.mode==='split'||ui.view==='plan'));
+  $('#pad3d').classList.toggle('hidden',!(VIS.mode==='split'||ui.view==='3d')); $('#pad2d').classList.toggle('hidden',!(VIS.mode==='split'||ui.view==='plan')); visTags();
   setTimeout(()=>{ resize3D(); planResize(); planCenter(); fit3D&&fit3D(); needs3D=true; drawPlanLive(); },60); renderVisCtl(); }
 function renderVisCtl(){ const c=$('#visCtl'); if(!c) return; const b=(k,v,l)=>`<button class="${VIS[k]===v?'on':''}" onclick="visSet('${k}',${typeof v==='string'?`'${v}'`:v})">${l}</button>`;
   const t=target(); const fl=t?floorsOf(t).slice().reverse():[0];
   c.innerHTML=`<div class="vseg">${b('mode','split','3D + Pianta')}${b('mode','alt','Alterna')}${b('mode','3d','Solo 3D')}${b('mode','plan','Solo pianta')}</div>
-    <div class="vseg">${fl.map(f=>`<button class="${S.floor===f?'on':''}" onclick="setFloor(${f});renderVisCtl();renderVis();visTags()">${floorLabel(f)}</button>`).join('')}</div>
+    <div class="vseg">${fl.map(f=>`<button class="${S.floor===f?'on':''}" onclick="visPickFloor(${f})" title="${f===VIS.pubFloor?'Piano su cui lavora il funzionario':''}">${floorLabel(f)}${f===VIS.pubFloor?' 👷':''}</button>`).join('')}${VIS.holdUntil?`<button class="hold" onclick="visBack()">↩ Torna al funzionario · <span id="visHold">${Math.ceil((VIS.holdUntil-Date.now())/1000)} s</span></button>`:''}</div>
     <div class="vseg">${b('rot',!VIS.rot,VIS.rot?'⟳ Rotazione: sì':'⟳ Rotazione: no')}<button onclick="visPickScn()">📡 Scenario</button><button onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶ Schermo intero</button><button onclick="location.href=location.pathname">✕ Esci</button></div>`; }
 function visPickScn(){ if(LINK&&LINK.url) chooseFollow(); else toast('Collega prima il foglio (PIN)'); }
 const isVisURL=()=>QP.has('quadro')||QP.has('visore');
@@ -2435,7 +2443,8 @@ function postWho(){ if(QP.has('traccar')&&!postWho.done){ postWho.done=1; setTim
 $$('#viewSeg button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 $$('#radSeg button').forEach(b=>b.onclick=()=>{ S.radius=+b.dataset.r; renderLinks(); loadArea(); });
 window.addEventListener('resize',()=>{ resize3D(); planResize(); map&&map.invalidateSize(); });
-window.addEventListener('storage',e=>{ if(e.key===LS_KEY+'_base'&&e.newValue&&e.newValue!==ui.base) setBase(e.newValue); });
+window.addEventListener('storage',e=>{ if(e.key===LS_KEY+'_base'&&e.newValue&&e.newValue!==ui.base) setBase(e.newValue);
+  if(window.__VIS&&e.key===LS_KEY&&!(SHARE&&SHARE.mode==='follow')){ const fl=S.floor; if(restore()){ visFloorIn(S.floor,fl); loadOvFromState(); fillInputs(); applyLive(); refreshAll(false); renderVis(); } } });
 window.addEventListener('online',setNet); window.addEventListener('offline',setNet);
 document.addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea,select')||$('#gate')) return;
