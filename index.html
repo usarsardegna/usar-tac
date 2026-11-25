@@ -181,6 +181,11 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 #loading{position:absolute;inset:0;z-index:25;background:#080d17cc;backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 .spin{width:42px;height:42px;border-radius:50%;border:4px solid #ffffff22;border-top-color:var(--red);animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+@keyframes livep{50%{opacity:.45}}
+.txchip.on{background:#16a34a!important;border-color:#4ade80!important;color:#fff!important}.txchip.on b{animation:livep 1.2s infinite;color:#fff}
+.txchip.fol{background:#1d4ed8!important;border-color:#60a5fa!important;color:#fff!important}
+#visWait{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:7;max-width:min(560px,92%);padding:12px 16px;border-radius:12px;background:#3b0a0ef0;border:1px solid #ef4444;color:#fff;font-size:13px;line-height:1.45;text-align:center;box-shadow:0 8px 24px #0008}
+#visWait b.big{display:block;font-size:15px;letter-spacing:.06em;margin-bottom:4px}#visWait .wshort{display:none}
 #loading p{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--mute)}
 .mapctl{top:10px;right:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .mapnote{top:60px;left:50%;transform:translateX(-50%);background:#45300aee;border:1px solid var(--amber);border-radius:9px;padding:8px 12px;font-size:11.5px;max-width:92%;text-align:center}
@@ -299,9 +304,9 @@ body.vis main{grid-template-columns:1fr 400px!important;display:grid!important}
 body.vis main>section{grid-column:1;grid-row:1;min-height:0;display:flex;flex-direction:column}
 body.vis .stage{flex:1}
 #visPanel{grid-column:2;grid-row:1;background:#0a101c;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px;padding:12px;overflow:auto;min-height:0}
-.stage.vsplit #three{right:50%}
+.stage.vsplit #three{right:50%} .stage.vsplit .vtag{max-width:calc(50% - 90px)}
 body.vis .pad3d{bottom:170px} .stage.vsplit #pad3d{right:calc(50% + 10px)!important} .stage.vsplit #pad3d.hidden,.stage.vsplit #pad2d.hidden{display:flex!important}
-.vtag{position:absolute;top:10px;max-width:calc(50% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:6;padding:6px 12px;border-radius:8px;background:#0b1220e8;border:1px solid #26324a;color:#fff;font:800 12px var(--mono);letter-spacing:.08em;pointer-events:none}
+.vtag{position:absolute;top:10px;max-width:calc(100% - 140px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:6;padding:6px 12px;border-radius:8px;background:#0b1220e8;border:1px solid #26324a;color:#fff;font:800 12px var(--mono);letter-spacing:.08em;pointer-events:none}
 .vtag i{font-style:normal;color:#f59e0b}
 body.vis #vLabel{display:none}.stage.vsplit #plan{left:50%;width:50%!important;border-left:2px solid #1e293b}
 .vhead{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,#a6101e,#7d0a16)}
@@ -328,8 +333,15 @@ a.btn{color:inherit;text-decoration:none;display:inline-flex;align-items:center;
 body.vis-ui #visCtl{opacity:1;pointer-events:auto}
 .vseg{display:flex;background:#0b1220e8;border:1px solid #26324a;border-radius:10px;overflow:hidden}.vseg button{background:none;border:0;color:#cbd5e1;padding:8px 11px;font:600 12px Inter,sans-serif;cursor:pointer}
 .vseg button.on{background:#a6101e;color:#fff}.vseg button.hold{background:#f59e0b;color:#1a1205;font-weight:800}.vseg button:hover{background:#1e293b}
-@media (max-width:900px){ body.vis main{grid-template-columns:1fr!important;grid-template-rows:60vh auto} #visPanel{grid-column:1;grid-row:2} body.vis main>section{grid-row:1} }
-@media (max-width:480px){ .hide-xs{display:none!important} .hdr-right{gap:5px} }
+@media (max-width:900px){
+  body.vis{overflow:auto;height:auto} body.vis main{grid-template-columns:1fr!important;grid-template-rows:62vh auto;height:auto}
+  #visPanel{grid-column:1;grid-row:2;overflow:visible} body.vis main>section{grid-row:1}
+  body.vis .pad3d{display:none!important}
+  #visCtl{bottom:8px;gap:4px;flex-wrap:wrap;width:96%;justify-content:center}
+  .vseg button{padding:6px 8px;font-size:11px;white-space:nowrap} .vseg .vwide{display:none}
+  .vtag{font-size:10.5px;padding:4px 8px;max-width:calc(100% - 80px)!important}
+  #visWait{top:40px;font-size:11.5px;padding:6px 10px} #visWait .wlong{display:none} #visWait .wshort{display:inline} #visWait b.big{font-size:12.5px;margin:0} .vclock{font-size:18px} .vev{font-size:16px} }
+@media (max-width:480px){ .hide-xs{display:none!important} .hname{min-width:0;overflow:hidden} .hname div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .hdr-right{flex-shrink:0} .hdr-right{gap:5px} }
 @media print{
   @page{size:A4;margin:10mm}
   body{background:#fff;color:#000;overflow:visible;display:block;height:auto}
@@ -381,6 +393,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
     <span class="chip hide-m" id="wxChip" style="display:none;cursor:pointer" onclick="setStep(1)"></span>
     <span class="chip hide-m" id="netChip"><span class="led"></span><span id="netTxt">—</span></span>
     <span class="chip hide-xs"><i data-lucide="clock-3" style="width:13px;height:13px"></i><span id="clock">--:--</span></span>
+    <button class="chip txchip" id="txChip" onclick="txToggle()" title="Trasmetti questo scenario al Quadro operativo e a chi fa Segui" style="cursor:pointer">📡<span class="hide-m"> Trasmetti</span></button>
     <button class="chip" onclick="newScenario()" title="Nuovo intervento: pulisce tutto e torna alla partenza" style="cursor:pointer"><i data-lucide="house" style="width:14px;height:14px"></i><span class="hide-m">Nuovo</span></button>
     <button class="chip hide-m" onclick="openInfo()" title="Informazioni e crediti" style="cursor:pointer"><i data-lucide="info" style="width:14px;height:14px"></i></button>
   </div>
@@ -565,7 +578,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.4</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.5</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -642,7 +655,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.4</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.5</p>
     </div>
   </div>
 </div>
@@ -693,7 +706,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','split','wing'];
-const APP_VER = '3.4 · 25/11/2026'; const APP_V='v3.4';
+const APP_VER = '3.5 · 25/11/2026'; const APP_V='v3.5';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2227,7 +2240,14 @@ async function pollFollow(){ clearTimeout(followT); if(!SHARE||SHARE.mode!=='fol
     SHARE.got=Date.now(); SHARE.err=''; }catch(e){ SHARE.err=e.message; }
   saveLinkState(); renderShareBar(); if(VIS.on) renderVis(); followT=setTimeout(pollFollow,15000); }
 function stopShare(){ clearTimeout(followT); clearTimeout(pushT); SHARE=null; saveLinkState(); renderLink(); renderShareBar(); }
-function renderShareBar(){ const el=$('#shareBar'); if(!el) return; if(!SHARE||!SHARE.mode){ el.classList.add('hidden'); return; }
+function renderTxChip(){ const c=$('#txChip'); if(!c) return; const m=SHARE&&SHARE.mode; c.classList.toggle('on',m==='pub'); c.classList.toggle('fol',m==='follow');
+  c.innerHTML=m==='pub'?'<b>●</b><span class="hide-m"> IN DIRETTA</span>':m==='follow'?'👁<span class="hide-m"> Segui</span>':'📡<span class="hide-m"> Trasmetti</span>'; }
+function txToggle(){ if(!LINK||!LINK.url){ toast('Prima collega il foglio (inserisci il PIN)'); return; }
+  const m=SHARE&&SHARE.mode;
+  if(m==='pub'){ if(confirm('Interrompere la trasmissione al Quadro operativo?')) stopShare(); return; }
+  if(m==='follow'){ if(confirm('Smettere di seguire lo scenario trasmesso?')) stopShare(); return; }
+  if(!target()){ toast('Prima scegli l\'edificio obiettivo'); return; } startPublish(); }
+function renderShareBar(){ renderTxChip(); const el=$('#shareBar'); if(!el) return; if(!SHARE||!SHARE.mode){ el.classList.add('hidden'); return; }
   const pub=SHARE.mode==='pub', tt=pub?SHARE.sent:SHARE.got; const err=SHARE.err;
   el.style.background=err?'#4a1512f0':(pub?'#0f2a1af0':'#102a4df0'); el.style.border='1px solid '+(err?'#dc2626':(pub?'#16a34a':'#2f80ed'));
   el.innerHTML=`<span>${pub?'📡 CONDIVISO':'👁 SEGUI · sola lettura'} · ${esc(SHARE.name.slice(0,28))} · ${err?'⚠ '+esc(err.slice(0,40)):(tt?(pub?'inviato ':'agg. ')+new Date(tt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'…')}</span><button class="btn sm" style="height:24px" onclick="stopShare()">Stop</button>`;
@@ -2380,14 +2400,15 @@ function visPickFloor(f){ if(VIS.pubFloor==null) VIS.pubFloor=S.floor; VIS.holdU
 function visBack(){ VIS.holdUntil=0; if(VIS.pubFloor!=null) setFloor(VIS.pubFloor); renderVisCtl(); renderVis(); visTags(); }
 function visTick(){ const c=$('#visClock'); if(c) c.textContent=new Date().toLocaleTimeString('it-IT');
   if(VIS.holdUntil){ const left=VIS.holdUntil-Date.now(); if(left<=0){ visBack(); toast('Quadro operativo: di nuovo in DIRETTA ('+floorLabel(S.floor)+')'); return; } visTags(); const h=$('#visHold'); if(h) h.textContent=Math.ceil(left/1000)+' s'; } }
-function visTags(){ if(!VIS.on) return; const hold=VIS.holdUntil?` · <b style="color:#fbbf24">✋ ${Math.max(0,Math.ceil((VIS.holdUntil-Date.now())/1000))}s → DIRETTA</b>`:(VIS.pubFloor===S.floor?' · <b style="color:#f87171">● DIRETTA</b>':''); const fl=`<i>${floorLabel(S.floor)}</i>`+hold; const a=$('#visTag3d'), b=$('#visTagPlan');
+function visTags(){ if(!VIS.on) return; const hold=VIS.holdUntil?` · <b style="color:#fbbf24">✋ ${Math.max(0,Math.ceil((VIS.holdUntil-Date.now())/1000))}s → DIRETTA</b>`:(VIS.pubFloor===S.floor&&SHARE&&SHARE.mode==='follow'?' · <b style="color:#f87171">● DIRETTA</b>':''); const fl=`<i>${floorLabel(S.floor)}</i>`+hold; const a=$('#visTag3d'), b=$('#visTagPlan');
   if(VIS.mode==='split'){ a&&(a.innerHTML='🧊 VISTA 3D · '+fl); b&&(b.innerHTML='📐 PIANTA · '+fl); return; }
   const e=a||b; if(e){ e.id=ui.view==='3d'?'visTag3d':'visTagPlan'; e.innerHTML=(ui.view==='3d'?'🧊 VISTA 3D · ':'📐 PIANTA · ')+fl; }
   $('#pad3d').classList.toggle('hidden',ui.view!=='3d'); $('#pad2d').classList.toggle('hidden',ui.view!=='plan'); }
-function visStart(){ VIS.on=true; document.body.classList.add('vis'); if(renderer){ renderer.setPixelRatio(1); renderer.shadowMap.enabled=false; } if(typeof dirLight!=='undefined'&&dirLight) dirLight.castShadow=false; try{ Object.assign(VIS,JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'),{on:true}); }catch(e){}
+function visStart(){ VIS.on=true; if(innerWidth<900){ try{ const v=JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'); if(!v.mode||v.mode==='split') localStorage.setItem(LS_KEY+'_vis',JSON.stringify({...v,mode:'plan'})); }catch(e){} } document.body.classList.add('vis'); if(renderer){ renderer.setPixelRatio(1); renderer.shadowMap.enabled=false; } if(typeof dirLight!=='undefined'&&dirLight) dirLight.castShadow=false; try{ Object.assign(VIS,JSON.parse(localStorage.getItem(LS_KEY+'_vis')||'{}'),{on:true}); }catch(e){}
   if(!$('#visPanel')){ const d=document.createElement('aside'); d.id='visPanel'; $('main').appendChild(d); const c=document.createElement('div'); c.id='visCtl'; c.className='ov'; $('#stage').appendChild(c); }
   window.__VIS=1; VIS.pubFloor=S.floor; visLayout(); renderVis(); setInterval(visTick,1000); setInterval(renderVis,15000);
-  document.addEventListener('mousemove',visWake); document.addEventListener('touchstart',visWake); visWake(); livePoll(); visAuto(); setInterval(visAuto,45000); }
+  document.addEventListener('mousemove',visWake); document.addEventListener('touchstart',visWake); visWake(); livePoll(); visAutoLoop(); }
+function visAutoLoop(){ visAuto().finally(()=>setTimeout(visAutoLoop,(SHARE&&SHARE.mode==='follow')?45000:15000)); }
 // segue da solo lo scenario TRASMESSO più recente (quello su cui sta lavorando il funzionario); se ne arriva uno nuovo, passa a quello
 async function visAuto(){ if(!VIS.on||VIS.manual||!LINK||!LINK.url) return; try{ const j=await api('scn_list'); const L=(j.list||[]).slice().sort((a,b)=>b.ts-a.ts); const x=L[0]; VIS.nScn=L.length;
     const LIVE_MS=10*60000; const vivo=x&&Date.now()-x.ts<LIVE_MS;
@@ -2412,9 +2433,10 @@ function visLayout(){ clearInterval(VIS.altT); const st=$('#stage'); st.classLis
   setTimeout(()=>{ resize3D(); planResize(); planCenter(); fit3D&&fit3D(); needs3D=true; drawPlanLive(); },60); renderVisCtl(); }
 function renderVisCtl(){ const c=$('#visCtl'); if(!c) return; const b=(k,v,l)=>`<button class="${VIS[k]===v?'on':''}" onclick="visSet('${k}',${typeof v==='string'?`'${v}'`:v})">${l}</button>`;
   const t=target(); const fl=t?floorsOf(t).slice().reverse():[0];
-  c.innerHTML=`<div class="vseg">${b('mode','split','3D + Pianta')}${b('mode','alt','Alterna')}${b('mode','3d','Solo 3D')}${b('mode','plan','Solo pianta')}</div>
-    <div class="vseg">${fl.map(f=>`<button class="${S.floor===f?'on':''}" onclick="visPickFloor(${f})" title="${f===VIS.pubFloor?'Piano in DIRETTA (quello su cui lavora il funzionario)':''}">${floorLabel(f)}${f===VIS.pubFloor?' ●':''}</button>`).join('')}${VIS.holdUntil?`<button class="hold" onclick="visBack()">↩ Torna in DIRETTA · <span id="visHold">${Math.ceil((VIS.holdUntil-Date.now())/1000)} s</span></button>`:''}</div>
-    <div class="vseg">${b('rot',!VIS.rot,VIS.rot?'⟳ Rotazione: sì':'⟳ Rotazione: no')}<button onclick="visPickScn()">📡 Scenario</button><button onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶ Schermo intero</button><button onclick="location.href=location.pathname">✕ Esci</button></div>`; }
+  const narrow=innerWidth<900;
+  c.innerHTML=`<div class="vseg">${narrow?'':b('mode','split','3D + Pianta')}${b('mode','alt','Alterna')}${b('mode','3d',narrow?'3D':'Solo 3D')}${b('mode','plan',narrow?'Pianta':'Solo pianta')}</div>
+    <div class="vseg">${fl.map(f=>`<button class="${S.floor===f?'on':''}" onclick="visPickFloor(${f})" title="${f===VIS.pubFloor?'Piano in DIRETTA (quello su cui lavora il funzionario)':''}">${floorLabel(f)}${f===VIS.pubFloor&&SHARE&&SHARE.mode==='follow'?' ●':''}</button>`).join('')}${VIS.holdUntil?`<button class="hold" onclick="visBack()">↩ Torna in DIRETTA · <span id="visHold">${Math.ceil((VIS.holdUntil-Date.now())/1000)} s</span></button>`:''}</div>
+    <div class="vseg"><span class="vwide" style="display:contents">${b('rot',!VIS.rot,VIS.rot?'⟳ Rotazione: sì':'⟳ Rotazione: no')}</span><button onclick="visPickScn()">📡 Scenario</button><button onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()">⛶${narrow?'':' Schermo intero'}</button><button onclick="location.href=location.pathname">✕${narrow?'':' Esci'}</button></div>`; }
 function visPickScn(){ if(LINK&&LINK.url) chooseFollow(); else toast('Collega prima il foglio (PIN)'); }
 const isVisURL=()=>QP.has('quadro')||QP.has('visore');
 function renderVis(){ const el=$('#visPanel'); if(!el||!VIS.on) return; const t=target(); const C=S.cad||{};
@@ -2430,7 +2452,7 @@ function renderVis(){ const el=$('#visPanel'); if(!el||!VIS.on) return; const t=
     <div class="vbox"><div class="vev">${esc(S.meta.evento||'Intervento')}</div><div class="vsub">${esc(t?t.name:(S.label||''))}${C.foglio?' · F.'+esc(C.foglio)+' P.'+esc(C.particella||''):''}</div>
       <div class="vsub">${S.meta.op?'Capo squadra: '+esc(S.meta.op)+' · ':''}${t?(t.levels+' piani'+(t.basement?' + '+t.basement+' int.':'')):''}${S.asr?' · ASR '+esc(String(S.asr)):''}</div></div>
     <div class="vbox vscn"><div class="vh">Scenario <span>${SHARE&&SHARE.mode==='follow'?(VIS.manual?'scelto a mano':'automatico'):'questo dispositivo'}</span></div>
-      <div class="vsrc">${SHARE&&SHARE.mode==='follow'?`<b style="color:#4ade80">📡 trasmesso</b> · ${esc(SHARE.name)}<small>ultimo segnale ${SHARE.ts?minsAgo(SHARE.ts):'…'} · controllato ${SHARE.got?new Date(SHARE.got).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'…'}${SHARE.err?' · ⚠ '+esc(SHARE.err.slice(0,40)):''}</small>`:`<b style="color:#fbbf24">🖥 locale</b> · nessuno scenario trasmesso ${LINK&&LINK.url?'in questo momento':'(foglio non collegato)'}<small>si aggancia da solo quando il funzionario preme "Condividi"</small>`}</div>
+      <div class="vsrc">${SHARE&&SHARE.mode==='follow'?`<b style="color:#4ade80">📡 trasmesso</b> · ${esc(SHARE.name)}<small>ultimo segnale ${SHARE.ts?minsAgo(SHARE.ts):'…'} · controllato ${SHARE.got?new Date(SHARE.got).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'…'}${SHARE.err?' · ⚠ '+esc(SHARE.err.slice(0,40)):''}</small>`:`<b style="color:#fbbf24">🖥 locale</b> · nessuno scenario trasmesso ${LINK&&LINK.url?'in questo momento':'(foglio non collegato)'}<small>si aggancia da solo quando il funzionario preme "📡 Trasmetti"</small>`}</div>
       <div class="vbtns"><button onclick="visChoose()">Scegli</button><button class="${VIS.manual?'':'on'}" onclick="visAutoOn()">Automatico</button><button onclick="visLocal()">Questo PC</button></div></div>
     ${w?`<div class="vbox vwind"><svg viewBox="0 0 40 40" width="46" height="46"><circle cx="20" cy="20" r="18" fill="none" stroke="#334155" stroke-width="2"/><g transform="rotate(${w.dir+180} 20 20)"><path d="M20 5 L26 22 L20 18 L14 22 Z" fill="#60a5fa"/></g></svg><div><b>Vento da ${card16(w.dir)} · ${Math.round(w.ws)} km/h</b><small>raffiche ${Math.round(w.wg)} km/h · ${Math.round(w.t)}°C${upwindSide()?' · '+upwindSide():''}</small></div></div>`:''}
     <div class="vbox"><div class="vh">Settori <span>${done}/${all} bonificati</span></div><table class="vsec">${secRows}</table>
@@ -2439,7 +2461,11 @@ function renderVis(){ const el=$('#visPanel'); if(!el||!VIS.on) return; const t=
     <div class="vbox vgrow"><div class="vh">Operatori in area <span>${ops.length}${LIVE.arr&&LIVE.arr.length?' · '+LIVE.arr.length+' in arrivo':''}</span></div>${ops.map(opRow).join('')||'<div class="hint">nessuno in area</div>'}
       ${(LIVE.arr||[]).map(a=>`<div class="vop arr">${avatarHtml(rosterOf(a.opId)||a)}<div class="t"><b>${esc(a.nome)}</b><small>${srcIcon(a.src)} ${a._stale?'ult. '+liveAgeTxt(a._age):'in arrivo'} · ${Math.round(a._dist)} m</small></div></div>`).join('')}</div>
     <div class="vfoot">${liveBase()?'📶 posizioni '+(LIVE.err?'⚠ '+esc(LIVE.err):'✓ attive')+'<br>':''}Ideata e realizzata da Alessio Corvino · ${APP_V}</div>`;
-  renderVisCtl(); }
+  renderVisCtl(); renderVisWait(); }
+function renderVisWait(){ let w=$('#visWait'); const fol=SHARE&&SHARE.mode==='follow';
+  if(fol||!VIS.on){ w&&w.remove(); return; }
+  if(!w){ w=document.createElement('div'); w.id='visWait'; $('#stage').appendChild(w); }
+  w.innerHTML=`<b class="big">⏸ NON IN DIRETTA</b><span class="wlong">Nessuna trasmissione attiva. Sul tablet o PC del funzionario premi <b>📡 Trasmetti</b> in alto: il quadro si aggancia da solo.<br><span style="opacity:.75;font-size:12px">Sotto vedi lo scenario salvato su questo dispositivo.</span></span><span class="wshort">sul tablet del funzionario premi <b>📡 Trasmetti</b></span>`; }
 function postWho(){ if(QP.has('traccar')&&!postWho.done){ postWho.done=1; setTimeout(traccarSetup,300); } }
 
 /* ---------------- AVVIO ---------------- */
