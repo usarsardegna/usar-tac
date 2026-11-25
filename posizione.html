@@ -81,14 +81,14 @@ footer{text-align:center;font-size:11.5px;color:var(--mute);padding:14px 10px ca
           <a class="go" id="bStart" href="#" onclick="flag('on')">▶ ATTIVA<small>inizio intervento</small></a>
           <a class="st" id="bStop" href="#" onclick="stopMe()">■ DISATTIVA<small>fine intervento</small></a>
         </div>
-        <p class="note" style="margin-top:10px">Si apre Traccar per un attimo: torna pure qui. Dopo qualche secondo il pallino diventa verde (attiva) o grigio (disattivata).</p>
+        <p class="note" style="margin-top:10px">Si apre Traccar ed esegue il comando: <b>premi ◁ Indietro</b> per tornare qui. Dopo qualche secondo il pallino diventa <b>verde</b> (attiva) o <b>grigio</b> (disattivata).</p>
       </div>
 
       <details class="card setup" id="setup"><summary>Prima volta su questo telefono</summary>
         <div class="step" style="margin-top:8px"><span class="n">1</span><div><p class="h">Installa Traccar Client</p><p>Gratis, una volta sola.</p>
           <a class="btn" id="bPlay" href="https://play.google.com/store/apps/details?id=org.traccar.client" target="_blank" rel="noopener">Google Play</a>
           <a class="btn" id="bStore" href="https://apps.apple.com/app/traccar-client/id843156974" target="_blank" rel="noopener">App Store</a></div></div>
-        <div class="step"><span class="n">2</span><div><p class="h">Configura con un tocco</p><p>Si apre Traccar e chiede di applicare la configurazione: premi <b>OK</b>. Il server del team e il tuo codice si impostano da soli.</p>
+        <div class="step"><span class="n">2</span><div><p class="h">Configura con un tocco</p><p>Si apre Traccar e chiede di applicare la configurazione: premi <b>OK</b>, poi <b>◁ Indietro</b> per tornare qui. Il server del team e il tuo codice si impostano da soli.</p>
           <a class="btn pri" id="bCfg" href="#" onclick="st.set('cfg','1')">⚙️ Configura Traccar</a></div></div>
         <div class="step"><span class="n">3</span><div><p class="h">Permessi (importante)</p><p>Posizione: <b>Consenti sempre</b>.<br>Batteria: <b>nessuna restrizione</b> per Traccar, altrimenti il telefono la spegne in tasca.</p></div></div>
         <div class="step"><span class="n">4</span><div><p class="h">Prova</p><p>Torna qui e premi <b>▶ ATTIVA</b>: la prima volta Traccar chiede il permesso di usare la posizione. Quando il pallino è verde, è tutto pronto. Poi premi <b>■ DISATTIVA</b>.</p>
