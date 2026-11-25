@@ -590,7 +590,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.9</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.10</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -672,7 +672,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.9</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.10</p>
     </div>
   </div>
 </div>
@@ -723,7 +723,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','ovpt','split','wing'];
-const APP_VER = '3.9 · 25/11/2026'; const APP_V='v3.9';
+const APP_VER = '3.10 · 25/11/2026'; const APP_V='v3.10';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2444,7 +2444,7 @@ function openInfo(){ openModal('USAR-TAC · Informazioni',`<div class="info">
 // Per cambiare PIN: sostituire PIN_HASH con lo SHA-256 di "usartac|NUOVOPIN"
 const PIN_HASH='64366b6391d52475c875d5c38ce5353ef57d76d1df9737e8980760b705790813', PIN_LEN=6;
 // ▼▼ SERVER POSIZIONI IN TEMPO REALE (Cloudflare): incolla qui l'indirizzo del Worker, es. 'https://usar-live.tuonome.workers.dev'
-const LIVE_URL_DEF='';
+const LIVE_URL_DEF='https://usar-live.usarsardegna.workers.dev';
 // ▲▲
 const LINK_URL='https://script.google.com/macros/s/AKfycbwNqNMdwSlh5QowlfHBNAHonHe3y4mC5jnaNet8vSaLsmoaM1wVv2kfipE4IXh_LORY/exec'; let gBuf='';
 async function sha(t){ try{ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return null; } }
