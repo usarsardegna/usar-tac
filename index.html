@@ -254,6 +254,17 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .cadauto{margin-top:6px;font-size:11px;font-family:var(--mono);color:#5ee69a}
 .info p{font-size:13px;line-height:1.55;margin-bottom:8px}.info h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin:12px 0 4px}
 /* PAD 3D + BASE */
+ #nearPanel{position:absolute;left:10px;top:54px;bottom:54px;width:350px;z-index:8;background:rgba(15,23,41,.96);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;box-shadow:0 10px 30px #0008}
+#nearPanel.hidden{display:none}
+#nearPanel .nphead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px} #nearPanel .nphead b{font-size:15px}
+#nearPanel .npl{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;min-height:0}
+.nprow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 10px;border-radius:11px;border:1px solid var(--line);background:#121a2b;color:var(--text);cursor:pointer;font:inherit}
+.nprow.on{border:2px solid var(--amber);background:#f5a5241f} .nprow .av{flex:none;width:26px;height:26px;border-radius:50%;background:#334155;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px} .nprow.on .av{background:#e1251b}
+.nprow .t{display:flex;flex-direction:column;gap:1px;min-width:0} .nprow .nn{font-size:13.5px} .nprow .na{font-size:12px;color:#fbbf24} .nprow small{font-size:11.5px;color:var(--muted)}
+@media (max-width:760px){ #nearPanel{left:6px;right:6px;top:auto;bottom:6px;width:auto;height:46%} }
+#cmpBar{position:absolute;left:50%;transform:translateX(-50%);bottom:64px;z-index:7;display:flex;align-items:center;gap:8px;background:rgba(11,18,32,.92);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font:800 11px var(--mono);color:#cbd5e1}
+#cmpBar.hidden{display:none} #cmpBar input{width:min(46vw,360px)}
+.lyrrow.off{opacity:.55} .lyrbtns{display:flex;gap:4px;flex:none} .lyrbtns .btn{min-width:30px;padding:0 6px} .lyrbtns .btn.on{color:#86efac;border-color:#16a34a}
 .lyrrow{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer} .lyrrow.on{border-color:var(--amber);background:#f5a52414} .lyrrow img{width:44px;height:34px;object-fit:cover;border-radius:6px;background:#fff} .lyrrow .t{flex:1;min-width:0} .lyrrow .t b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .lyrrow .t small{font-size:10.5px;color:var(--mute)}
 .alpt{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#e1251b;color:#fff;font:800 12px/22px var(--mono);text-align:center;border:2px solid #fff;pointer-events:none}
 .pad3d{bottom:56px;right:10px;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
@@ -464,6 +475,10 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
             <button class="btn sm pri" onclick="lyrAlignStart()"><i data-lucide="crosshair"></i>Allinea 2 punti</button>
             <button class="btn sm" onclick="setTool('ovmove')"><i data-lucide="move"></i>Sposta</button>
           </div>
+          <div class="grid2" style="margin-top:6px">
+            <button class="btn sm" onclick="lyrRename()"><i data-lucide="pencil"></i>Rinomina</button>
+            <button class="btn sm" id="cmpBtn" onclick="cmpToggle()"><i data-lucide="columns-2"></i>Confronta</button>
+          </div>
           <button class="btn sm full" style="margin-top:6px" onclick="removeOverlay()"><i data-lucide="trash-2"></i>Rimuovi immagine</button>
         </div>
         <p class="hint" style="margin-top:8px"><b>Foto drone</b> (camera verso il basso): si posiziona da sola con GPS, quota e direzione. <b>Ortofoto</b>: carica JPG/PNG insieme al file <b>.jgw/.pgw</b>. <b>CAD o schizzo</b>: usa <b>Allinea 2 punti</b>. Le immagini si vedono in pianta, mappa, 3D e nel Quadro operativo.</p>
@@ -499,7 +514,8 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
 
       <div class="card">
         <h3><i data-lucide="image-up"></i>Ricalco muri<span class="r">da planimetria</span></h3>
-        <button class="btn sm full" onclick="setStep(1);$('#lyrCard').scrollIntoView({behavior:'smooth'})"><i data-lucide="image-plus"></i>Carica / allinea la planimetria (Luogo → Immagini sovrapposte)</button>
+        <button class="btn sm full" onclick="setStep(1);$('#lyrCard').scrollIntoView({behavior:'smooth'})"><i data-lucide="image-plus"></i>Carica planimetria</button>
+        <p class="hint" style="margin-top:4px">Si carica e si allinea nel passo 1 → <b>Immagini sovrapposte</b>.</p>
         <p class="hint" style="margin-top:8px">Con la planimetria allineata, usa <b>Muro</b> per ricalcare tramezzi e muri portanti: vengono estrusi in 3D sul piano attivo.</p>
         <div class="grid2" style="margin-top:8px">
           <button class="btn sm" onclick="setTool('wall')"><i data-lucide="pen-line"></i>Traccia muri</button>
@@ -575,8 +591,16 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <button class="btn sm full" style="margin-top:8px" onclick="clearLogos()"><i data-lucide="rotate-ccw"></i>Ripristina loghi standard</button>
         <p class="hint" style="margin-top:8px">Già impostati i loghi del sistema USAR (cartella Drive condivisa). Tocca un riquadro solo per sostituirne uno: vale per testata, tavola PNG e report.</p>
       </div>
+      <div class="card" id="txCard">
+        <h3><i data-lucide="radio-tower"></i>1 · Diretta al quadro<span class="r" id="txState"></span></h3>
+        <div id="txBody"></div>
+      </div>
+      <div class="card" id="posCard">
+        <h3><i data-lucide="map-pin"></i>2 · Posizioni squadre<span class="r" id="posState"></span></h3>
+        <div id="posBody"></div>
+      </div>
       <div class="card" id="linkCard">
-        <h3><i data-lucide="cloud"></i>Foglio USAR-TAC e condivisione<span class="r" id="linkState">non collegato</span></h3>
+        <h3><i data-lucide="cloud"></i>3 · Foglio USAR-TAC<span class="r" id="linkState">non collegato</span></h3>
         <div id="linkBody"></div>
       </div>
       <div class="card">
@@ -590,7 +614,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v3.11</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v4.0</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -646,6 +670,8 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <div class="prow"><button onclick="rot3(-1)" title="Ruota a sinistra"><i data-lucide="rotate-ccw"></i></button><button onclick="zoom3(0.75)" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="rot3(1)" title="Ruota a destra"><i data-lucide="rotate-cw"></i></button></div>
         <div class="prow"><button id="bTop" onclick="topView()" title="Vista dall'alto"><i data-lucide="arrow-down-to-dot"></i></button><button onclick="zoom3(1.33)" title="Allontana"><i data-lucide="minus"></i></button><button onclick="flyToTarget()" title="Centra obiettivo"><i data-lucide="crosshair"></i></button></div>
       </div>
+      <div id="nearPanel" class="hidden"></div>
+      <div id="cmpBar" class="hidden"><span>PRIMA</span><input type="range" min="2" max="98" value="50" aria-label="Posizione tendina" oninput="ui.cmpPos=this.value/100;drawPlanLive()"><span>DOPO</span><button class="btn sm" onclick="cmpToggle()">✕</button></div>
       <div class="ov pad3d hidden" id="padMap">
         <div class="prow"><button class="wide" onclick="mapFitZone()" title="Mostra tutta la zona caricata"><i data-lucide="maximize"></i><span>Zona</span></button></div>
         <div class="prow"><button onclick="mapPan(-1,0)" title="Sposta a sinistra"><i data-lucide="arrow-left"></i></button><button onclick="map&&map.zoomIn()" title="Avvicina"><i data-lucide="plus"></i></button><button onclick="mapPan(1,0)" title="Sposta a destra"><i data-lucide="arrow-right"></i></button></div>
@@ -672,7 +698,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v3.11</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v4.0</p>
     </div>
   </div>
 </div>
@@ -723,7 +749,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','ovpt','split','wing'];
-const APP_VER = '3.11 · 25/11/2026'; const APP_V='v3.11';
+const APP_VER = '4.0 · 27/11/2026'; const APP_V='v4.0';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -1061,11 +1087,18 @@ async function nearAddr(list){ for(let i=0;i<list.length;i++){ const b=S.buildin
           if(/^Edificio OSM/.test(b.name)&&(nm||b.addr)&&!b.nameManual) b.name=(nm?nm+' – ':'')+(b.addr||''); } }catch(e){}
       await new Promise(r=>setTimeout(r,1100)); }
     const e2=document.getElementById('nr'+i); if(!e2) return; e2.querySelector('.nn').textContent=bLabel(b); e2.querySelector('.na').textContent=b.addr&&b.addr!==b.name?b.addr+' · ':''; } }
-function pickNear(near,acc){ window._near=near.map(x=>x.b.id);
-  openModal('Quale edificio?',`<p class="hint" style="margin-bottom:8px">Il GPS ha una precisione di <b>±${acc} m</b>: in quel raggio ci sono <b>${near.length} edifici</b>. Tocca quello giusto (o toccalo nella pianta/3D).</p>
-    <div class="oplist">${near.map((x,i)=>`<button class="oprow" id="nr${i}" style="width:100%;text-align:left" onclick="setTarget(window._near[${i}]);closeModal()"><span class="av" style="background:${i?'#334155':'#e1251b'}">${i+1}</span><div class="t"><div class="nn">${esc(bLabel(x.b))}</div><small><span class="na" style="color:#ffc35c">${x.b.addr&&x.b.addr!==x.b.name?esc(x.b.addr)+' · ':'cerco indirizzo… · '}</span>${x.d<1?'qui':Math.round(x.d)+' m'} · ${Math.round(x.b.area)} m² · ${x.b.levels} piani${x.b.est?' (stimati)':''}</small></div></button>`).join('')}</div>`,
-    `<button class="btn sm" onclick="closeModal()">Va bene il primo</button>`); if(S.source==='osm') nearAddr(window._near.slice()); else $$('#mBody .na').forEach(e=>e.textContent=''); }
-function setTarget(id,silent){
+function pickNear(near,acc){ window._near=near.map(x=>x.b.id); window._nearOn=true; if(ui.view!=='plan') setView('plan');
+  const P=$('#nearPanel'); P.classList.remove('hidden');
+  P.innerHTML=`<div class="nphead"><b>Dove sei? Scegli l'edificio</b><button class="btn sm" aria-label="Chiudi" onclick="nearClose()">✕</button></div>
+    <p class="hint" style="margin:0 0 8px">GPS <b style="color:#fbbf24">±${acc} m</b>: nel cerchio blu ci sono <b>${near.length} edifici</b>. Tocca un nome: sulla pianta si illumina in rosso. Poi <b>Conferma</b>.</p>
+    <div class="npl">${near.map((x,i)=>`<button class="nprow" id="nr${i}" onclick="nearPick(${i})"><span class="av">${i+1}</span><span class="t"><b class="nn">${esc(bLabel(x.b))}</b><span class="na">${x.b.addr&&x.b.addr!==x.b.name?esc(x.b.addr)+' · ':(S.source==='osm'?'cerco indirizzo… · ':'')}</span><small>${x.d<1?'qui':Math.round(x.d)+' m'} · ${Math.round(x.b.area)} m² · ${x.b.levels} piani${x.b.est?' (stimati)':''}</small></span></button>`).join('')}</div>
+    <button class="btn full pri" style="margin-top:10px" onclick="nearClose()"><i data-lucide="check"></i>Conferma edificio</button>
+    <div class="grid2" style="margin-top:6px"><button class="btn sm" onclick="nearClose();useGPS()"><i data-lucide="locate-fixed"></i>Riprova GPS</button><button class="btn sm" onclick="nearClose();setStep(1);setTimeout(()=>$('#addr')&&$('#addr').focus(),200)"><i data-lucide="search"></i>Scrivi indirizzo</button></div>`;
+  icons(); nearMark(); planFit&&planFit(); drawPlanLive(); if(S.source==='osm') nearAddr(window._near.slice()); }
+function nearPick(i){ const id=(window._near||[])[i]; if(id==null) return; setTarget(id); nearMark(); drawPlanLive(); }
+function nearMark(){ $$('#nearPanel .nprow').forEach((r,i)=>r.classList.toggle('on',(window._near||[])[i]===S.targetId)); }
+function nearClose(){ window._nearOn=false; const P=$('#nearPanel'); if(P){ P.classList.add('hidden'); P.innerHTML=''; } drawPlanLive(); }
+function setTarget(id,silent){ setTimeout(()=>window._nearOn&&nearMark(),0);
   S.targetId=id; const t=target(); if(!t) return;
   if(t.side1==null) t.side1=autoSide1(t);
   S.floor=0; ui.selQ='A';
@@ -1348,7 +1381,7 @@ function setView(v){
   $('#three').classList.toggle('hidden',v!=='3d'); $('#plan').classList.toggle('hidden',v!=='plan'); $('#mapview').classList.toggle('hidden',v!=='map'); $('#meteoview').classList.toggle('hidden',v!=='meteo');
   $('#mapCtl').classList.toggle('hidden',v!=='map'); $('#compass').classList.toggle('hidden',v==='map'||v==='meteo'); $('#windChip').classList.toggle('hidden',v==='map'||v==='meteo'||!S.wx);
   $('#meteoNote').classList.add('hidden'); if(v==='meteo') showWindy();
-  $('#pad3d').classList.toggle('hidden',v!=='3d'); $('#pad2d').classList.toggle('hidden',v!=='plan'); $('#padMap').classList.toggle('hidden',v!=='map');
+  $('#pad3d').classList.toggle('hidden',v!=='3d'); $('#pad2d').classList.toggle('hidden',v!=='plan'); $('#padMap').classList.toggle('hidden',v!=='map'); $('#cmpBar').classList.toggle('hidden',!(v==='plan'&&ui.cmpOn)); if(v!=='plan'&&window._nearOn) nearClose();
   if(v!=='map'){ $('#mapPick').classList.add('hidden'); $('#mapNote').classList.add('hidden'); }
   if(v==='3d'){ resize3D(); needs3D=true; }
   if(v==='plan'){ planResize(); }
@@ -1419,7 +1452,7 @@ function drawPlan(g,W,H,V,opt={}){
   g.lineCap='round'; g.lineJoin='round'; g.strokeStyle=C.road;
   if(!onImg) S.roads.forEach(r=>{ const w={primary:12,secondary:10,tertiary:9,residential:7,unclassified:6,service:4,footway:2.2,path:2,pedestrian:5,steps:2}[r.kind]||6;
     g.lineWidth=Math.max(1.5,w*V.s); g.beginPath(); r.pts.forEach((p,i)=>{const [x,y]=T(p.x,p.z); i?g.lineTo(x,y):g.moveTo(x,y);}); g.stroke(); });
-  drawLayers2D(g,T,V);
+  drawLayers2D(g,T,V,W,H,opt);
   // edifici di contesto
   if(!ui.isolate||opt.print){
     g.save(); g.shadowColor=C.shadow; g.shadowBlur=0;
@@ -1432,6 +1465,9 @@ function drawPlan(g,W,H,V,opt={}){
   if(t){
     const Q=quadGeom(t);
     if(S.gpsAcc>8&&S.center&&!opt.print){ const [gx,gy]=T(0,0); g.save(); g.beginPath(); g.arc(gx,gy,S.gpsAcc*V.s,0,7); g.fillStyle='rgba(37,99,235,.08)'; g.fill(); g.setLineDash([5,4]); g.lineWidth=1.5; g.strokeStyle='#2563eb'; g.stroke(); g.restore(); g.beginPath(); g.arc(gx,gy,5,0,7); g.fillStyle='#2563eb'; g.fill(); g.lineWidth=2; g.strokeStyle='#fff'; g.stroke(); }
+    if(window._nearOn&&!opt.print){ (window._near||[]).forEach((id,i)=>{ const b=S.buildings.find(x=>x.id===id); if(!b) return; const on=id===S.targetId;
+      if(!on){ g.beginPath(); b.pts.forEach((p,k)=>{ const [x,y]=T(p.x,p.z); k?g.lineTo(x,y):g.moveTo(x,y); }); g.closePath(); g.lineWidth=2; g.strokeStyle='#e2e8f0'; g.setLineDash([]); g.stroke(); }
+      const [x,y]=T(b.c.x,b.c.z); g.beginPath(); g.arc(x,y,12,0,7); g.fillStyle=on?'#e1251b':'#334155'; g.fill(); g.lineWidth=2; g.strokeStyle='#fff'; g.stroke(); g.fillStyle='#fff'; g.font='800 12px Inter,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(String(i+1),x,y+1); }); }
     // sagoma obiettivo + stato settori
     if(!onImg){ pathPoly(g,t.pts,T); g.fillStyle=C.tFill; g.fill(); }
     g.save(); pathPoly(g,t.pts,T); g.clip();
@@ -1684,7 +1720,7 @@ function lyrFiles(files){
   files=[...files]; const wf=files.filter(f=>/\.(jgw|pgw|tfw|wld|jpgw|pngw|j2w)$/i.test(f.name)), im=files.filter(f=>!wf.includes(f));
   if(!im.length){ toast('Seleziona anche l\'immagine (JPG/PNG) insieme al file di georeferenziazione'); return; }
   const base=n=>n.replace(/\.[^.]+$/,'').toLowerCase();
-  (async()=>{ for(const f of im){ if(lyrs().length>=4){ toast('Massimo 4 immagini: rimuovine una'); break; } await lyrImport(f,wf.find(w=>base(w.name)===base(f.name))||(im.length===1?wf[0]:null)); } })();
+  (async()=>{ for(const f of im){ if(lyrs().length>=6){ toast('Massimo 6 livelli: rimuovine uno'); break; } await lyrImport(f,wf.find(w=>base(w.name)===base(f.name))||(im.length===1?wf[0]:null)); } })();
 }
 async function lyrImport(file,world){
   if(/\.(tif|tiff)$/i.test(file.name)){ toast('GeoTIFF non leggibile dal browser: esportalo in JPG + file .jgw (DJI Terra / QGIS)'); return; }
@@ -1742,13 +1778,18 @@ function lyrAlignWorld(w){ const A=lyrAlign; if(!A) { setTool('select'); return;
   const q=toLatLng(cx,cz); L.lat=q.lat; L.lng=q.lng; L.w=+(s*im.naturalWidth).toFixed(2); L.rot=+(((an*180/Math.PI)+540)%360-180).toFixed(2); if(L.kind==='img') L.kind='alig';
   lyrChanged(); toast(`Immagine allineata · larghezza ${L.w} m · rotazione ${L.rot}°`);
 }
-function renderLayers(){ const box=$('#lyrList'); if(!box) return; const sel=selLayer(), K={img:'da allineare',alig:'allineata',geo:'georeferenziata',drone:'GPS drone'};
-  box.innerHTML=lyrs().map(l=>`<div class="lyrrow${sel&&l.id===sel.id?' on':''}" onclick="ui.selLyr='${l.id}';renderLayers()"><img src="${l.src}"><div class="t"><b>${esc(l.name)}</b><small>${K[l.kind]||''} · ${l.w} m</small></div>
-    <button class="btn sm" title="Mostra/nascondi" onclick="event.stopPropagation();lyrVis('${l.id}')">${l.vis?'👁':'—'}</button></div>`).join('');
+function renderLayers(){ const box=$('#lyrList'); if(!box) return; const sel=selLayer(), K={img:'da allineare',alig:'allineata',geo:'georeferenziata',drone:'GPS drone'}, A=lyrs(), n=A.length;
+  box.innerHTML=(n?`<div class="hint" style="margin-bottom:6px">${n} di 6 livelli · <b>in alto = sopra</b></div>`:'')+A.map((l,i)=>({l,i})).reverse().map(({l,i})=>`<div class="lyrrow${sel&&l.id===sel.id?' on':''}${l.vis?'':' off'}" onclick="ui.selLyr='${l.id}';renderLayers()"><img src="${l.src}" alt=""><div class="t"><b>${esc(l.name)}</b><small>${K[l.kind]||''} · ${l.w} m · ${Math.round(l.op*100)}%</small></div>
+    <span class="lyrbtns"><button class="btn sm" title="Più su" aria-label="Più su" ${i===n-1?'disabled':''} onclick="event.stopPropagation();lyrMove('${l.id}',1)">▲</button><button class="btn sm" title="Più giù" aria-label="Più giù" ${i===0?'disabled':''} onclick="event.stopPropagation();lyrMove('${l.id}',-1)">▼</button><button class="btn sm${l.vis?' on':''}" title="Mostra/nascondi" aria-label="Mostra o nascondi" onclick="event.stopPropagation();lyrVis('${l.id}')">${l.vis?'ON':'OFF'}</button></span></div>`).join('');
   const L=sel; $('#ovCtl').classList.toggle('hidden',!L); if(!L) return;
   $('#ovOp').value=Math.round(L.op*100); $('#ovW').max=Math.max(150,Math.ceil(L.w*2)); $('#ovW').value=L.w; $('#ovR').value=L.rot;
   $('#ovOpV').textContent=Math.round(L.op*100)+'%'; $('#ovWV').textContent=L.w+' m'; $('#ovRV').textContent=L.rot+'°';
+  const cb=$('#cmpBtn'); if(cb){ cb.disabled=n<2; cb.classList.toggle('amb',!!ui.cmpOn); cb.innerHTML=ui.cmpOn?'<i data-lucide="columns-2"></i>Tendina attiva · spegni':'<i data-lucide="columns-2"></i>Confronta prima / dopo (tendina)'; }
+  icons();
 }
+function lyrMove(id,d){ const A=lyrs(), i=A.findIndex(l=>l.id===id), j=i+d; if(i<0||j<0||j>=A.length) return; [A[i],A[j]]=[A[j],A[i]]; mapLayersSync(); lyrChanged(); }
+function lyrRename(){ const L=selLayer(); if(!L) return; const n=prompt('Nome del livello (es. Drone 27/11 ore 10:40)',L.name); if(n&&n.trim()){ L.name=n.trim().slice(0,40); lyrChanged(); } }
+function cmpToggle(){ ui.cmpOn=!ui.cmpOn; if(ui.cmpOn){ if(ui.view!=='plan') setView('plan'); if(ui.cmpPos==null) ui.cmpPos=.5; toast('Tendina: a destra il livello selezionato (es. foto dopo l\'evento), a sinistra quelli sotto'); } $('#cmpBar').classList.toggle('hidden',!ui.cmpOn); renderLayers(); drawPlanLive(); }
 function lyrVis(id){ const l=lyrs().find(x=>x.id===id); if(l){ l.vis=!l.vis; mapLayersSync(); lyrChanged(); } }
 function ovSet(){ const L=selLayer(); if(!L) return; L.op=$('#ovOp').value/100; L.w=+$('#ovW').value; L.rot=+$('#ovR').value; lyrChanged(); }
 function removeOverlay(){ const L=selLayer(); if(!L) return; S.layers=lyrs().filter(l=>l!==L); ui.selLyr=null; if(ui.tool==='ovmove') setTool('select'); lyrLoadImgs(); lyrChanged(); toast('Immagine rimossa'); }
@@ -1756,17 +1797,21 @@ function loadOvFromState(){ lyrs();
   if(S.overlay&&S.overlay.src){ const o=S.overlay, t=target(); const q=toLatLng((t?t.c.x:0)+(o.dx||0),(t?t.c.z:0)+(o.dz||0));
     S.layers.push({id:'L'+Date.now().toString(36),name:'Ricalco',src:o.src,op:o.op,w:o.w,rot:o.rot,lat:q.lat,lng:q.lng,vis:true,kind:'alig',ar:0}); S.overlay=null; }
   lyrLoadImgs(); renderLayers(); }
-function drawLayers2D(g,T,V){ lyrs().forEach(l=>{ const im=lyrImg[l.id]; if(!l.vis||!im||!im.naturalWidth) return; const p=toLocal(l.lat,l.lng); const [sx,sy]=T(p.x,p.z);
-  const wpx=l.w*V.s, hpx=wpx*im.naturalHeight/im.naturalWidth; g.save(); g.translate(sx,sy); g.rotate(l.rot*Math.PI/180+(V.rot||0)); g.globalAlpha=l.op; g.drawImage(im,-wpx/2,-hpx/2,wpx,hpx); g.restore(); }); }
+function drawLayers2D(g,T,V,W,H,opt){ const sel=selLayer(), cmp=ui.cmpOn&&sel&&!(opt&&opt.print)&&W, sx0=cmp?W*(ui.cmpPos??.5):0;
+  lyrs().forEach(l=>{ const im=lyrImg[l.id]; if(!l.vis||!im||!im.naturalWidth) return; const p=toLocal(l.lat,l.lng); const [sx,sy]=T(p.x,p.z);
+  const wpx=l.w*V.s, hpx=wpx*im.naturalHeight/im.naturalWidth; g.save(); if(cmp&&l.id===sel.id){ g.beginPath(); g.rect(sx0,0,W,H); g.clip(); } g.translate(sx,sy); g.rotate(l.rot*Math.PI/180+(V.rot||0)); g.globalAlpha=l.op; g.drawImage(im,-wpx/2,-hpx/2,wpx,hpx); g.restore(); });
+  if(cmp){ g.save(); g.fillStyle='#fff'; g.fillRect(sx0-1.5,0,3,H); g.font='800 11px Inter,sans-serif'; g.textBaseline='top';
+    const tag=(t,x,al,bg)=>{ g.textAlign=al; const w=g.measureText(t).width+12; g.fillStyle=bg; g.fillRect(al==='right'?x-w:x,10,w,18); g.fillStyle='#fff'; g.fillText(t,al==='right'?x-6:x+6,14); };
+    tag('PRIMA',sx0-8,'right','#0b1220'); tag('DOPO · '+sel.name.slice(0,22),sx0+8,'left','#b91c1c'); g.restore(); } }
 const lyrTex={};
 function addLayers3D(){ lyrs().forEach(l=>{ const im=lyrImg[l.id]; if(!l.vis||!im||!im.naturalWidth) return;
   let tx=lyrTex[l.id]; if(!tx||tx.image!==im){ tx=new THREE.Texture(im); tx.needsUpdate=true; tx.minFilter=THREE.LinearMipmapLinearFilter; try{ tx.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy()); }catch(e){} keepTex.add(tx); lyrTex[l.id]=tx; }
   const m=new THREE.Mesh(new THREE.PlaneGeometry(l.w,l.w*im.naturalHeight/im.naturalWidth),new THREE.MeshBasicMaterial({map:tx,transparent:true,opacity:l.op,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));
-  m.rotation.x=-Math.PI/2; const G=new THREE.Group(); G.add(m); const p=toLocal(l.lat,l.lng); G.position.set(p.x,0.06,p.z); G.rotation.y=-l.rot*Math.PI/180; world.add(G); }); }
+  m.rotation.x=-Math.PI/2; const G=new THREE.Group(); G.add(m); const p=toLocal(l.lat,l.lng); G.position.set(p.x,0.06+lyrs().indexOf(l)*0.03,p.z); G.rotation.y=-l.rot*Math.PI/180; world.add(G); }); }
 // MAPPA (Leaflet): immagini ruotate come elementi nel riquadro overlay
 let mapImgs={};
 function mapLayersSync(){ if(!map) return; Object.values(mapImgs).forEach(e=>e.remove()); mapImgs={}; const pane=map.getPane('overlayPane');
-  lyrs().forEach(l=>{ if(!l.vis) return; const e=document.createElement('img'); e.src=l.src; e.className='leaflet-zoom-hide'; e.style.cssText='position:absolute;left:0;top:0;transform-origin:50% 50%;pointer-events:none;max-width:none'; pane.insertBefore(e,pane.firstChild); mapImgs[l.id]=e; });
+  lyrs().slice().reverse().forEach(l=>{ if(!l.vis) return; const e=document.createElement('img'); e.src=l.src; e.className='leaflet-zoom-hide'; e.style.cssText='position:absolute;left:0;top:0;transform-origin:50% 50%;pointer-events:none;max-width:none'; pane.insertBefore(e,pane.firstChild); mapImgs[l.id]=e; });
   mapLayersPos(); }
 function mapLayersPos(){ if(!map) return; lyrs().forEach(l=>{ const e=mapImgs[l.id]; if(!e) return; const c=map.latLngToLayerPoint([l.lat,l.lng]);
   const q=toLatLng(toLocal(l.lat,l.lng).x+l.w,toLocal(l.lat,l.lng).z), c2=map.latLngToLayerPoint([q.lat,q.lng]); const wpx=c2.x-c.x, im=lyrImg[l.id], ar=im&&im.naturalWidth?im.naturalHeight/im.naturalWidth:(l.ar||1), hpx=wpx*ar;
@@ -2379,17 +2424,22 @@ function renderLink(){ const b=$('#linkBody'); if(!b) return; const on=LINK&&LIN
   if(!on){ b.innerHTML=`<p class="hint">Collega il foglio Google <b>USAR-TAC</b> per: foglio e particella <b>automatici</b>, elenco operatori con foto dal foglio, stessa situazione su <b>più tablet</b>. Si fa una volta per dispositivo.</p>
     <label class="lb">Indirizzo app web (…/exec)</label><input class="inp mono" id="lkUrl" placeholder="https://script.google.com/macros/s/…/exec">
     <label class="lb">Codice collegamento</label><input class="inp mono" id="lkKey" placeholder="codice scelto nello script">
-    <button class="btn full pri" style="margin-top:10px" onclick="linkTest()"><i data-lucide="plug"></i>Collega e prova</button>`; icons(); return; }
-  const sh=SHARE&&SHARE.mode;
-  b.innerHTML=`${sh?`<div class="side1" style="background:${sh==='pub'?'#0f2a1a':'#102a4d'};border-color:${sh==='pub'?'#1f6b3a':'#2f80ed'}"><span class="n" style="background:${sh==='pub'?'#16a34a':'#2f80ed'};font-size:13px">${sh==='pub'?'📡':'👁'}</span><div><b>${sh==='pub'?'Stai condividendo':'Stai seguendo'}</b><br><small style="color:#cfd6e3">${esc(SHARE.name)}</small></div><button class="btn sm" onclick="stopShare()">Stop</button></div>`
-    :`<div class="grid2"><button class="btn sm amb" onclick="startPublish()"><i data-lucide="radio-tower"></i>Condividi scenario</button><button class="btn sm" onclick="chooseFollow()"><i data-lucide="eye"></i>Segui scenario</button></div>`}
-    <p class="hint" style="margin-top:8px"><b>Condividi</b>: questo tablet invia la situazione ogni volta che cambia. <b>Segui</b>: gli altri tablet (es. UCL) la vedono aggiornata ogni 15 secondi, in sola lettura.</p>
-    <div class="row" id="liveRow" style="margin-top:8px;gap:8px;align-items:center"></div>
-    <div class="grid2" style="margin-top:6px"><button class="btn sm" onclick="traccarSetup()">📶 Il mio telefono (Traccar)</button><button class="btn sm" onclick="liveClear()" ${liveBase()?'':'disabled'}>🧹 Cancella posizioni</button></div>
-    <div class="grid2" style="margin-top:6px"><button class="btn sm" onclick="window.open(location.pathname+'?quadro','_blank')">🖥 Quadro operativo</button><button class="btn sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname+'?quadro');toast('Link del quadro operativo copiato')">Copia link quadro</button></div>
-    <div class="row" style="margin-top:8px;gap:8px;align-items:center"><span class="hint" style="flex:1">Utente di questo dispositivo: <b style="color:var(--text)">${WHO&&WHO.nome?esc(WHO.nome):'—'}</b></span><button class="btn sm" onclick="whoChange()">Cambia</button></div>
-    <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="syncRoster(false)"><i data-lucide="users"></i>Elenco dal foglio</button><button class="btn sm" onclick="linkOff()"><i data-lucide="unplug"></i>Scollega</button></div>`;
-  renderLiveRow(); icons(); }
+    <button class="btn full pri" style="margin-top:10px" onclick="linkTest()"><i data-lucide="plug"></i>Collega e prova</button>`; renderTxCard(); renderLiveRow(); icons(); return; }
+  b.innerHTML=`<p class="hint">Dispositivo di <b style="color:var(--text)">${WHO&&WHO.nome?esc(WHO.nome):'—'}</b> · elenco <b style="color:var(--text)">${roster.length}</b> operatori</p>
+    <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="whoChange()"><i data-lucide="user"></i>Cambia utente</button><button class="btn sm" onclick="syncRoster(false)"><i data-lucide="users"></i>Aggiorna elenco</button></div>
+    <button class="btn sm full" style="margin-top:6px" onclick="if(confirm('Scollegare questo dispositivo dal foglio USAR-TAC?')) linkOff()"><i data-lucide="unplug"></i>Scollega</button>`;
+  renderTxCard(); renderLiveRow(); icons(); }
+function renderTxCard(){ const b=$('#txBody'); if(!b) return; const on=LINK&&LINK.url, sh=SHARE&&SHARE.mode;
+  const st=$('#txState'); if(st){ st.textContent=sh==='pub'?'● IN DIRETTA':sh==='follow'?'● SEGUI':''; st.style.color=sh==='pub'?'#4ade80':'#7cc4ff'; }
+  if(!on){ b.innerHTML='<p class="hint">Serve il collegamento al foglio (riquadro 3).</p>'; return; }
+  b.innerHTML=`${sh==='pub'?`<p class="hint"><b style="color:#4ade80">Stai trasmettendo</b> «${esc(SHARE.name)}»: UCL, sala e telefoni lo vedono nel Quadro operativo.</p>
+      <button class="btn full" style="margin-top:8px;background:#991b1b;border-color:#ef4444;color:#fff" onclick="txToggle()"><i data-lucide="square"></i>Ferma la diretta</button>`
+    :sh==='follow'?`<p class="hint"><b style="color:#7cc4ff">Stai guardando</b> la diretta «${esc(SHARE.name)}» (sola lettura).</p>
+      <button class="btn full" style="margin-top:8px" onclick="stopShare()"><i data-lucide="x"></i>Smetti di seguire</button>`
+    :`<p class="hint"><b style="color:var(--text)">Solo il funzionario trasmette.</b> UCL, sala e telefoni aprono il Quadro operativo e vedono tutto in diretta, senza poter modificare.</p>
+      <button class="btn full amb" style="margin-top:8px" onclick="txToggle()"><i data-lucide="radio-tower"></i>Trasmetti questo intervento</button>`}
+    <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="window.open(location.pathname+'?quadro','_blank')"><i data-lucide="monitor"></i>Apri quadro</button><button class="btn sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.origin+location.pathname+'?quadro');toast('Link del Quadro operativo copiato')"><i data-lucide="link"></i>Copia link quadro</button></div>
+    ${sh?'':'<button class="btn sm full" style="margin-top:6px" onclick="chooseFollow()"><i data-lucide="eye"></i>Guarda la diretta di un collega</button>'}`; icons(); }
 async function linkTest(){ LINK={url:$('#lkUrl').value.trim(),key:$('#lkKey').value.trim()};
   if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(LINK.url)){ LINK=null; toast('Incolla l\'indirizzo della app web: https://script.google.com/…/exec'); return; }
   $('#linkState').textContent='provo…'; try{ await api('ping'); saveLinkState(); toast('Foglio USAR-TAC collegato ✓'); renderLink(); syncRoster(true); if(target()) cadLookupTarget(true); }
@@ -2540,9 +2590,14 @@ async function livePoll(){ clearTimeout(livePoll.t); const base=liveBase();
 function liveEnter(id){ const a=(LIVE.arr||[]).find(x=>x.opId===id), r=rosterOf(id); if(!a||!r) return; pushUndo(); S.ops=S.ops||[];
   const now=new Date().toISOString(); S.ops.push({opId:id,nome:r.nome,squadra:r.squadra||'',ruolo:r.ruolo||'',floor:S.floor,x:a.x,z:a.z,t:new Date(a._ts-1).toISOString(),tIn:now,lt:a._ts,src:a.src});
   LIVE.arr=LIVE.arr.filter(x=>x.opId!==id); afterOps(); toast(r.nome+' in area ('+srcName(a.src)+')'); }
-function renderLiveRow(){ const el=$('#liveRow'); if(!el) return; const b=liveBase();
-  el.innerHTML=!b?'<span class="hint">📶 Posizioni in tempo reale: <b>server non configurato</b></span>':
-    `<span class="hint" style="flex:1">📶 Posizioni in tempo reale: ${LIVE.err?'<b style="color:#ff8a80">⚠ '+esc(LIVE.err)+'</b>':LIVE.t?'<b style="color:#4ade80">✓ attivo</b> · '+LIVE.list.length+' dispositivi':'…'}</span>`; }
+function renderLiveRow(){ const el=$('#posBody'); if(!el) return; const b=liveBase(), st=$('#posState');
+  const L=LIVE.list||[], fresh=L.filter(x=>Date.now()-x.ts<120000), cnt=k=>fresh.filter(x=>(x.src||'traccar').startsWith(k)).length;
+  if(st){ st.textContent=b?(LIVE.err?'⚠ errore':fresh.length+' attive'):'non attivo'; st.style.color=LIVE.err?'#ff8a80':fresh.length?'#4ade80':''; }
+  el.innerHTML=!b?'<p class="hint">Server posizioni non configurato.</p>':
+    `${LIVE.err?`<p class="hint" style="color:#ff8a80">⚠ ${esc(LIVE.err)}</p>`:''}
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">${[['Telefoni','traccar'],['Meshtastic','mesh'],['Radio DMR','radio']].map(([t,k])=>`<div style="background:#0b1322;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11.5px;color:var(--muted)">${t}<b style="display:block;font-size:16px;color:${cnt(k)?'#4ade80':'var(--muted)'}">${cnt(k)}</b></div>`).join('')}</div>
+    <div class="grid2" style="margin-top:8px"><button class="btn sm" onclick="traccarSetup()"><i data-lucide="smartphone"></i>Il mio telefono</button><button class="btn sm" style="color:#fca5a5" onclick="liveClear()"><i data-lucide="trash-2"></i>Fine intervento</button></div>
+    <p class="hint" style="margin-top:6px">"Fine intervento" cancella dal server tutte le posizioni (comunque si cancellano da sole dopo 12 ore).</p>`; icons(); }
 async function liveClear(){ if(!confirm('Fine intervento: cancellare dal server TUTTE le posizioni in tempo reale?')) return;
   try{ const r=await fetch(liveBase()+'/clear/'+LINK.key,{method:'POST'}); const j=await r.json(); if(!j.ok) throw new Error(j.err); LIVE.list=[]; LIVE.byId=new Map(); LIVE.arr=[]; toast('Posizioni cancellate dal server'); livePoll(); }
   catch(e){ toast('Cancellazione non riuscita: '+e.message); } }
