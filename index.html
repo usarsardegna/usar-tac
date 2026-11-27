@@ -615,7 +615,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v4.1</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v4.2</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -699,7 +699,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v4.1</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v4.2</p>
     </div>
   </div>
 </div>
@@ -750,7 +750,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','ovpt','split','wing'];
-const APP_VER = '4.1 · 27/11/2026'; const APP_V='v4.1';
+const APP_VER = '4.2 · 27/11/2026'; const APP_V='v4.2';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2511,23 +2511,26 @@ async function gKey(k){
   try{ const c=new AbortController(), tm=setTimeout(()=>c.abort(),12000);
     const r=await fetch(LINK_URL,{method:'POST',body:JSON.stringify({action:'pin',pin}),headers:{'Content-Type':'text/plain;charset=utf-8'},signal:c.signal}); clearTimeout(tm); res=await r.json(); }catch(e){ res=null; }
   $('#gDots').classList.remove('wait');
-  if(res&&res.ok) return gateOk(res.key,res.pv,ph);
+  const pvl=(await sha('usartac-pv|'+pin)||'').slice(0,12);
+  if(res&&res.ok) return gateOk(res.key,res.pv,ph,pvl);
   if(res&&res.err&&!/PIN errato/.test(res.err)&&!/tentativi/.test(res.err)) res=null;   // script vecchio o errore: prova senza rete
   if(res){ gBuf=''; gDraw(true); if(/tentativi/.test(res.err)) toast(res.err); return; }
   let last='', lk=''; try{ last=localStorage.getItem(LS_KEY+'_ph')||''; lk=localStorage.getItem(LS_KEY+'_lk')||''; }catch(e){}
-  if(ph===last||(!last&&ph===PIN_HASH)){ if(!lk) lk=(await sha('usartac-link|'+pin)||'').slice(0,20); gateOk(lk,null,ph); toast('Senza rete: accesso con l\'ultimo PIN valido su questo dispositivo'); }
+  if(ph===last||(!last&&ph===PIN_HASH)){ if(!lk) lk=(await sha('usartac-link|'+pin)||'').slice(0,20); gateOk(lk,null,ph,pvl); toast('Senza rete: accesso con l\'ultimo PIN valido su questo dispositivo'); }
   else { gBuf=''; gDraw(true); toast('PIN non verificabile senza rete'); }
 }
-function gateOk(key,pv,ph){
+function gateOk(key,pv,ph,pvl){
   if(!LINK||!LINK.url||LINK.url===LINK_URL){ LINK={url:LINK_URL,key}; saveLinkState(); renderLink(); if(target()) setTimeout(()=>cadLookupTarget(true),800); }
-  try{ localStorage.setItem(LS_KEY+'_ph',ph); localStorage.setItem(LS_KEY+'_lk',key); if(pv) localStorage.setItem(LS_KEY+'_pv',pv);
+  try{ localStorage.setItem(LS_KEY+'_ph',ph); localStorage.setItem(LS_KEY+'_lk',key); if(pvl) localStorage.setItem(LS_KEY+'_pvl',pvl);
     if($('#gRem').checked) localStorage.setItem(LS_KEY+'_ok','v2'); else sessionStorage.setItem(LS_KEY+'_ok','v2'); }catch(e){}
   $('#gate').remove(); resize3D(); planResize(); setTimeout(()=>whoCheck(true),400); setTimeout(pinCheck,5000);
 }
 // se il PIN è stato cambiato nel foglio, l'app si blocca e lo richiede
-async function pinCheck(){ if(!LINK||!LINK.url||$('#gate')) return; try{ const j=await api('ping'); if(!j.pv) return; let st=''; try{ st=localStorage.getItem(LS_KEY+'_pv')||''; }catch(e){}
-  if(!st){ localStorage.setItem(LS_KEY+'_pv',j.pv); return; }
-  if(st!==j.pv){ toast('Il PIN è stato cambiato: inseriscilo di nuovo'); setTimeout(()=>{ try{ localStorage.removeItem(LS_KEY+'_ok'); sessionStorage.removeItem(LS_KEY+'_ok'); localStorage.removeItem(LS_KEY+'_pv'); localStorage.removeItem(LS_KEY+'_ph'); }catch(e){} location.reload(); },2500); } }catch(e){} }
+async function pinCheck(){ if(!LINK||!LINK.url||$('#gate')) return; try{ const j=await api('ping'); if(!j.pv) return;
+  // il PIN con cui questo dispositivo è stato aperto è ancora quello valido nel foglio?
+  let ph='', pvl=''; try{ ph=localStorage.getItem(LS_KEY+'_ph')||''; pvl=localStorage.getItem(LS_KEY+'_pvl')||''; }catch(e){}
+  const valido=j.pv==='iniziale' ? (!ph||ph===PIN_HASH) : (pvl===j.pv);
+  if(!valido){ toast('Il PIN è stato cambiato: inseriscilo di nuovo'); setTimeout(()=>{ try{ ['_ok','_pv','_pvl','_ph'].forEach(k=>localStorage.removeItem(LS_KEY+k)); sessionStorage.removeItem(LS_KEY+'_ok'); }catch(e){} location.reload(); },2500); } }catch(e){} }
 setInterval(pinCheck,30*60000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pinCheck(); });
 function gateCheck(){
   let ok=false; try{ const v=localStorage.getItem(LS_KEY+'_ok')||sessionStorage.getItem(LS_KEY+'_ok'); ok=v==='v2'||v===PIN_HASH; }catch(e){}
