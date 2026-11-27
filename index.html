@@ -228,6 +228,7 @@ input[type=range]{width:100%;accent-color:var(--amber)}
 .gdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line2)}
 .gdots i.on{background:var(--amber);border-color:var(--amber)}
 .gdots.err i{border-color:var(--red);animation:sh .35s}
+.gdots.wait i{animation:gw 1s infinite alternate}@keyframes gw{to{opacity:.35}}
 @keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .gkeys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .gkeys button{height:56px;border-radius:12px;background:var(--panel3);border:1px solid var(--line2);font-size:22px;font-weight:700;font-family:var(--mono)}
@@ -614,7 +615,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
         <p class="hint" style="margin-top:8px">Il lavoro si salva da solo su questo dispositivo. Esporta il file per passarlo a un altro tablet o all'UCL.</p>
       </div>
     </section>
-    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v4.0</b></span><button onclick="openInfo()">Info</button></div>
+    <div class="credit"><span>Ideata e realizzata da <b>Alessio Corvino</b> · <b id="verLbl">v4.1</b></span><button onclick="openInfo()">Info</button></div>
   </aside>
 
   <!-- VIEWPORT -->
@@ -698,7 +699,7 @@ body.vis-ui #visCtl{opacity:1;pointer-events:auto}
       <div class="gdots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="gkeys"><button onclick="gKey('1')">1</button><button onclick="gKey('2')">2</button><button onclick="gKey('3')">3</button><button onclick="gKey('4')">4</button><button onclick="gKey('5')">5</button><button onclick="gKey('6')">6</button><button onclick="gKey('7')">7</button><button onclick="gKey('8')">8</button><button onclick="gKey('9')">9</button><button onclick="gKey('C')" style="font-size:14px">CANC</button><button onclick="gKey('0')">0</button><button onclick="gKey('B')" style="font-size:18px">⌫</button></div>
       <label class="hint row" style="justify-content:center;gap:6px;margin-top:14px;cursor:pointer"><input type="checkbox" id="gRem" checked> Ricorda questo dispositivo</label>
-      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v4.0</p>
+      <p class="hint" style="margin-top:12px;font-size:10px">Ideata e realizzata da Alessio Corvino · v4.1</p>
     </div>
   </div>
 </div>
@@ -749,7 +750,7 @@ const TOOLS = [
 ];
 const SHORT = {select:'Seleziona',side1:'Lato 1',oper:'Operat.',access:'Accesso',hazard:'Pericolo',victimL:'Viva',victimV:'Potenz.',victimD:'Deced.',void:'Vuoto',shore:'Puntell.',cleared:'Bonif.',wall:'Muro',wing:'Ala',footprint:'Sagoma',measure:'Misura',erase:'Gomma',undo:'Annulla'};
 const PLAN_ONLY = ['wall','footprint','measure','erase','ovmove','ovpt','split','wing'];
-const APP_VER = '4.0 · 27/11/2026'; const APP_V='v4.0';
+const APP_VER = '4.1 · 27/11/2026'; const APP_V='v4.1';
 const HINTS = {
   select:'Clic su un edificio = OBIETTIVO · doppio clic = centra lì · trascina = ruota (✋ Sposta per spostare) · rotella/pizzico = zoom',
   wall:'Trascina per tracciare un muro sul piano attivo · si aggancia a spigoli e muri esistenti',
@@ -2188,7 +2189,7 @@ function summaryText(){
     L.push(`🧱 ${STYPE[t.stype]} · ${DMG[t.damage]}${S.asr?' · '+S.asr:''}`); L.push(`➊ Lato 1 (fronte) esposto a ${bearingName(g1.nx,g1.nz)}`);
     const act=[]; floorsOf(t).slice().reverse().forEach(f=>QUADS.forEach(q=>{ const s=sec(f,q); if(s.st!=='todo') act.push(`${floorLabel(f)}-${q}: ${ST[s.st].full}${s.sq?' ('+s.sq+')':''}`); }));
     if(act.length){ L.push('▦ Settori:'); act.forEach(a=>L.push('  • '+a)); } }
-  if(S.wx&&S.wx.cur){ const w=S.wx.cur; L.push(`🌬${S.wx.demo?' [DEMO]':''} Vento da ${card16(w.dir)} ${Math.round(w.ws)} km/h (raff. ${Math.round(w.wg)}) · ${Math.round(w.t)}°C · ${wxText(w.code)}`); const up=upwindSide(); if(up) L.push(`   ↳ ${up}`); }
+  if(S.wx&&S.wx.cur){ const w=S.wx.cur; L.push(`🌬${S.wx.demo?' [DEMO]':''} Vento da ${card16(w.dir)} ${Math.round(w.ws)} km/h (raff. ${Math.round(w.wg)}) · ${Math.round(w.t)}°C · ${wxIcon(w.code,w.day??1)} ${wxText(w.code)}`); const up=upwindSide(); if(up) L.push(`   ↳ ${up}`); }
   const c=k=>S.markers.filter(m=>m.type===k).length;
   if(S.markers.length){ L.push(`🧍 Vittime: viva L ${c('victimL')} · potenz. V ${c('victimV')} · deced. D ${c('victimD')}`); L.push(`⚠️ Pericoli ${c('hazard')} · Accessi ${c('access')} · Spazi vuoti ${c('void')} · Puntell. ${c('shore')}`);
     S.markers.filter(m=>m.note).forEach(m=>L.push(`  • ${MT[m.type].code}${m.n} ${floorLabel(m.floor)}: ${m.note}`)); }
@@ -2216,6 +2217,8 @@ function doNew(){ closeModal(); if(SHARE) stopShare(); const rec=S.recent; S=def
    ===================================================================== */
 const WMO={0:'Sereno',1:'Poco nuvoloso',2:'Parz. nuvoloso',3:'Coperto',45:'Nebbia',48:'Nebbia con brina',51:'Pioviggine debole',53:'Pioviggine',55:'Pioviggine forte',61:'Pioggia debole',63:'Pioggia',65:'Pioggia forte',66:'Pioggia gelata',67:'Pioggia gelata forte',71:'Neve debole',73:'Neve',75:'Neve forte',77:'Granelli di neve',80:'Rovesci deboli',81:'Rovesci',82:'Rovesci violenti',85:'Rovesci di neve',86:'Rovesci di neve forti',95:'Temporale',96:'Temporale con grandine',99:'Temporale con grandine forte'};
 const wxText=c=>WMO[c]||'—';
+// icona del tempo (codici WMO di Open-Meteo); di notte luna al posto del sole
+const wxIcon=(c,day=1)=>c==null?'':c===0?(day?'☀️':'🌙'):c===1?(day?'🌤️':'🌙'):c===2?(day?'⛅':'☁️'):c===3?'☁️':(c===45||c===48)?'🌫️':(c>=51&&c<=57)?'🌦️':((c>=61&&c<=67)||(c>=80&&c<=82))?'🌧️':((c>=71&&c<=77)||c===85||c===86)?'🌨️':c>=95?'⛈️':'🌡️';
 const card16=d=>['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'][Math.round(((d%360)+360)%360/22.5)%16];
 function windyUrl(ll){ return `https://www.windy.com/${ll.lat.toFixed(3)}/${ll.lng.toFixed(3)}?${ll.lat.toFixed(3)},${ll.lng.toFixed(3)},11,p:wind`; }
 function objLL(){ const t=target(); return t?toLatLng(t.c.x,t.c.z):S.center; }
@@ -2225,10 +2228,10 @@ async function loadWeather(force){
   if(!force&&S.wx&&Date.now()-S.wx.at<15*60000&&Math.abs(S.wx.lat-ll.lat)<0.01&&Math.abs(S.wx.lng-ll.lng)<0.01){ renderWeather(); return; }
   wxBusy=true; $('#wxTime').textContent='aggiorno…';
   try{
-    const u=`https://api.open-meteo.com/v1/forecast?latitude=${ll.lat.toFixed(4)}&longitude=${ll.lng.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kmh&timezone=auto&forecast_hours=13`;
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${ll.lat.toFixed(4)}&longitude=${ll.lng.toFixed(4)}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kmh&timezone=auto&forecast_hours=13`;
     const r=await fetchJSON(u,{},10000); const c=r.current, h=r.hourly;
-    if(S.wx) delete S.wx.err; S.wx={at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:c.temperature_2m,rh:c.relative_humidity_2m,pr:c.precipitation,code:c.weather_code,ws:c.wind_speed_10m,wd:0,dir:c.wind_direction_10m,wg:c.wind_gusts_10m},
-      hours:h.time.map((tm,i)=>({h:tm.slice(11,16),t:h.temperature_2m[i],pp:h.precipitation_probability?.[i],ws:h.wind_speed_10m[i],wg:h.wind_gusts_10m[i],dir:h.wind_direction_10m[i],code:h.weather_code[i]})).filter((_,i)=>i%2===0).slice(1,7)};
+    if(S.wx) delete S.wx.err; S.wx={at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:c.temperature_2m,rh:c.relative_humidity_2m,pr:c.precipitation,code:c.weather_code,day:c.is_day,ws:c.wind_speed_10m,wd:0,dir:c.wind_direction_10m,wg:c.wind_gusts_10m},
+      hours:h.time.map((tm,i)=>({h:tm.slice(11,16),t:h.temperature_2m[i],pp:h.precipitation_probability?.[i],ws:h.wind_speed_10m[i],wg:h.wind_gusts_10m[i],dir:h.wind_direction_10m[i],code:h.weather_code[i],day:h.is_day?.[i]})).filter((_,i)=>i%2===0).slice(1,7)};
     save();
   }catch(e){ if(S.source==='demo'&&(!S.wx||S.wx.demo)){ S.wx={demo:true,at:Date.now(),lat:ll.lat,lng:ll.lng,cur:{t:17,rh:68,pr:0,code:2,ws:24,dir:315,wg:41},hours:[0,1,2,3,4,5].map(i=>({h:String((new Date().getHours()+2*(i+1))%24).padStart(2,'0')+':00',t:17-i*0.6,pp:10+i*5,ws:22+i*2,wg:38+i*3,dir:315-i*8,code:2}))}; }
     else if(!S.wx) { $('#wxBody').innerHTML=`<div class="empty">Dati meteo non disponibili (rete).<br>Usa <b>Windy</b> dai collegamenti rapidi.</div>`; } else { S.wx.err=1; } }
@@ -2249,12 +2252,12 @@ function renderWeather(){
   $('#wxBody').innerHTML=`<div class="wx"><div class="wxdial"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="#24304a" stroke-width="2" stroke-dasharray="2 5"/><text x="42" y="12" fill="#e1251b" font-size="9" font-weight="800" text-anchor="middle" font-family="Inter">N</text><g transform="rotate(${c.dir} 42 42)"><path d="M42 6 L50 22 L42 18 L34 22 Z" fill="#2f80ed"/></g></svg><b>${Math.round(c.ws)}<small>km/h</small></b></div>
     <div class="wxk"><div><span>Vento da</span><b>${card16(c.dir)} ${Math.round(c.dir)}°</b></div><div><span>Raffiche</span><b>${Math.round(c.wg)} km/h</b></div>
     <div><span>Temp.</span><b>${Math.round(c.t)}°C</b></div><div><span>Umidità</span><b>${Math.round(c.rh)}%</b></div>
-    <div style="grid-column:span 2"><span>Cielo</span><b>${wxText(c.code)}${c.pr>0?' · '+c.pr+' mm':''}</b></div></div></div>
-    <div class="wxh">${(W.hours||[]).map(h=>`<div><i>${h.h}</i>${arrowSvg(h.dir)}${Math.round(h.ws)}<i>${Math.round(h.t)}°${h.pp!=null?' · '+h.pp+'%':''}</i></div>`).join('')}</div>
+    <div style="grid-column:span 2;display:flex;align-items:center;gap:10px"><span style="font-size:30px;line-height:1">${wxIcon(c.code,c.day??1)}</span><div style="background:none;border:0;padding:0"><span>Cielo</span><b>${wxText(c.code)}${c.pr>0?' · '+c.pr+' mm':''}</b></div></div></div></div>
+    <div class="wxh">${(W.hours||[]).map(h=>`<div title="${wxText(h.code)}"><i>${h.h}</i><span style="font-size:17px;line-height:1.1">${wxIcon(h.code,h.day??1)}</span>${arrowSvg(h.dir)}${Math.round(h.ws)}<i>${Math.round(h.t)}°${h.pp!=null?' · '+h.pp+'%':''}</i></div>`).join('')}</div>
     ${upwindSide()?`<p class="hint" style="margin-top:8px">Rispetto all'obiettivo: <b>${upwindSide()}</b> · polveri e fumi vanno verso ${card16(c.dir+180)}.</p>`:''}
     ${strong||storm?`<div class="wxwarn">⚠ ${storm?'Temporale in corso o previsto. ':''}${strong?'Vento forte: attenzione a gru, teli, elementi pericolanti e lavori in quota.':''}</div>`:''}`;
-  chip.style.display=''; chip.innerHTML=`${arrowSvg(c.dir).replace('<svg','<svg style="width:14px;height:14px"')}${card16(c.dir)} ${Math.round(c.ws)} km/h · ${Math.round(c.t)}°`;
-  const wc=$('#windChip'); wc.innerHTML=`VENTO ${card16(c.dir)}<br>${Math.round(c.ws)} km/h · raff. ${Math.round(c.wg)}`; wc.classList.toggle('hidden',ui.view==='map'||ui.view==='meteo');
+  chip.style.display=''; chip.innerHTML=`${wxIcon(c.code,c.day??1)} ${arrowSvg(c.dir).replace('<svg','<svg style="width:14px;height:14px"')}${card16(c.dir)} ${Math.round(c.ws)} km/h · ${Math.round(c.t)}°`;
+  const wc=$('#windChip'); wc.innerHTML=`${wxIcon(c.code,c.day??1)} VENTO ${card16(c.dir)}<br>${Math.round(c.ws)} km/h · raff. ${Math.round(c.wg)}`; wc.classList.toggle('hidden',ui.view==='map'||ui.view==='meteo');
   updateCompass();
 }
 let windyKey='';
@@ -2491,7 +2494,7 @@ function openInfo(){ openModal('USAR-TAC · Informazioni',`<div class="info">
   <h4>Dati e privacy</h4><p>Scenari, elenco operatori e foto restano salvati solo su questo dispositivo: nulla viene inviato a server del team. Per passarli a un altro tablet usa Esporta / Carica.</p></div>`); }
 
 /* ---------------- PIN D'ACCESSO ---------------- */
-// Per cambiare PIN: sostituire PIN_HASH con lo SHA-256 di "usartac|NUOVOPIN"
+// Il PIN si cambia nel foglio USAR-TAC → scheda Impostazioni (cella B2). PIN_HASH = solo PIN iniziale, usato senza rete al primo accesso.
 const PIN_HASH='64366b6391d52475c875d5c38ce5353ef57d76d1df9737e8980760b705790813', PIN_LEN=6;
 // ▼▼ SERVER POSIZIONI IN TEMPO REALE (Cloudflare): incolla qui l'indirizzo del Worker, es. 'https://usar-live.tuonome.workers.dev'
 const LIVE_URL_DEF='https://usar-live.usarsardegna.workers.dev';
@@ -2500,15 +2503,35 @@ const LINK_URL='https://script.google.com/macros/s/AKfycbwNqNMdwSlh5QowlfHBNAHon
 async function sha(t){ try{ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return null; } }
 function gDraw(err){ const d=$('#gDots'); d.innerHTML=Array.from({length:PIN_LEN},(_,i)=>`<i class="${i<gBuf.length?'on':''}"></i>`).join(''); d.classList.toggle('err',!!err); }
 async function gKey(k){
+  if($('#gDots').classList.contains('wait')) return;
   if(k==='C') gBuf=''; else if(k==='B') gBuf=gBuf.slice(0,-1); else if(gBuf.length<PIN_LEN) gBuf+=k;
   gDraw();
-  if(gBuf.length===PIN_LEN){ const h=await sha('usartac|'+gBuf);
-    if(h===PIN_HASH){ const lk=(await sha('usartac-link|'+gBuf)||'').slice(0,20); if(!LINK||!LINK.url||LINK.url===LINK_URL){ LINK={url:LINK_URL,key:lk}; saveLinkState(); renderLink(); if(target()) setTimeout(()=>cadLookupTarget(true),800); } try{ if($('#gRem').checked) localStorage.setItem(LS_KEY+'_ok',PIN_HASH); else sessionStorage.setItem(LS_KEY+'_ok',PIN_HASH); }catch(e){} $('#gate').remove(); resize3D(); planResize(); setTimeout(()=>whoCheck(true),400); }
-    else { gBuf=''; gDraw(true); } }
+  if(gBuf.length!==PIN_LEN) return;
+  const pin=gBuf, ph=await sha('usartac|'+pin); let res=null; $('#gDots').classList.add('wait');
+  try{ const c=new AbortController(), tm=setTimeout(()=>c.abort(),12000);
+    const r=await fetch(LINK_URL,{method:'POST',body:JSON.stringify({action:'pin',pin}),headers:{'Content-Type':'text/plain;charset=utf-8'},signal:c.signal}); clearTimeout(tm); res=await r.json(); }catch(e){ res=null; }
+  $('#gDots').classList.remove('wait');
+  if(res&&res.ok) return gateOk(res.key,res.pv,ph);
+  if(res&&res.err&&!/PIN errato/.test(res.err)&&!/tentativi/.test(res.err)) res=null;   // script vecchio o errore: prova senza rete
+  if(res){ gBuf=''; gDraw(true); if(/tentativi/.test(res.err)) toast(res.err); return; }
+  let last='', lk=''; try{ last=localStorage.getItem(LS_KEY+'_ph')||''; lk=localStorage.getItem(LS_KEY+'_lk')||''; }catch(e){}
+  if(ph===last||(!last&&ph===PIN_HASH)){ if(!lk) lk=(await sha('usartac-link|'+pin)||'').slice(0,20); gateOk(lk,null,ph); toast('Senza rete: accesso con l\'ultimo PIN valido su questo dispositivo'); }
+  else { gBuf=''; gDraw(true); toast('PIN non verificabile senza rete'); }
 }
+function gateOk(key,pv,ph){
+  if(!LINK||!LINK.url||LINK.url===LINK_URL){ LINK={url:LINK_URL,key}; saveLinkState(); renderLink(); if(target()) setTimeout(()=>cadLookupTarget(true),800); }
+  try{ localStorage.setItem(LS_KEY+'_ph',ph); localStorage.setItem(LS_KEY+'_lk',key); if(pv) localStorage.setItem(LS_KEY+'_pv',pv);
+    if($('#gRem').checked) localStorage.setItem(LS_KEY+'_ok','v2'); else sessionStorage.setItem(LS_KEY+'_ok','v2'); }catch(e){}
+  $('#gate').remove(); resize3D(); planResize(); setTimeout(()=>whoCheck(true),400); setTimeout(pinCheck,5000);
+}
+// se il PIN è stato cambiato nel foglio, l'app si blocca e lo richiede
+async function pinCheck(){ if(!LINK||!LINK.url||$('#gate')) return; try{ const j=await api('ping'); if(!j.pv) return; let st=''; try{ st=localStorage.getItem(LS_KEY+'_pv')||''; }catch(e){}
+  if(!st){ localStorage.setItem(LS_KEY+'_pv',j.pv); return; }
+  if(st!==j.pv){ toast('Il PIN è stato cambiato: inseriscilo di nuovo'); setTimeout(()=>{ try{ localStorage.removeItem(LS_KEY+'_ok'); sessionStorage.removeItem(LS_KEY+'_ok'); localStorage.removeItem(LS_KEY+'_pv'); localStorage.removeItem(LS_KEY+'_ph'); }catch(e){} location.reload(); },2500); } }catch(e){} }
+setInterval(pinCheck,30*60000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) pinCheck(); });
 function gateCheck(){
-  let ok=false; try{ ok=localStorage.getItem(LS_KEY+'_ok')===PIN_HASH||sessionStorage.getItem(LS_KEY+'_ok')===PIN_HASH; }catch(e){}
-  if(ok){ $('#gate').remove(); setTimeout(()=>whoCheck(false),2500); return; }
+  let ok=false; try{ const v=localStorage.getItem(LS_KEY+'_ok')||sessionStorage.getItem(LS_KEY+'_ok'); ok=v==='v2'||v===PIN_HASH; }catch(e){}
+  if(ok){ $('#gate').remove(); setTimeout(()=>whoCheck(false),2500); setTimeout(pinCheck,6000); return; }
   $('#gLogo1').src=LOGO_EMB[1]; $('#gLogo2').src=LOGO_EMB[2]; gDraw();
   document.addEventListener('keydown',e=>{ if(!$('#gate')) return; if(/^[0-9]$/.test(e.key)) gKey(e.key); else if(e.key==='Backspace') gKey('B'); });
 }
